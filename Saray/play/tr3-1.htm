@@ -1,0 +1,474 @@
+﻿
+<!DOCTYPE html>
+<html lang="tr" oncontextmenu="return false">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="origin">
+    <title>PLAYER - </title>
+    
+
+    
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* video {
+            object-fit: fill !important;
+        } */
+
+        #player-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 0;
+            background: #000;
+        }
+
+        .control-button {
+            position: fixed;
+            z-index: 9999;
+            cursor: pointer;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        
+
+        [data-advertisement] {
+            bottom: 25%;
+            position: absolute;
+            right: 0;
+            z-index: 9999;
+        }
+
+        [data-advertisement] button {
+            background-color: #000;
+            border: 3px solid #333;
+            border-right: 0;
+            color: #f8f8f8;
+            font-family: "Roboto";
+            font-weight: bold;
+            font-size: 68%;
+            padding: 10px 20px;
+        }
+
+        [data-advertisement-link] {
+            height: 100%;
+            left: 0;
+            position: absolute;
+            top: 0;
+            z-index: 9998;
+            width: 100%;
+        }
+
+        [data-free-banner] {
+            position: absolute;
+            left: 50%;
+            bottom: 25px;
+            transform: translateX(-50%);
+            width: 50%;
+            z-index: 99999;
+            text-align: center;
+        }
+
+        [data-free-banner] img {
+            width: 100%;
+            max-width: 468px;
+        }
+
+        [data-f-cl] {
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        [data-free-close] {
+            color: #fff;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .fullscreen [data-free-banner] img {
+            max-width: 50%;
+        }
+
+        [data-hd-indicator] {
+            display: block !important;
+        }
+        
+        [data-text-overlay] {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 99999;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 10px 20px !important;
+            border-radius: 5px;
+            text-align: center;
+            min-width: 300px;
+        }
+
+        [data-text-overlay] a {
+            color: #fff;
+            text-decoration: none;
+            font-family: "Roboto", sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+            display: block;
+        }
+
+        [data-text-overlay] a:hover {
+            color: #f0f0f0;
+            text-decoration: underline;
+        }
+
+        [data-text-close] {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            color: #fff;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        [data-text-close]:hover {
+            color: #ff0000;
+        }
+    </style>
+</head>
+<body oncontextmenu="return false">
+    <div id="player-container"></div>
+
+    <script src="../../npm/jquery%403.7.1/dist/jquery.min.js"></script>
+    <script src="../../npm/%40clappr/player%400.4.7/dist/clappr.min.js"></script>
+    <script charset="UTF-8" src="../../npm/level-selector/dist/level-selector.min.js"></script>
+    <script>
+        class StreamPlayer {
+            constructor() {
+                this.baseStreamUrl = 'https://guhjexjm6qlma62smk3l22wiu0d6vn.top/cek.m3u8?u=https://dow16a1wo44i5e.dd97fce6dad8af45.live/live/';
+                this.adsBaseUrl = 'https://guhjexjm6qlma62smk3l22wiu0d6vn.top/cek.m3u8?u=https://dow16a1wo44i5e.dd97fce6dad8af45.live/live/';
+                
+                const hashParams = this.parseHashParams(window.location.hash);
+                this.urlConfig = {
+                    poster: decodeURIComponent(hashParams.poster || ''),
+                    watermark: decodeURIComponent(hashParams.watermark || ''),
+		    reklamResim: decodeURIComponent(hashParams.reklamResim || ''),
+                    reklamGidis: decodeURIComponent(hashParams.reklamGidis || '')
+                };
+                
+                this.config = {
+                    stream: {
+                        baseUrl: this.baseStreamUrl,
+                        defaultSource: null
+                    },
+                    ads: {
+                        enabled: true,
+                        skipOffset: 6,
+                        providers: this.decodeAdsConfig("eyJeaHR0cHM/Oi8vKHd3dy4pP1xcZCouLioiOnsiZW5hYmxlZCI6ZmFsc2UsImxpbmsiOiJodHRwczovLy8iLCJzb3VyY2UiOiIifSwiXmh0dHBzPzovLyh3d3cuKT9cXGQqLi4qIjp7ImVuYWJsZWQiOmZhbHNlLCJsaW5rIjoiIn0sIl5odHRwcz86Ly8od3d3Lik/XFxkKi4uKiI6eyJlbmFibGVkIjpmYWxzZSwibGluayI6IiIsInNvdXJjZSI6Ii5tM3U4In0sIl5odHRwcz86Ly8od3d3Lik/XFxkKi4uKiI6eyJlbmFibGVkIjpmYWxzZSwibGluayI6IiIsInNvdXJjZSI6Ii5tM3U4In19")
+                    },
+                    text: {
+                        data: this.decodeAdsConfig("eyJeaHR0cHM/Oi8vKHd3dy4pP1xcZCouLioiOnsidGV4dCI6IiIsImxpbmsiOiIifX0=")
+                    },
+                    banner: {
+                        enabled: false,
+                        image: this.urlConfig.reklamResim,
+                        link: this.urlConfig.reklamGidis
+                    }
+                };
+
+                this.config.stream.defaultSource = this.getStreamSource();
+                this.skipTimer = null;
+                this.skipOffset = this.config.ads.skipOffset;
+                this.elapsedTime = 0;
+                this.adSkipped = false;
+                this.bannerInitialized = false;
+                this.textOverlayInitialized = false;
+                
+                this.initPlayer();
+                this.initTracking();
+                this.player.attachTo(document.getElementById('player-container'));
+            }
+
+            decodeAdsConfig(encodedConfig) {
+                return JSON.parse(window.atob(encodedConfig));
+            }
+
+            static setCookie(name, value, hours) {
+                const date = new Date();
+                date.setTime(date.getTime() + (hours * 60 * 60 * 1000));
+                document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/`;
+            }
+
+            static getCookie(name) {
+                return document.cookie.split('; ')
+                    .find(row => row.startsWith(`${name}=`))
+                    ?.split('=')[1];
+            }
+
+            initPlayer() {
+                this.player = new Clappr.Player({
+                    autoPlay: true,
+                    disableVideoTagContextMenu: false,
+                    height: '100%',
+                    width: '100%',
+                    poster: this.urlConfig.poster,
+                    // watermark başlangıçta eklenmeyecek
+		    position: 'top-right',
+		    chromeless: Clappr.Browser.isiOS,
+		            hlsjsConfig: {
+                        liveSyncDurationCount: 4,
+                        maxMaxBufferLength: 30
+                    },
+                    playback: {
+                        playInline: true,
+                        controls: Clappr.Browser.isiOS
+                    },
+                    plugins: [LevelSelector],
+                    language: 'tr',
+                    strings: {
+                        tr: {
+                            "live": "canlı",
+                            "default_error_message": "Yayında sorun var.",
+                            "default_error_title": "Dikkat!",
+                            "playback_not_supported": "Tarayıcınız bu videoyu oynatma desteğine sahip değil. Lütfen diğer bir tarayıcı deneyiniz."
+                        }
+                    }
+                });
+                this.setupPlayerEvents();
+            }
+
+            parseHashParams(hash) {
+                if (!hash || hash === '#') return {};
+                
+                const params = {};
+                const hashString = hash.substring(1);
+                
+                hashString.split('&').forEach(param => {
+                    const [key, value] = param.split('=');
+                    if (key && value) {
+                        params[key] = value;
+                    }
+                });
+                
+                return params;
+            }
+
+            getStreamSource() {
+                const privateStream = 0;
+                const urlParams = new URLSearchParams(window.location.search);
+                const streamId = urlParams.get('id') || 'selcukbeinsports1';
+                if (privateStream) {
+                    return this.baseStreamUrl;
+                }
+                if (navigator.userAgent.match(/iPad|iPhone|iPod/)) {
+                    if (["selcukobs1"].includes(streamId)) {
+                        return `${this.baseStreamUrl}${streamId}/playlist.m3u8`.replace('playlist.m3u8', 'ios/playlist.m3u8');
+                    }
+                }
+                return `${this.baseStreamUrl}${streamId}/playlist.m3u8`;
+            }
+
+            setupPlayerEvents() {
+                this.player.on(Clappr.Events.PLAYER_READY, () => {
+                    let adSource = this.selectAdSource();
+                    if (!adSource.includes('://')) {
+                        adSource = `${this.adsBaseUrl}${adSource}`;
+                    }
+                    const shouldPlayAd = this.config.ads.enabled && !this.adSkipped && adSource !== this.config.stream.defaultSource;
+
+                    if (shouldPlayAd) {
+                        this.player.configure({ source: adSource });
+                        this.initSkipButton();
+                        
+                        this.player.core.activePlayback.on(Clappr.Events.PLAYBACK_ENDED, () => {
+                            this.skipAd();
+                        });
+
+                        this.player.core.activePlayback.on(Clappr.Events.PLAYBACK_ERROR, () => {
+                            this.skipAd();
+                        });
+                    } else {
+                        this.player.configure({ 
+                            source: this.config.stream.defaultSource,
+                            watermark: this.urlConfig.watermark
+                        });
+                        if (!this.bannerInitialized) {
+                            this.initBanner();
+                            this.bannerInitialized = false;
+                        }
+                        if (!this.textOverlayInitialized) {
+                            this.initTextOverlay();
+                            this.textOverlayInitialized = false;
+                        }
+                    }
+                });
+
+                this.player.on(Clappr.Events.PLAYER_ERROR, () => {
+                    this.handlePlaybackError();
+                });
+            }
+
+            selectAdSource() {
+                const referrer = document.referrer;
+                const provider = Object.entries(this.config.ads.providers).find(([pattern]) => {
+                    const result = new RegExp(pattern).test(referrer);
+                    return result;
+                });
+                this.config.ads.enabled = provider?.[1].default;
+
+                
+                return provider?.[1].source || this.config.stream.defaultSource;
+            }
+
+            initControls() {
+            }
+
+            initTracking() {
+                setInterval(() => {
+                    gtag('event', 'periodic_tracking', {
+                        'event_category': 'engagement',
+                        'event_label': 'active_view',
+                        'non_interaction': false,
+                        'value': Math.floor(Date.now() / 1000)
+                    });
+                }, 120000);
+            }
+
+            handlePlaybackError() {
+                console.error('Playback error detected');
+                setTimeout(() => location.reload(), 5000);
+            }
+
+            initSkipButton() {
+                const skipButton = $('<div data-advertisement />');
+                const skipText = $('<button type="button" />').text(`REKLAMI GEÇMEK İÇİN ${this.skipOffset} SANİYE KALDI`);
+                skipButton.append(skipText);
+                
+                const adLink = $('<div data-advertisement-link />');
+                const link = $('<a />').attr({
+                    href: Object.entries(this.config.ads.providers).find(([pattern]) => 
+                        new RegExp(pattern).test(document.referrer)
+                    )?.[1]?.link || '#',
+                    target: '_blank'
+                }).css({
+                    display: 'inline-block',
+                    height: '100%',
+                    width: '100%',
+                    pointerEvents: 'none'
+                });
+                adLink.append(link);
+
+                skipButton.hide();
+                adLink.hide();
+                $('body').prepend(skipButton, adLink);
+
+                this.player.core.activePlayback.once(Clappr.Events.PLAYBACK_PLAY, () => {
+                    skipButton.show();
+                    adLink.show();
+                    link.css('pointerEvents', 'auto');
+                    
+                    this.skipTimer = setInterval(() => {
+                        this.elapsedTime++;
+                        if (this.elapsedTime >= this.skipOffset) {
+                            skipText.text('REKLAMI GEÇ').css('cursor', 'pointer');
+                            skipText.on('click', () => this.skipAd());
+                            clearInterval(this.skipTimer);
+                        } else {
+                            skipText.text(`REKLAMI GEÇMEK İÇİN ${this.skipOffset - this.elapsedTime} SANİYE KALDI`);
+                        }
+                    }, 1000);
+                });
+            }
+
+            skipAd() {
+                $('[data-advertisement], [data-advertisement-link]').remove();
+                this.adSkipped = false;
+                this.player.configure({
+                    source: this.config.stream.defaultSource,
+                    watermark: this.urlConfig.watermark
+                });
+                
+                if (!this.bannerInitialized) {
+                    this.initBanner();
+                    this.bannerInitialized = false;
+                }
+                if (!this.textOverlayInitialized) {
+                    this.initTextOverlay();
+                    this.textOverlayInitialized = false;
+                }
+            }
+
+            initBanner() {
+                if (!this.config.banner.default) return;
+                
+                if (!this.config.banner.image || !this.config.banner.link) return;
+
+                const bannerHtml = `
+                    <div data-free-banner>
+                        <div data-f-cl>
+                            <a data-free-close href="javascript:void(0)">&times;</a>
+                        </div>
+                        <a href="${this.config.banner.link}" target="_blank">
+                            <img src="${this.config.banner.image}" alt="">
+                        </a>
+                    </div>
+                `;
+
+                $('#player-container .container').prepend(bannerHtml);
+
+                $('[data-free-close]').on('click', (e) => {
+                    e.preventDefault();
+                    $('[data-free-banner]').hide();
+                    return false;
+                });
+            }
+
+            initTextOverlay() {
+                const referrer = document.referrer;
+                const textProvider = Object.entries(this.config.text.data).find(([pattern]) => {
+                    return new RegExp(pattern).test(referrer);
+                });
+
+                if (!textProvider || !textProvider[1].text || !textProvider[1].link) {
+                    return;
+                }
+
+                const { text, link } = textProvider[1];
+                // const textOverlayHtml = `
+                //     <div data-text-overlay>
+                //         <a data-text-close href="javascript:void(0)">&times;</a>
+                //         <a href="${link}" target="_blank">${decodeURIComponent(text).replaceAll('+', ' ')}</a>
+                //     </div>
+                // `;
+                const textOverlayHtml = `
+                    <div data-text-overlay>
+                        <a href="${link}" target="_blank">${decodeURIComponent(text).replaceAll('+', ' ')}</a>
+                    </div>
+                `;
+
+                $('#player-container .container').prepend(textOverlayHtml);
+
+                $('[data-text-close]').on('click', (e) => {
+                    e.preventDefault();
+                    $('[data-text-overlay]').hide();
+                    return false;
+                });
+            }
+        }
+
+        $(document).ready(() => {
+            new StreamPlayer();
+        });
+    </script>
+</body>
+</html>
