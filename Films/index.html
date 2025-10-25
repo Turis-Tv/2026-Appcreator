@@ -14,19 +14,16 @@
         @keyframes subtleZoom { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
         @keyframes gradientShift { 0%, 100% { opacity: 1; } 50% { opacity: 0.85; } }
         
-        /* --- AANGEPASTE HEADER VOOR SCROLL --- */
         .header { background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 100%); backdrop-filter: blur(15px); padding: 10px 15px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 30px rgba(0,0,0,0.7); display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid rgba(227,10,23,0.3); gap: 10px; }
-        .category-nav { display: flex; gap: 6px; align-items: center; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; /* Vloeiend scrollen op iOS */ scrollbar-width: none; /* Firefox */ flex: 1; min-width: 0; }
-        .category-nav::-webkit-scrollbar { display: none; /* Chrome, Safari, Opera */ }
-        .category-nav .category-btn { flex-shrink: 0; /* Voorkom dat knoppen krimpen */ }
-        .header h1 { display: none; /* Titel verborgen om ruimte te maken voor scroll */ }
+        .category-nav { display: flex; gap: 6px; align-items: center; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; flex: 1; min-width: 0; }
+        .category-nav::-webkit-scrollbar { display: none; }
+        .category-nav .category-btn { flex-shrink: 0; }
+        .header h1 { display: none; }
         
         .category-btn { padding: 7px 10px; background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); border: 2px solid rgba(255,255,255,0.3); color: white; border-radius: 20px; cursor: pointer; transition: all 0.3s; font-weight: bold; text-transform: uppercase; font-size: 10px; backdrop-filter: blur(5px); }
         .category-btn:hover, .category-btn:active { background: linear-gradient(135deg, rgba(227,10,23,0.8), rgba(227,10,23,0.6)); border-color: #E30A17; transform: scale(1.05); box-shadow: 0 4px 15px rgba(227,10,23,0.5); }
         .category-btn.active { background: linear-gradient(135deg, #E30A17, #B5000D); border-color: #E30A17; box-shadow: 0 4px 20px rgba(227,10,23,0.6); }
-        .dropdown { position: relative; flex-shrink: 0; /* Voorkom dat menu krimpt */ }
-        /* --- EINDE AANGEPASTE HEADER --- */
-
+        .dropdown { position: relative; flex-shrink: 0; }
         .dropdown-btn { background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); border: 2px solid rgba(255,255,255,0.3); color: white; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px; transition: all 0.3s; backdrop-filter: blur(5px); }
         .dropdown-btn:hover, .dropdown-btn:active { background: linear-gradient(135deg, rgba(227,10,23,0.8), rgba(227,10,23,0.6)); border-color: #E30A17; box-shadow: 0 4px 15px rgba(227,10,23,0.5); }
         .dropdown-arrow { font-size: 10px; transition: transform 0.3s; }
@@ -107,7 +104,6 @@
         #queueStatus { text-align: center; margin-top: 20px; color: #ffc107; font-weight: bold; }
         #m3uFileInput { padding: 5px; cursor: pointer; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.05); }
         
-        /* --- MOBIELE OPTIMALISATIES --- */
         @media screen and (orientation: portrait) { .video-modal.fullscreen .video-controls { opacity: 0; pointer-events: none; } }
         @media (max-width: 768px) { 
             .movies-grid { grid-template-columns: repeat(3, 1fr); } 
@@ -127,23 +123,18 @@
 </head>
 <body>
     <div class="header">
-        <!-- NIEUW: Scrollable container voor categorieën -->
         <div class="category-nav">
             <button class="category-btn active" onclick="showCategory('filmler')">🎬 FİLMLER</button>
             <button class="category-btn" onclick="showCategory('diziler')">📺 DİZİLER</button>
-            <!-- NIEUW: Çizgi Film categorie knop -->
             <button class="category-btn" onclick="showCategory('cizgi')">🎨 ÇİZGİ</button>
             <button class="category-btn" onclick="showCategory('youtube')">▶️ YOUTUBE</button>
         </div>
-        <!-- De h1 is verborgen via CSS om meer ruimte te maken -->
         <h1>🇹🇷 TÜRKİYE</h1> 
-        <!-- Deze menuknop blijft stabiel -->
         <div class="dropdown" id="dropdown">
             <button class="dropdown-btn" onclick="toggleDropdown()">MENÜ <span class="dropdown-arrow">▼</span></button>
             <div class="dropdown-content">
                 <a href="#" class="dropdown-item" onclick="showCategory('filmler'); closeDropdown()">🎬 Filmler</a>
                 <a href="#" class="dropdown-item" onclick="showCategory('diziler'); closeDropdown()">📺 Diziler</a>
-                <!-- NIEUW: Çizgi Film menu item -->
                 <a href="#" class="dropdown-item" onclick="showCategory('cizgi'); closeDropdown()">🎨 Çizgi</a>
                 <a href="#" class="dropdown-item" onclick="showCategory('youtube'); closeDropdown()">▶️ YouTube</a>
                 <a href="#" class="dropdown-item" onclick="filterByGenre('action')">⚔️ Aksiyon</a>
@@ -155,32 +146,10 @@
         </div>
     </div>
 
-    <div id="filmlerSection" class="content-section active"><div class="controls"><input type="text" class="search-box" placeholder="🔍 Film ara..." id="searchFilms"></div><div class="section-title">🎬 FİLMLER</div><div class="movies-container"><div class="movies-grid" id="filmsGrid"></div><div class="pagination" id="filmsPagination"></div></div></div>
-    
-    <div id="dizilerSection" class="content-section">
-        <div class="controls">
-            <button id="backToSeriesBtn" class="category-btn" onclick="showSeriesTitles()" style="display: none; background-color: #555; border-color: #777;">« GERİ DÖN</button>
-            <input type="text" class="search-box" placeholder="🔍 Dizi veya bölüm ara..." id="searchSeries">
-        </div>
-        <div class="section-title" id="seriesSectionTitle">📺 DİZİLER</div>
-        <div class="movies-container"><div class="movies-grid" id="seriesGrid"></div><div class="pagination" id="seriesPagination"></div></div>
-    </div>
-    
-    <!-- NIEUW: Çizgi Film Sectie -->
-    <div id="cizgiSection" class="content-section">
-        <div class="controls"><input type="text" class="search-box" placeholder="🔍 Çizgi film ara..." id="searchCizgi"></div>
-        <div class="section-title">🎨 ÇİZGİ FİLMLER</div>
-        <div class="movies-container">
-            <div class="movies-grid" id="cizgiGrid"></div>
-            <div class="pagination" id="cizgiPagination"></div>
-        </div>
-    </div>
-
-    <div id="youtubeSection" class="content-section">
-        <div class="controls"><input type="text" class="search-box" placeholder="🔍 YouTube'da video ara..." id="searchYoutube"></div>
-        <div class="section-title">▶️ YOUTUBE</div>
-        <div class="movies-container"><div class="movies-grid" id="youtubeGrid"></div><div class="pagination" id="youtubePagination"></div></div>
-    </div>
+    <div id="filmlerSection" class="content-section active"><div class="controls"><input type="text" class="search-box" placeholder="🔍 Film ara..." id="searchFilms"></div><div class="section-title">🎬 FİLMLER</div><div class="movies-container"><div class="movies-grid" id="filmlerGrid"></div><div class="pagination" id="filmlerPagination"></div></div></div>
+    <div id="dizilerSection" class="content-section"><div class="controls"><button id="backToSeriesBtn" class="category-btn" onclick="showSeriesTitles()" style="display: none; background-color: #555; border-color: #777;">« GERİ DÖN</button><input type="text" class="search-box" placeholder="🔍 Dizi veya bölüm ara..." id="searchSeries"></div><div class="section-title" id="seriesSectionTitle">📺 DİZİLER</div><div class="movies-container"><div class="movies-grid" id="dizilerGrid"></div><div class="pagination" id="dizilerPagination"></div></div></div>
+    <div id="cizgiSection" class="content-section"><div class="controls"><input type="text" class="search-box" placeholder="🔍 Çizgi film ara..." id="searchCizgi"></div><div class="section-title">🎨 ÇİZGİ FİLMLER</div><div class="movies-container"><div class="movies-grid" id="cizgiGrid"></div><div class="pagination" id="cizgiPagination"></div></div></div>
+    <div id="youtubeSection" class="content-section"><div class="controls"><input type="text" class="search-box" placeholder="🔍 YouTube'da video ara..." id="searchYoutube"></div><div class="section-title">▶️ YOUTUBE</div><div class="movies-container"><div class="movies-grid" id="youtubeGrid"></div><div class="pagination" id="youtubePagination"></div></div></div>
     
     <div class="modal" id="movieModal" onclick="closeModalOnBackground(event)"><div class="modal-content"><button class="close-modal" onclick="closeModal()">×</button><div class="modal-header"><h2 class="modal-title" id="modalTitle"></h2></div><button class="play-button" onclick="playVideo()">▶ İÇERİĞİ OYNAT</button><div id="modalInfo" style="font-size: 13px; line-height: 1.6; margin-top: 20px;"></div></div></div>
     <div class="video-modal" id="videoModal"><div class="video-container" id="videoContainer"><div class="video-controls"><button class="fullscreen-btn" onclick="toggleFullscreen()">⛶</button><button class="video-close-btn" onclick="closeVideo()">×</button></div><video id="videoPlayer" class="video-player" controls autoplay style="display: none;"><source src="" type="video/mp4"></video><iframe id="videoIframe" class="video-iframe" style="display: none;" allowfullscreen allow="fullscreen; autoplay"></iframe><div class="video-title" id="videoTitle"></div></div></div>
@@ -189,12 +158,10 @@
         <div class="modal-content">
             <button class="close-modal" onclick="closeAdminModal()">×</button>
             <div class="modal-header"><h2 class="modal-title">Admin Panel</h2></div>
-            
             <h3 style="color:#E30A17; margin-top: 15px;">➡️ Losse Item Toevoegen</h3>
             <div class="form-group"><label for="adminType">Type:</label><select id="adminType"><option value="film">Film</option><option value="series">Dizi</option><option value="cizgi">Çizgi Film</option><option value="youtube">YouTube</option></select></div>
             <div class="form-group"><label for="adminTitle">Naam (Titel):</label><input type="text" id="adminTitle" placeholder="bv. Ayla"></div>
             <div class="form-group"><label for="adminPoster">Image (Poster URL):</label><input type="text" id="adminPoster" placeholder="https://..."></div>
-            
             <div class="form-group">
                 <label for="adminVideoUrl">Link (Video URL):</label>
                 <div style="display: flex; gap: 5px; align-items: center;">
@@ -202,12 +169,10 @@
                     <button type="button" onclick="fetchYoutubeThumbnail()" style="padding: 8px 10px; font-size: 12px; background: #3498db; border: none; color: white; border-radius: 5px; cursor: pointer; white-space: nowrap;">🖼️ Pak Poster</button>
                 </div>
             </div>
-            
             <div class="form-group"><label for="adminYear">Jaar:</label><input type="text" id="adminYear" placeholder="bv. 2024"></div>
             <div class="form-group"><label for="adminGenre">Genre:</label><select id="adminGenre"><option value="action">action</option><option value="comedy">comedy</option><option value="drama">drama</option><option value="romance">romance</option></select></div>
             <div class="form-group"><label for="adminEpisodes">(Optioneel) Aflevering info:</label><input type="text" id="adminEpisodes" placeholder="bv. 1. Sezon 5. Bölüm"></div>
             <div class="form-group"><label for="adminDescription">Beschrijving:</label><input type="text" id="adminDescription" placeholder="Korte beschrijving..."></div>
-            
             <button class="play-button" id="addQueueBtn" onclick="addItemToQueue()">✅ Voeg los item toe aan wachtrij</button>
             <hr style="border-color: rgba(255,255,255,0.2); margin: 20px 0;">
             <h3 style="color:#3498db; margin-top: 15px;">📄 M3U Playlist Toevoegen</h3>
@@ -228,7 +193,7 @@
     <script>
         // MARKER VOOR FILMS
         const turkishFilms = [
-            { id: 104, title: "Şevkat Yerimdar", year: "2025", poster: "https://jetfilmizle.cx/wp-content/posterler/2022/09/sevkat-yerimdar-izle.jpg", genre: "action", description: "Beschrijving nog niet beschikbaar.", type: "film", videoUrl: "https://pixeldrain.com/api/file/TMxhgbPx" },
+            { id: 104, title: "Şevkat Yerimdar", year: "2025", poster: "https://jetfilmizle.cx/wp-content/posterler/2022/09/sevkat-yerimdar-izle.jpg", genre: "action", description: "Beschrijving nog niet beschikbaar.", type: "film", videoUrl: "https://cnn-edition.jfvid.com/play/TVN4RGZKNUlRS1lYT0IxVkk4dlp0c2E0WlVkeURtczRNUVBHQkZuRmY3cjZ3SHlRZ0dYU1ZCQWxrWDNncFlzVVBqNFAyR1VYWGlyOVpha2tkTzhVY1E9PQ" },
             { id: 105, title: "Şevkat Yerimdar 2", year: "Turis Tv", poster: "https://jetfilmizle.cx/wp-content/posterler/2022/09/sevkat-yerimdar-2-bizde-sakat-cok-izle.jpg", genre: "action", description: "Beschrijving nog niet beschikbaar.", type: "film", videoUrl: "https://pixeldrain.com/api/file/wh2wusTV" },
             { id: 106, title: "Tozkoparan Iskender", year: " ", poster: "https://jetfilmizle.cx/wp-content/posterler/2023/11/tozkoparan-iskender-1071-tozkoparan-iskender-1071-izle.jpg", genre: "action", description: "Beschrijving nog niet beschikbaar.", type: "film", videoUrl: "https://pixeldrain.com/api/file/Gfs7RnCZ" },
             { id: 107, title: "Bergen", year: " ", poster: "https://jetfilmizle.cx/wp-content/posterler/2022/09/bergen-bergen-izle-2022.jpg", genre: "action", description: "Beschrijving nog niet beschikbaar.", type: "film", videoUrl: "https://pixeldrain.com/api/file/U89FLkxZ" },
@@ -247,42 +212,42 @@
         
         // MARKER VOOR SERIES
         const turkishSeries = [
-                { id: 101, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Mahalle ve aile dizisi.", episodes: "1 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/U5_TKDV4n3ZwibpwxfUwdTTJ" },
-            { id: 102, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "İntikam hikayesi.", episodes: "2 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/BpdagJfNspLkTKWCR_7MXgrm" },
-            { id: 103, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "drama", description: "Mafya dizisi.", episodes: "3 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/FWbdp8u720Glwq8nrkXolW2f" },
-            { id: 104, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "drama", description: "Osmanlı dizisi.", episodes: "4 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/Ebkl2N0e64pV3xnqlr6ltumO" },
-            { id: 105, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "5 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/DyMrZPRh6K10oViDx94ykx4k" },
-            { id: 106, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "6 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/QUqb_nWG4_he5lVaFt6Lj0zo" },
-            { id: 107, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "7 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/h4l_MSiyIcGdDp8yfgw6YyNK" },
-            { id: 108, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "8 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/dXqXG5rnHdviBNB8n8QGSIs8" },
-            { id: 109, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "9 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/8JHNWa9CboXojlf4wxkWXVyd" },
-            { id: 110, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "10 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/LOBR9m7TJvuM5srwPijXaLfx" },
-            { id: 111, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "11 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/3BhXtPEcXdoQAWEGJo1JrbGU" },
-            { id: 112, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "12 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/nxBdMLSa_hzV9paEhWqtZlKp" },
-            { id: 113, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "13 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/bBzRYslyBJ1WudC55vV0WzF1" },
-            { id: 114, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "14 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/ua2IljRKJJe_CEtu1Atbee5g" },
-            { id: 115, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "15 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/xD5FPlM64NSADeS1zQYKRfDt" },
-            { id: 116, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "16 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/9fn4Zx3HGdbvRv30wLYTu5yq" },
-            { id: 117, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "17 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/m2AOxXJ0DX2FAPkxC_gdyc9A" },
-            { id: 118, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "18 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/i3uXqXOVF4jKttDZDr5pbBMt" },
-            { id: 119, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "19 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/8gZeZMDJOTPTB2DTvg4Wvvb1" },
-            { id: 120, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "drama", description: "Polisiye dizi.", episodes: "20 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/gGb4l0rOButzQnBP6GFfdHIR" }
+
+{ id: 101, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Mahalle ve aile dizisi.", episodes: "1 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/U5_TKDV4n3ZwibpwxfUwdTTJ" },
+{ id: 102, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "İntikam hikayesi.", episodes: "2 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/BpdagJfNspLkTKWCR_7MXgrm" },
+{ id: 103, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "drama", description: "Mafya dizisi.", episodes: "3 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/FWbdp8u720Glwq8nrkXolW2f" },
+{ id: 104, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "drama", description: "Osmanlı dizisi.", episodes: "4 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/Ebkl2N0e64pV3xnqlr6ltumO" },
+{ id: 105, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "5 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/DyMrZPRh6K10oViDx94ykx4k" },
+{ id: 106, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "6 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/QUqb_nWG4_he5lVaFt6Lj0zo" },
+{ id: 107, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "7 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/h4l_MSiyIcGdDp8yfgw6YyNK" },
+{ id: 108, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "8 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/dXqXG5rnHdviBNB8n8QGSIs8" },
+{ id: 109, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "9 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/8JHNWa9CboXojlf4wxkWXVyd" },
+{ id: 110, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "10 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/LOBR9m7TJvuM5srwPijXaLfx" },
+{ id: 111, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "11 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/3BhXtPEcXdoQAWEGJo1JrbGU" },
+{ id: 112, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "12 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/nxBdMLSa_hzV9paEhWqtZlKp" },
+{ id: 113, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "13 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/bBzRYslyBJ1WudC55vV0WzF1" },
+{ id: 114, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "14 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/ua2IljRKJJe_CEtu1Atbee5g" },
+{ id: 115, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "15 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/xD5FPlM64NSADeS1zQYKRfDt" },
+{ id: 116, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "16 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/9fn4Zx3HGdbvRv30wLYTu5yq" },
+{ id: 117, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "17 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/m2AOxXJ0DX2FAPkxC_gdyc9A" },
+{ id: 118, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "18 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/i3uXqXOVF4jKttDZDr5pbBMt" },
+{ id: 119, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "action", description: "Tarihi dizi.", episodes: "19 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/8gZeZMDJOTPTB2DTvg4Wvvb1" },
+{ id: 120, title: "Gassal", year: "2025", poster: "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg", genre: "drama", description: "Polisiye dizi.", episodes: "20 Bölüm", type: "series", videoUrl: "https://dcdl50eadec6df95.xyz/player/gGb4l0rOButzQnBP6GFfdHIR" }
         ];
         // EINDE MARKER VOOR SERIES
 
         // MARKER VOOR CIZGI
         const cizgiFilms = [
-            // Voeg hier je tekenfilms toe, bijvoorbeeld:
-            // { id: 301, title: "Kral Şakir", year: "2020", poster: "https://url.naar/kral-sakir.jpg", genre: "comedy", description: "...", type: "cizgi", videoUrl: "https://..." },
+
+            { id: 121, title: "Şirinler", year: " ", poster: "https://jetfilmizle.website/wp-content/posterler/2025/07/sirinler-filmi-smurfs-izle.jpg", genre: "action", description: "Beschrijving nog niet beschikbaar.", type: "cizgi", videoUrl: "https://cnn-edition.jfvid.com/play/TVN4RGZKNUlRS1lYT0IxVkk4dlp0c2E0WlVkeURtczRNUVBHQkZuRmY3cjZ3SHlRZ0dYU1ZCQWxrWDNncFlzVVBqNFAyR1VYWGlyOVpha2tkTzhVY1E9PQ" },
+
+
         ];
         // EINDE MARKER VOOR CIZGI
 
         // MARKER VOOR YOUTUBE
         const youtubeVideos = [
-            { id: 201, title: "Maher Zain - Rahmatun Lil'Alameen", year: "2023", poster: "https://i.ytimg.com/vi/zA0v_v3ht-o/hqdefault.jpg", genre: "muzik", description: "Officiële muziekvideo.", type: "youtube", videoUrl: "https://www.youtube.com/embed/zA0v_v3ht-o" },
-            { id: 202, title: "Diriliş Ertuğrul - Jenerik Müziği", year: "2015", poster: "https://i.ytimg.com/vi/QTk1yT0iX5I/hqdefault.jpg", genre: "muzik", description: "De iconische theme song van Diriliş Ertuğrul.", type: "youtube", videoUrl: "https://www.youtube.com/embed/QTk1yT0iX5I" },
-            { id: 203, title: "Barış Manço - Gülpembe", year: "1981", poster: "https://i.ytimg.com/vi/r5c2mC33LzQ/hqdefault.jpg", genre: "muzik", description: "Een klassieker van de legendarische Barış Manço.", type: "youtube", videoUrl: "https://www.youtube.com/embed/r5c2mC33LzQ" },
-            { id: 204, title: "Turiss", year: "2025", poster: "https://img.youtube.com/vi/FYMyYT5ndpk/hqdefault.jpg", genre: "action", description: "Beschrijving nog niet beschikbaar.", type: "youtube", videoUrl: "https://www.youtube.com/embed/FYMyYT5ndpk" },
+            { id: 201, title: "Maher Zain - Rahmatun Lil'Alameen", year: "2023", poster: "https://i.ytimg.com/vi/zA0v_v3ht-o/hqdefault.jpg", genre: "muzik", description: "Officiële muziekvideo.", type: "youtube", videoUrl: "https://www.youtube.com/embed/zA0v_v3ht-o" },{ id: 202, title: "Diriliş Ertuğrul - Jenerik Müziği", year: "2015", poster: "https://i.ytimg.com/vi/QTk1yT0iX5I/hqdefault.jpg", genre: "muzik", description: "De iconische theme song van Diriliş Ertuğrul.", type: "youtube", videoUrl: "https://www.youtube.com/embed/QTk1yT0iX5I" },{ id: 203, title: "Barış Manço - Gülpembe", year: "1981", poster: "https://i.ytimg.com/vi/r5c2mC33LzQ/hqdefault.jpg", genre: "muzik", description: "Een klassieker van de legendarische Barış Manço.", type: "youtube", videoUrl: "https://www.youtube.com/embed/r5c2mC33LzQ" },{ id: 204, title: "Turiss", year: "2025", poster: "https://img.youtube.com/vi/FYMyYT5ndpk/hqdefault.jpg", genre: "action", description: "Beschrijving nog niet beschikbaar.", type: "youtube", videoUrl: "https://www.youtube.com/embed/FYMyYT5ndpk" },
         ];
         // EINDE MARKER VOOR YOUTUBE
 
@@ -295,15 +260,11 @@
         function handleM3UFileUpload() { const file = document.getElementById('m3uFileInput').files[0]; if (!file) { alert('Selecteer een M3U-bestand.'); return; } if (!file.name.toLowerCase().endsWith('.m3u') && !file.name.toLowerCase().endsWith('.m3u8')) { alert('Ongeldig M3U/M3U8-bestand.'); return; } const reader = new FileReader(); reader.onload = e => processM3UText(e.target.result); reader.onerror = () => alert('Fout bij lezen van bestand.'); reader.readAsText(file); }
         function updateQueueStatus() { const count = itemsToAdmit.length; document.getElementById('queueStatus').textContent = `Wachtrij: ${count}`; const downloadBtn = document.getElementById('downloadBtn'); downloadBtn.textContent = `💾 Download HTML met ${count} item(s)`; downloadBtn.disabled = count === 0; }
         function clearAdminForm() { document.getElementById('adminTitle').value = ''; document.getElementById('adminPoster').value = ''; document.getElementById('adminVideoUrl').value = ''; document.getElementById('adminEpisodes').value = ''; document.getElementById('adminDescription').value = ''; document.getElementById('adminTitle').focus(); }
-        function generateAndDownloadHtml() { if (itemsToAdmit.length === 0) { alert("Wachtrij is leeg."); return; } const adminModal = document.getElementById('adminModal'); const adminWasOpen = adminModal.classList.contains('active'); adminModal.classList.remove('active'); document.body.style.overflow = 'auto'; const allCurrentItems = [...turkishFilms, ...turkishSeries, ...cizgiFilms, ...youtubeVideos]; let maxId = allCurrentItems.length > 0 ? Math.max(...allCurrentItems.map(i => i.id)) : 0; let newFilmsString = "", newSeriesString = "", newCizgiString = "", newYoutubeString = ""; itemsToAdmit.forEach(item => { maxId++; const escapedTitle = item.title.replace(/"/g, '\\"'); const escapedDescription = item.description.replace(/"/g, '\\"'); const itemString = `            { id: ${maxId}, title: "${escapedTitle}", year: "${item.year}", poster: "${item.poster}", genre: "${item.genre}", description: "${escapedDescription}", type: "${item.type}", videoUrl: "${item.videoUrl}"${item.type === 'series' ? `, episodes: "${item.episodes || 'Yeni Bölüm'}"` : ''} },`; if (item.type === 'film') newFilmsString += itemString + "\n"; else if (item.type === 'series') newSeriesString += itemString + "\n"; else if (item.type === 'cizgi') newCizgiString += itemString + "\n"; else if (item.type === 'youtube') newYoutubeString += itemString + "\n"; }); let updatedHtml = document.documentElement.outerHTML; if (newFilmsString) updatedHtml = updatedHtml.replace('// EINDE MARKER VOOR FILMS', newFilmsString + '        // EINDE MARKER VOOR FILMS'); if (newSeriesString) updatedHtml = updatedHtml.replace('// EINDE MARKER VOOR SERIES', newSeriesString + '        // EINDE MARKER VOOR SERIES'); if (newCizgiString) updatedHtml = updatedHtml.replace('// EINDE MARKER VOOR CIZGI', newCizgiString + '        // EINDE MARKER VOOR CIZGI'); if (newYoutubeString) updatedHtml = updatedHtml.replace('// EINDE MARKER VOOR YOUTUBE', newYoutubeString + '        // EINDE MARKER VOOR YOUTUBE'); const blob = new Blob([updatedHtml], { type: 'text/html' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'index-bijgewerkt.html'; document.body.appendChild(a); a.click(); document.body.removeChild(a); alert(`Website wordt gedownload! Hernoem naar "index.html".`); itemsToAdmit = []; updateQueueStatus(); if (adminWasOpen) { adminModal.classList.add('active'); document.body.style.overflow = 'hidden'; } }
+        function generateAndDownloadHtml() { if (itemsToAdmit.length === 0) { alert("Wachtrij is leeg."); return; } const adminModal = document.getElementById('adminModal'); const adminWasOpen = adminModal.classList.contains('active'); adminModal.classList.remove('active'); document.body.style.overflow = 'auto'; const allCurrentItems = [...turkishFilms, ...turkishSeries, ...cizgiFilms, ...youtubeVideos]; let maxId = allCurrentItems.length > 0 ? Math.max(...allCurrentItems.map(i => i.id)) : 0; let newFilmsString = "", newSeriesString = "", newCizgiString = "", newYoutubeString = ""; itemsToAdmit.forEach(item => { maxId++; const escapedTitle = item.title.replace(/"/g, '\\"'); const escapedDescription = item.description.replace(/"/g, '\\"'); const itemString = `{ id: ${maxId}, title: "${escapedTitle}", year: "${item.year}", poster: "${item.poster}", genre: "${item.genre}", description: "${escapedDescription}", type: "${item.type}", videoUrl: "${item.videoUrl}"${item.type === 'series' ? `, episodes: "${item.episodes || 'Yeni Bölüm'}"` : ''} },`; if (item.type === 'film') newFilmsString += itemString; else if (item.type === 'series') newSeriesString += itemString; else if (item.type === 'cizgi') newCizgiString += itemString; else if (item.type === 'youtube') newYoutubeString += itemString; }); let updatedHtml = document.documentElement.outerHTML; if (newFilmsString) updatedHtml = updatedHtml.replace('// EINDE MARKER VOOR FILMS', newFilmsString + '        // EINDE MARKER VOOR FILMS'); if (newSeriesString) updatedHtml = updatedHtml.replace('// EINDE MARKER VOOR SERIES', newSeriesString + '        // EINDE MARKER VOOR SERIES'); if (newCizgiString) updatedHtml = updatedHtml.replace('// EINDE MARKER VOOR CIZGI', newCizgiString + '        // EINDE MARKER VOOR CIZGI'); if (newYoutubeString) updatedHtml = updatedHtml.replace('// EINDE MARKER VOOR YOUTUBE', newYoutubeString + '        // EINDE MARKER VOOR YOUTUBE'); const blob = new Blob([updatedHtml], { type: 'text/html' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'index-bijgewerkt.html'; document.body.appendChild(a); a.click(); document.body.removeChild(a); alert(`Website wordt gedownload! Hernoem naar "index.html".`); itemsToAdmit = []; updateQueueStatus(); if (adminWasOpen) { adminModal.classList.add('active'); document.body.style.overflow = 'hidden'; } }
         
-        let groupedSeries = {};
-        let currentSeriesView = 'titles';
-        let selectedSeriesTitle = null;
-
+        let groupedSeries = {}; let currentSeriesView = 'titles'; let selectedSeriesTitle = null;
         const itemsPerPage = 20; 
         let currentFilmPage = 1, currentSeriesPage = 1, currentCizgiPage = 1, currentYoutubePage = 1;
-        let currentFilteredFilms = [...turkishFilms], currentFilteredSeries = [...turkishSeries], currentFilteredCizgi = [...cizgiFilms], currentFilteredYoutube = [...youtubeVideos];
         let currentItem = null, isFullscreen = false, controlsTimeout = null;
         
         function openAdminPanel() { const password = prompt("Voer het admin wachtwoord in:"); if (password === "admin123") { document.getElementById('adminModal').classList.add('active'); document.body.style.overflow = 'hidden'; updateQueueStatus(); closeDropdown(); } else if (password !== null) { alert("Incorrect wachtwoord!"); } }
@@ -312,7 +273,6 @@
         function toggleDropdown() { document.getElementById('dropdown').classList.toggle('active'); }
         function closeDropdown() { document.getElementById('dropdown').classList.remove('active'); }
         document.addEventListener('click', (e) => { if (e.target && !e.target.closest('.dropdown') && !e.target.closest('#adminModal')) closeDropdown(); });
-        
         function groupSeries() { groupedSeries = {}; turkishSeries.forEach(episode => { if (!groupedSeries[episode.title]) { groupedSeries[episode.title] = { title: episode.title, poster: episode.poster, year: episode.year, genre: episode.genre, type: 'series_group', episodes: [] }; } groupedSeries[episode.title].episodes.push(episode); }); }
         function showEpisodesForSeries(title) { currentSeriesView = 'episodes'; selectedSeriesTitle = title; currentSeriesPage = 1; document.getElementById('searchSeries').value = ''; displayContent('series'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
         function showSeriesTitles() { currentSeriesView = 'titles'; selectedSeriesTitle = null; currentSeriesPage = 1; document.getElementById('searchSeries').value = ''; displayContent('series'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
@@ -320,86 +280,70 @@
         function showCategory(category) { 
             document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active')); 
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active')); 
+            const activate = (cat) => { document.querySelector(`.category-btn[onclick*="${cat}"]`).classList.add('active'); document.getElementById(`${cat}Section`).classList.add('active'); };
             
-            const activate = (cat) => {
-                document.querySelector(`.category-btn[onclick*="${cat}"]`).classList.add('active');
-                document.getElementById(`${cat === 'filmler' ? 'filmler' : (cat === 'diziler' ? 'diziler' : (cat === 'cizgi' ? 'cizgi' : 'youtube'))}Section`).classList.add('active');
-            };
-
-            if (category === 'filmler') { 
-                currentFilmPage = 1; currentFilteredFilms = [...turkishFilms]; document.getElementById('searchFilms').value = ''; 
-                activate(category);
-                displayContent('film'); 
-            } else if (category === 'diziler') {
-                showSeriesTitles();
-                activate(category);
-            } else if (category === 'cizgi') {
-                currentCizgiPage = 1; currentFilteredCizgi = [...cizgiFilms]; document.getElementById('searchCizgi').value = '';
-                activate(category);
-                displayContent('cizgi');
-            } else if (category === 'youtube') {
-                currentYoutubePage = 1; currentFilteredYoutube = [...youtubeVideos]; document.getElementById('searchYoutube').value = ''; 
-                activate(category);
-                displayContent('youtube'); 
-            }
+            if (category === 'filmler') { currentFilmPage = 1; activate(category); displayContent('film'); } 
+            else if (category === 'diziler') { showSeriesTitles(); activate(category); } 
+            else if (category === 'cizgi') { currentCizgiPage = 1; activate(category); displayContent('cizgi'); } 
+            else if (category === 'youtube') { currentYoutubePage = 1; activate(category); displayContent('youtube'); }
             closeDropdown(); 
         }
         
         function filterByGenre(genre) { 
             const activeSectionId = document.querySelector('.content-section.active').id;
+            let type;
+            if (activeSectionId === 'filmlerSection') type = 'film';
+            else if (activeSectionId === 'dizilerSection') type = 'series';
+            else if (activeSectionId === 'cizgiSection') type = 'cizgi';
+            else if (activeSectionId === 'youtubeSection') type = 'youtube';
             
-            if (activeSectionId === 'filmlerSection') {
-                currentFilteredFilms = genre === 'all' ? [...turkishFilms] : turkishFilms.filter(item => item.genre === genre);
-                currentFilmPage = 1; displayContent('film');
-            } else if (activeSectionId === 'dizilerSection') {
-                showSeriesTitles();
-                const filteredGroupedSeries = Object.values(groupedSeries).filter(series => genre === 'all' || series.genre === genre);
-                currentFilteredSeries = filteredGroupedSeries;
-                currentSeriesPage = 1; displayContent('series');
-            } else if (activeSectionId === 'cizgiSection') {
-                currentFilteredCizgi = genre === 'all' ? [...cizgiFilms] : cizgiFilms.filter(item => item.genre === genre);
-                currentCizgiPage = 1; displayContent('cizgi');
-            } else if (activeSectionId === 'youtubeSection') {
-                currentFilteredYoutube = genre === 'all' ? [...youtubeVideos] : youtubeVideos.filter(item => item.genre === genre);
-                currentYoutubePage = 1; displayContent('youtube');
-            }
-            closeDropdown(); 
+            if(type === 'series') showSeriesTitles();
+            displayContent(type, genre);
+            closeDropdown();
         }
         
         window.addEventListener('load', () => { groupSeries(); showCategory('filmler'); });
-        
-        function displayContent(type) { 
-            let grid, paginationId, currentPage, pagedItems = [], totalItemsCount = 0;
-            const getSearchTerm = () => {
-                if (type === 'film') return document.getElementById('searchFilms').value.toLowerCase();
-                if (type === 'series') return document.getElementById('searchSeries').value.toLowerCase();
-                if (type === 'cizgi') return document.getElementById('searchCizgi').value.toLowerCase();
-                if (type === 'youtube') return document.getElementById('searchYoutube').value.toLowerCase();
-                return '';
-            };
-            const searchTerm = getSearchTerm();
-            
-            grid = document.getElementById(`${type === 'film' ? 'films' : type}Grid`);
-            paginationId = `${type === 'film' ? 'films' : type}Pagination`;
-            currentPage = (type === 'film' ? currentFilmPage : (type === 'series' ? currentSeriesPage : (type === 'cizgi' ? currentCizgiPage : currentYoutubePage)));
-            grid.innerHTML = ''; 
 
-            if (type === 'film') { const filtered = turkishFilms.filter(m => m.title.toLowerCase().includes(searchTerm)); totalItemsCount = filtered.length; pagedItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage); }
-            else if (type === 'cizgi') { const filtered = cizgiFilms.filter(m => m.title.toLowerCase().includes(searchTerm)); totalItemsCount = filtered.length; pagedItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage); }
-            else if (type === 'youtube') { const filtered = youtubeVideos.filter(m => m.title.toLowerCase().includes(searchTerm)); totalItemsCount = filtered.length; pagedItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage); }
-            else if (type === 'series') {
+        // --- HERBOUWDE, STABIELE FUNCTIE ---
+        function displayContent(type, genreFilter = null) {
+            let grid, paginationId, currentPage, pagedItems = [], totalItemsCount = 0, sourceData, searchTerm;
+
+            switch(type) {
+                case 'film':
+                    grid = document.getElementById('filmlerGrid'); paginationId = 'filmlerPagination'; currentPage = currentFilmPage; sourceData = turkishFilms; searchTerm = document.getElementById('searchFilms').value.toLowerCase();
+                    break;
+                case 'series':
+                    grid = document.getElementById('dizilerGrid'); paginationId = 'dizilerPagination'; currentPage = currentSeriesPage; searchTerm = document.getElementById('searchSeries').value.toLowerCase();
+                    break;
+                case 'cizgi':
+                    grid = document.getElementById('cizgiGrid'); paginationId = 'cizgiPagination'; currentPage = currentCizgiPage; sourceData = cizgiFilms; searchTerm = document.getElementById('searchCizgi').value.toLowerCase();
+                    break;
+                case 'youtube':
+                    grid = document.getElementById('youtubeGrid'); paginationId = 'youtubePagination'; currentPage = currentYoutubePage; sourceData = youtubeVideos; searchTerm = document.getElementById('searchYoutube').value.toLowerCase();
+                    break;
+            }
+            grid.innerHTML = '';
+            
+            let itemsToDisplay = [];
+            if (type === 'series') {
                 document.getElementById('backToSeriesBtn').style.display = currentSeriesView === 'episodes' ? 'inline-block' : 'none';
                 document.getElementById('seriesSectionTitle').textContent = currentSeriesView === 'titles' ? '📺 DİZİLER' : `📺 ${selectedSeriesTitle}`;
                 if (currentSeriesView === 'titles') {
-                    const allSeries = (currentFilteredSeries.length === turkishSeries.length) ? Object.values(groupedSeries) : currentFilteredSeries;
-                    const filtered = allSeries.filter(s => s.title.toLowerCase().includes(searchTerm));
-                    totalItemsCount = filtered.length; pagedItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+                    let seriesGroups = Object.values(groupedSeries);
+                    if (genreFilter) seriesGroups = seriesGroups.filter(g => genreFilter === 'all' || g.genre === genreFilter);
+                    itemsToDisplay = seriesGroups.filter(g => g.title.toLowerCase().includes(searchTerm));
                 } else {
-                    const episodes = groupedSeries[selectedSeriesTitle].episodes.filter(ep => ep.episodes.toLowerCase().includes(searchTerm));
-                    totalItemsCount = episodes.length; pagedItems = episodes.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+                    itemsToDisplay = groupedSeries[selectedSeriesTitle].episodes.filter(ep => ep.episodes.toLowerCase().includes(searchTerm));
                 }
+            } else {
+                let filteredData = sourceData;
+                if (genreFilter) filteredData = sourceData.filter(item => genreFilter === 'all' || item.genre === genreFilter);
+                itemsToDisplay = filteredData.filter(item => item.title.toLowerCase().includes(searchTerm));
             }
-            
+
+            totalItemsCount = itemsToDisplay.length;
+            pagedItems = itemsToDisplay.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
             if (pagedItems.length === 0) { grid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; margin-top: 50px;">İçerik bulunamadı.</p>'; } 
             else { pagedItems.forEach(item => grid.appendChild(createCard(item))); }
             renderPagination(totalItemsCount, paginationId, type, currentPage); 
@@ -422,11 +366,26 @@
         document.getElementById('searchCizgi').addEventListener('input', () => { currentCizgiPage = 1; displayContent('cizgi'); });
         document.getElementById('searchYoutube').addEventListener('input', () => { currentYoutubePage = 1; displayContent('youtube'); });
         
-        function openModal(item) { currentItem = item; document.getElementById('modalTitle').textContent = item.title + (item.episodes ? ` - ${item.episodes}` : ''); document.getElementById('modalInfo').innerHTML = `<p><strong>Tür:</strong> ${item.type.charAt(0).toUpperCase() + item.type.slice(1)}</p><p><strong>Yıl:</strong> ${item.year}</p><p><strong>Kategori:</strong> ${item.genre}</p>${item.episodes ? `<p><strong>Bölüm:</strong> ${item.episodes}</p>` : ''}<p><strong>Açıklama:</strong> ${item.description}</p>`; document.getElementById('movieModal').classList.add('active'); document.body.style.overflow = 'hidden'; }
+        function openModal(item) { currentItem = item; document.getElementById('modalTitle').textContent = item.title + (item.episodes ? ` - ${item.episodes}` : ''); let typeName = item.type.charAt(0).toUpperCase() + item.type.slice(1); if(item.type === 'cizgi') typeName = 'Çizgi Film'; if(item.type === 'film') typeName = 'Film'; if(item.type === 'series') typeName = 'Dizi'; document.getElementById('modalInfo').innerHTML = `<p><strong>Tür:</strong> ${typeName}</p><p><strong>Yıl:</strong> ${item.year}</p><p><strong>Kategori:</strong> ${item.genre}</p>${item.episodes ? `<p><strong>Bölüm:</strong> ${item.episodes}</p>` : ''}<p><strong>Açıklama:</strong> ${item.description}</p>`; document.getElementById('movieModal').classList.add('active'); document.body.style.overflow = 'hidden'; }
         function closeModal() { document.getElementById('movieModal').classList.remove('active'); document.body.style.overflow = 'auto'; }
         function closeModalOnBackground(event) { if (event.target === document.getElementById('movieModal')) closeModal(); }
         function startControlsTimer() { if (controlsTimeout) clearTimeout(controlsTimeout); controlsTimeout = setTimeout(() => { document.querySelector('.video-controls').classList.add('controls-hidden'); }, 5000); }
-        function playVideo() { if (!currentItem || !currentItem.videoUrl) { alert('Video linki eksik!'); return; } const videoPlayer = document.getElementById('videoPlayer'), videoIframe = document.getElementById('videoIframe'); document.getElementById('videoTitle').textContent = currentItem.title + (currentItem.episodes ? ` - ${currentItem.episodes}` : ''); document.querySelector('.video-controls').classList.remove('controls-hidden'); if (currentItem.videoUrl.includes('youtube.com/embed') || currentItem.videoUrl.includes('/player/')) { videoPlayer.style.display = 'none'; videoIframe.style.display = 'block'; videoIframe.src = currentItem.videoUrl; } else { videoPlayer.style.display = 'block'; videoIframe.style.display = 'none'; videoPlayer.src = currentItem.videoUrl; videoPlayer.play().catch(e => console.warn("Autoplay engellendi:", e)); } document.getElementById('videoModal').classList.add('active'); closeModal(); startControlsTimer(); }
+        
+        function playVideo() { 
+            if (!currentItem || !currentItem.videoUrl) { alert('Video linki eksik!'); return; } 
+            const videoPlayer = document.getElementById('videoPlayer'), videoIframe = document.getElementById('videoIframe'); 
+            document.getElementById('videoTitle').textContent = currentItem.title + (currentItem.episodes ? ` - ${currentItem.episodes}` : ''); 
+            document.querySelector('.video-controls').classList.remove('controls-hidden'); 
+            
+            if (currentItem.videoUrl.includes('youtube.com/embed') || currentItem.videoUrl.includes('/player/') || currentItem.videoUrl.includes('jfvid.com')) {
+                videoPlayer.style.display = 'none'; videoIframe.style.display = 'block'; videoIframe.src = currentItem.videoUrl; 
+            } else {
+                videoPlayer.style.display = 'block'; videoIframe.style.display = 'none'; videoPlayer.src = currentItem.videoUrl; 
+                videoPlayer.play().catch(e => console.warn("Autoplay engellendi:", e)); 
+            } 
+            document.getElementById('videoModal').classList.add('active'); closeModal(); startControlsTimer(); 
+        }
+
         function toggleFullscreen() { const videoModal = document.getElementById('videoModal'); if (!document.fullscreenElement) videoModal.requestFullscreen().catch(err => alert(`Tam ekran hatası: ${err.message}`)); else document.exitFullscreen(); }
         document.addEventListener('fullscreenchange', () => { isFullscreen = !!document.fullscreenElement; document.getElementById('videoModal').classList.toggle('fullscreen', isFullscreen); });
         function closeVideo() { if (document.fullscreenElement) document.exitFullscreen(); document.getElementById('videoModal').classList.remove('active', 'fullscreen'); if (controlsTimeout) clearTimeout(controlsTimeout); document.querySelector('.video-controls').classList.remove('controls-hidden'); const videoPlayer = document.getElementById('videoPlayer'); const videoIframe = document.getElementById('videoIframe'); videoPlayer.pause(); videoPlayer.src = ''; videoIframe.src = ''; }
