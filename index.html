@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Directory - Moderne Link Collectie</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --accent: #ec4899;
+            --dark: #1e293b;
+            --light: #f1f5f9;
+            --card-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            top: -200px;
+            right: -200px;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .bg-animation::after {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            bottom: -300px;
+            left: -300px;
+            animation: float 25s infinite ease-in-out reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(120deg); }
+            66% { transform: translate(-20px, 20px) rotate(240deg); }
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 2em;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            font-size: 1.2em;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Search Bar */
+        .search-container {
+            flex: 1;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 12px 45px 12px 20px;
+            border: none;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-bar:focus {
+            outline: none;
+            background: white;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            font-size: 1.2em;
+        }
+
+        /* Category Filter */
+        .category-filter {
+            padding: 30px 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .filter-btn {
+            padding: 10px 25px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1em;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .filter-btn.active {
+            background: white;
+            color: var(--primary);
+            border-color: white;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px 50px;
+        }
+
+        /* Category Sections */
+        .category-section {
+            margin-bottom: 50px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .category-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            backdrop-filter: blur(10px);
+        }
+
+        .category-title {
+            color: white;
+            font-size: 1.8em;
+            font-weight: 600;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Link Cards Grid */
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .link-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .link-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .link-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .link-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .link-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .link-favicon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.5em;
+            color: white;
+        }
+
+        .link-details {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .link-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .link-description {
+            font-size: 0.9em;
+            color: #64748b;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .link-url {
+            font-size: 0.85em;
+            color: var(--primary);
+            margin-top: 8px;
+            opacity: 0.8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Tags */
+        .link-tags {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 4px 12px;
+            background: var(--light);
+            color: var(--primary);
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 40px auto;
+            max-width: 1400px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            text-align: center;
+        }
+
+        .stat-item {
+            color: white;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 50px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+            }
+
+            .search-container {
+                width: 100%;
+            }
+
+            .links-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .category-title {
+                font-size: 1.4em;
+            }
+
+            .filter-buttons {
+                overflow-x: auto;
+                justify-content: flex-start;
+                flex-wrap: nowrap;
+                padding-bottom: 10px;
+            }
+
+            .filter-btn {
+                flex-shrink: 0;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Scroll to Top Button */
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: white;
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            font-size: 1.5em;
+        }
+
+        .scroll-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .scroll-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon">🔗</span>
+                <span>LinkHub</span>
+            </div>
+            <div class="search-container">
+                <input type="text" class="search-bar" id="searchBar" placeholder="Zoek links...">
+                <span class="search-icon">🔍</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Category Filter -->
+    <div class="category-filter">
+        <div class="filter-buttons">
+            <button class="filter-btn active" onclick="filterCategory('all')">🌐 Alle Links</button>
+            <button class="filter-btn" onclick="filterCategory('social')">💬 Social Media</button>
+            <button class="filter-btn" onclick="filterCategory('news')">📰 Nieuws</button>
+            <button class="filter-btn" onclick="filterCategory('tech')">💻 Technologie</button>
+            <button class="filter-btn" onclick="filterCategory('entertainment')">🎬 Entertainment</button>
+            <button class="filter-btn" onclick="filterCategory('tools')">🛠️ Tools</button>
+            <button class="filter-btn" onclick="filterCategory('shopping')">🛒 Shopping</button>
+            <button class="filter-btn" onclick="filterCategory('education')">📚 Educatie</button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        
+        <!-- Social Media Category -->
+        <div class="category-section" data-category="social">
+            <div class="category-header">
+                <div class="category-icon">💬</div>
+                <h2 class="category-title">Social Media</h2>
+            </div>
+            <div class="links-grid">
+                <div class="link-card">
+                    <a href="https://www.facebook.com" target="_blank" class="link-content">
+                        <div class="link-favicon">📘</div>
+                        <div class="link-details">
+                            <div class="link-title">Facebook</div>
+                            <div class="link-description">Verbind met vrienden, familie en anderen</div>
+                            <div class="link-url">facebook.com</div>
+                        </div>
+                    </a>
+                    <div class="link-tags">
+                        <span class="tag">Social</span>
+                        <span class="tag">Netwerk</span>
+                    </div>
+                </div>
+
+                <div class="link-card">
+                    <a href="https://www.twitter.com" target="_blank" class="link-content">
+                        <div class="link-favicon">🐦</div>
+                        <div class="link-details">
+                            <div class="link-title">Twitter / X</div>
+                            <div class="link-description">Deel gedachten en volg het laatste nieuws</div>
+                            <div class="link-url">twitter.com</div>
+                        </div>
+                    </a>
+                    <div class="link-tags">
+                        <span class="tag">Microblog</span>
+                        <span class="tag">Nieuws</span>
+                    </div>
+                </div>
+
+                <div class="link-card">
+                    <a href="https://www.instagram.com" target="_blank" class="link-content">
+                        <div class="link-favicon">📷</div>
+                        <div class="link-details">
+                            <div class="link-title">Instagram</div>
+                            <div class="link-description">Deel foto's en video's met je volgers</div>
+                            <div class="link-url">instagram.com</div>
+                        </div>
+                    </a>
+                    <div class="link-tags">
+                        <span class="tag">Foto's</span>
+                        <span class="tag">Stories</span>
+                    </div>
+                </div>
+
+                <div class="link-card">
+                    <a href="https://www.linkedin.com" target="_blank" class="link-content">
+                        <div class="link-favicon">💼</div>
+                        <div class="link-details">
+                            <div class="link-title">LinkedIn</div>
+                            <div class="link-description">Professioneel netwerk platform</div>
+                            <div class="link-url">linkedin.com</div>
+                        </div>
+                    </a>
+                    <div class="link-tags">
+                        <span class="tag">Business</span>
+                        <span class="tag">Carrière</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- News Category -->
+        <div class="category-section" data-category="news">
+            <div class="category-header">
+                <div class="category-icon">📰</div>
+                <h2 class="category-title">Nieuws & Media</h2>
+            </div>
+            <div class="links-grid">
+                <div class="link-card">
+                    <a href="https://www.nos.nl" target="_blank" class="link-content">
+                        <div class="link-favicon">📺</div>
+                        <div class="link-details">
+                            <div class="link-title">NOS</div>
+                            <div class="link-description">Nederlandse Omroep Stichting - Laatste nieuws</div>
+                            <div class="link-url">nos.nl</div>
+                        </div>
+                    </a>
+                    <div class="link-tags">
+                        <span class="tag">Nederland</span>
+                        <span class="tag">Breaking</span>
+                    </div>
+                </div>
+
+                <div class="link-card">
+                    <a href="https://www.bbc.com" target="_blank" class="link-content">
+                        <div class="link-favicon">🌍</div>
+                        <div class="link-details">
+                            <div class="link-title">BBC News</div>
+                            <div class="link-description">Wereldwijd nieuws en analyses</div>
+                            <div class="link-url">bbc.com</div>
+                        </div>
+                    </a>
+                    <div class="link-tags">
+                        <span class="tag">Internationaal</span>
+                        <span class="tag">English</span>
+                    </div>
+                </div>
+
+                <div class="link-card">
+                    <a href="https://www.nu.nl" target="_blank" class="link-content">
+                        <div class="link-favicon">📱</div>
+                        <div class="link-details">
+                            <div class="link-title">NU.nl</div>
+                            <div class="link-description">Het laatste nieuws het eerst op NU.nl</div>
+                            <div class="link-url">nu.nl</div>
+                        </div>
+                    </a>
+                    <div class="link-tags">
+                        <span class="tag">Nederlands</span>
+                        <span class="tag">Actueel</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technology Category -->
+        <div class="category-section" data-category="tech">
+            <div class="category-header">
+                <div class="category-icon">💻</div>
+                <h2 class="category-title">Technologie</h2>
+            </div>
+            <div class="links-grid">
+                <div class="link-card">
+                    <a href="https://github.com" target="_blank" class="link-content">
+                        <div class="link-favicon">🐙</div>
+                        <div class="link-details">
+                            <div class="link-title">GitHub</div>
+                            <div class="link-description">Code hosting en version control</div>
+                            <div class="link-url">github.com</div>
+                        </div>
+                    </a>
+                    <div class="link-tags">
+                        <span class="tag">Code</span>
+                        <span class="tag">Git</span>
+                    </div>
+                </div>
+
+                <div class="link-card">
+                    <a href="https://stackoverflow.com" target="_blank" class="link-content">
+                        <div class="link-favicon">📚</div>
+                        <div class="link-details">
+                            <div class="link-title">Stack Overflow</div>
+                            <div class="link-description">Q&A voor developers</div>
+                            <div class="link-url">stackoverflow.com</div>
+                        </div>
+                    </a>
+                    <div class="link-tags">
+                        <span class="tag">Programming</span>
+                        <span class="tag">Help</span>
+                    </div>
+                </div>
+
+                <div class="link-card">
+                    <a href="https://www.techcrunch.com" target="_blank" class="link-content">
+                        <div class="link-favicon">🚀</div>
+                        <div class="link-details">
+                            <div class="link-title">TechCrunch</div>
+                            <div class="link-description">Startup en technologie nieuws</div>
+                            <div class="link-url">techcrunch.com</div>
+                        </div>
+                    </a>
+                    <div class="link-tags">
+                        <span class="tag">Startups</span>
+                        <span class="tag">Tech News</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Entertainment Category -->
+        <div class="category-section" data-category="entertainment">
+            <div class="category-header">
+                <div class="category-icon">🎬</div>
+                <h2 class="category-title">Entertainment</h2>
+            </div>
+            <div class="links-grid">
+                <div class="link-card">
+                    <a href="https://www.youtube.com" target="_blank" class="link-content">
+                        <div class="link-favicon">📺</div>
+                        <div class="link-details">
+                            <div class="link-title">YouTube</div>
+                            <div class="link-description">Video's kijken en delen</div>
+                            <div class="link-url">youtube.com</div>
+                        </div>
+                    </a>
+                    <div class="link-tags">
+                        <span class="tag">Video</span>
+                        <span class="tag">Streaming</span>
+                    </div>
+                </div>
+
+                <div class="link-card">
+                    <a href="https://www.netflix.com" target="_blank" class="link-content">
+                        <div class="link-favicon">🎥</div>
+                        <div class="link-details">
+                            <div class="link-title">Netflix</div>
+                            <div class="link-description">Films en series streaming</div>
+                            <div class="link-url">netflix.com</div>
+                        </div>
+                    </a>
+                    <div class="link-tags">
+                        <span class="tag">Films</span>
+                        <span class="tag">Series</span>
+                    </div>
+                </div>
+
+                <div class="link-card">
+                    <a href="https://www.spotify.com" target="_blank" class="link-content">
+                        <div class="link-favicon">🎵</div>
+                        <div class="link-details">
+                            <div class="link-title">Spotify</div>
+                            <div class="link-description">Muziek streaming dienst</div>
+                            <div class="link-url">spotify.com</div>
+                        </div>
+                    </a>
+                    <div class="link-tags">
+                        <span class="tag">Muziek</span>
+                        <span class="tag">Podcasts</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tools Category -->
+        <div class="category-section" data-category="tools">
+            <div class="category-header">
+                <div class="category-icon">🛠️</div>
+                <h2 class="category-title">Handige Tools</h2>
+            </div>
+            <div class="links-grid">
+                <div class="link-card">
+                    <a href="https://www.google.com" target="_blank" class="link-content">
+                        <div class="link-favicon">🔍</div>
+                        <div class="link-details">
+                            <div class="link-title">Google</div>
+                            <div class="link-description">Zoek machine en meer</div>
+                            <div class="link-url">google.com</div>
+                        </div>
+                    </a>
+                    <div class="link-tags">
+                        <span class="tag">Search</span>
+                        <span class="tag">Tools</span>
+                    </div>
+                </div>
+
+                <div class="link-card">
+                    <a href="https://translate.google.com" target="_blank" class="link-content">
+                        <div class="link-favicon">🌐</div>
+                        <div class="link-details">
+                            <div class="link-title">Google Translate</div>
+                            <div class="link-description">Vertaal teksten en websites</div>
+                            <div class="link-url">translate.google.com</div>
+                        </div>
+                    </a>
+                    <div class="link-tags">
+                        <span class="tag">Vertalen</span>
+                        <span class="tag">Talen</span>
+                    </div>
+                </div>
+
+                <div class="link-card">
+                    <a href="https://www.canva.com" target="_blank" class="link-content">
+                        <div class="link-favicon">🎨</div>
+                        <div class="link-details">
+                            <div class="link-title">Canva</div>
+                            <div class="link-description">Design tool voor iedereen</div>
+                            <div class="link-url">canva.com</div>
+                        </div>
+                    </a>
+                    <div class="link-tags">
+                        <span class="tag">Design</span>
+                        <span class="tag">Graphics</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shopping Category -->
+        <div class="category-section" data-category="shopping">
+            <div class="category-header">
+                <div class="category-icon">🛒</div>
+                <h2 class="category-title">Shopping</h2>
+            </div>
+            <div class="links-grid">
+                <div class="link-card">
+                    <a href="https://www.amazon.com" target="_blank" class="link-content">
+                        <div class="link-favicon">📦</div>
+                        <div class="link-details">
+                            <div class="link-title">Amazon</div>
+                            <div class="link-description">Online shopping wereldwijd</div>
+                            <div class="link-url">amazon.com</div>
+                        </div>
+                    </a>
+                    <div class="link-tags">
+                        <span class="tag">E-commerce</span>
+                        <span class="tag">Global</span>
+                    </div>
+                </div>
+
+                <div class="link-card">
+                    <a href="https://www.bol.com" target="_blank" class="link-content">
+                        <div class="link-favicon">🛍️</div>
+                        <div class="link-details">
+                            <div class="link-title">Bol.com</div>
+                            <div class="link-description">De winkel van ons allemaal</div>
+                            <div class="link-url">bol.com</div>
+                        </div>
+                    </a>
+                    <div class="link-tags">
+                        <span class="tag">Nederland</span>
+                        <span class="tag">Webshop</span>
+                    </div>
+                </div>
+
+                <div class="link-card">
+                    <a href="https://www.aliexpress.com" target="_blank" class="link-content">
+                        <div class="link-favicon">🏪</div>
+                        <div class="link-details">
+                            <div class="link-title">AliExpress</div>
+                            <div class="link-description">Internationale marketplace</div>
+                            <div class="link-url">aliexpress.com</div>
+                        </div>
+                    </a>
+                    <div class="link-tags">
+                        <span class="tag">China</span>
+                        <span class="tag">Deals</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Education Category -->
+        <div class="category-section" data-category="education">
+            <div class="category-header">
+                <div class="category-icon">📚</div>
+                <h2 class="category-title">Educatie</h2>
+            </div>
+            <div class="links-grid">
+                <div class="link-card">
+                    <a href="https://www.coursera.org" target="_blank" class="link-content">
+                        <div class="link-favicon">🎓</div>
+                        <div class="link-details">
+                            <div class="link-title">Coursera</div>
+                            <div class="link-description">Online cursussen van topuniversiteiten</div>
+                            <div class="link-url">coursera.org</div>
+                        </div>
+                    </a>
+                    <div class="link-tags">
+                        <span class="tag">Cursussen</span>
+                        <span class="tag">Certificaten</span>
+                    </div>
+                </div>
+
+                <div class="link-card">
+                    <a href="https://www.khanacademy.org" target="_blank" class="link-content">
+                        <div class="link-favicon">📖</div>
+                        <div class="link-details">
+                            <div class="link-title">Khan Academy</div>
+                            <div class="link-description">Gratis onderwijs voor iedereen</div>
+                            <div class="link-url">khanacademy.org</div>
+                        </div>
+                    </a>
+                    <div class="link-tags">
+                        <span class="tag">Gratis</span>
+                        <span class="tag">Leren</span>
+                    </div>
+                </div>
+
+                <div class="link-card">
+                    <a href="https://www.duolingo.com" target="_blank" class="link-content">
+                        <div class="link-favicon">🦉</div>
+                        <div class="link-details">
+                            <div class="link-title">Duolingo</div>
+                            <div class="link-description">Leer een nieuwe taal gratis</div>
+                            <div class="link-url">duolingo.com</div>
+                        </div>
+                    </a>
+                    <div class="link-tags">
+                        <span class="tag">Talen</span>
+                        <span class="tag">App</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="stats-section">
+        <div class="stat-item">
+            <div class="stat-number">50+</div>
+            <div class="stat-label">Handige Links</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">8</div>
+            <div class="stat-label">Categorieën</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">Beschikbaar</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">100%</div>
+            <div class="stat-label">Gratis</div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2024 LinkHub - Jouw startpagina voor het web</p>
+        <p style="margin-top: 10px; opacity: 0.8;">Made with ❤️ for better browsing</p>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <div class="scroll-top" id="scrollTop">↑</div>
+
+    <script>
+        // Search functionality
+        const searchBar = document.getElementById('searchBar');
+        searchBar.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const linkCards = document.querySelectorAll('.link-card');
+            
+            linkCards.forEach(card => {
+                const title = card.querySelector('.link-title').textContent.toLowerCase();
+                const description = card.querySelector('.link-description').textContent.toLowerCase();
+                const tags = Array.from(card.querySelectorAll('.tag')).map(tag => tag.textContent.toLowerCase());
+                
+                if (title.includes(searchTerm) || 
+                    description.includes(searchTerm) || 
+                    tags.some(tag => tag.includes(searchTerm))) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Category filter
+        function filterCategory(category) {
+            const sections = document.querySelectorAll('.category-section');
+            const buttons = document.querySelectorAll('.filter-btn');
+            
+            // Update active button
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.toLowerCase().includes(category) || 
+                    (category === 'all' && btn.textContent.includes('Alle'))) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Show/hide sections
+            sections.forEach(section => {
+                if (category === 'all' || section.dataset.category === category) {
+                    section.style.display = 'block';
+                    // Re-trigger animation
+                    section.style.animation = 'none';
+                    setTimeout(() => {
+                        section.style.animation = 'fadeInUp 0.6s ease-out';
+                    }, 10);
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        }
+
+        // Scroll to top functionality
+        const scrollTopBtn = document.getElementById('scrollTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollTopBtn.classList.add('visible');
+            } else {
+                scrollTopBtn.classList.remove('visible');
+            }
+        });
+        
+        scrollTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Add hover effect to cards
+        document.querySelectorAll('.link-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Smooth scroll for internal links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add loading animation when clicking external links
+        document.querySelectorAll('a[target="_blank"]').forEach(link => {
+            link.addEventListener('click', function() {
+                const card = this.closest('.link-card');
+                if (card) {
+                    card.style.opacity = '0.7';
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                    }, 300);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
