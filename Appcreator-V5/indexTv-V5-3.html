@@ -1,0 +1,2026 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IPTV Player · Turis Tv</title>
+<meta name="theme-color" content="#0b1220">
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<!-- NIEUW: Script voor de YouTube IFrame API -->
+<script src="https://www.youtube.com/iframe_api"></script>
+<style>
+  /* MAIN APP */
+  #mainApp {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  .notification-balloon {
+    position: fixed;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    color: #fff;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    max-width: 90%;
+    cursor: pointer;
+  }
+
+  .notification-balloon::before {
+    content: "💡";
+    margin-right: 8px;
+    font-size: 18px;
+  }
+
+  @keyframes bounceIn {
+    0% {
+      opacity: 0;
+      transform: translateX(-50%) translateY(30px) scale(0.8);
+    }
+    60% {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-10px) scale(1.05);
+    }
+    100% {
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+  }
+
+  @keyframes shrinkFlyUp {
+    0% {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-50px) scale(0.5);
+    }
+  }
+
+  .notification-balloon.show {
+    opacity: 1;
+    pointer-events: auto;
+    animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
+
+  .notification-balloon.hide {
+    animation: shrinkFlyUp 0.4s ease-in forwards;
+    pointer-events: none;
+  }
+
+  /* URL VERBERGER */
+  .url-blocker {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: #000;
+    z-index: 9999;
+    display: none;
+    pointer-events: none;
+  }
+  
+  .url-blocker.active {
+    display: block;
+  }
+
+  /* EXISTING STYLES */
+  :root{
+    --bg:#0b1220;
+    --bg2:#0d132a;
+    --card:rgba(16,23,42,.7);
+    --text:#e5e7eb;
+    --muted:#9ca3af;
+    --border:rgba(255,255,255,.08);
+    --accent1:#22d3ee;
+    --accent2:#8b5cf6;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+    --gold:#fbbf24;
+    --whatsapp-green: #25D366;
+    --admin-blue: #3b82f6;
+    --danger-red: #ef4444;
+    --success-green: #10b981;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(1200px 800px at 100% -10%, rgba(34,211,238,.15), transparent 55%),
+      radial-gradient(900px 700px at -20% 20%, rgba(139,92,246,.15), transparent 50%),
+      linear-gradient(180deg, var(--bg), var(--bg2));
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  a{color:inherit;text-decoration:none}
+  button{color:inherit}
+
+  /* Header */
+  header{
+    position:sticky;top:0;z-index:20;
+    background:linear-gradient(180deg, rgba(11,18,32,.95), rgba(11,18,32,.78));
+    backdrop-filter:saturate(1.2) blur(6px);
+    border-bottom:1px solid var(--border);
+    padding:8px 10px 6px;
+    flex-shrink: 0;
+  }
+  .header-top{display:flex;align-items:center;justify-content:space-between}
+  .brand{display:flex;align-items:center;gap:8px}
+  .logo{
+    width:28px;height:28px;border-radius:9px;
+    background:linear-gradient(135deg,var(--accent1),var(--accent2));
+    display:flex;align-items:center;justify-content:center;
+    color:#0b1220;font-weight:900;box-shadow:var(--shadow);font-size:11px
+  }
+  .titlewrap{display:flex;flex-direction:column}
+  .title{font-weight:800;font-size:15px}
+  .subtitle{font-size:10.5px;color:var(--muted)}
+  
+  .header-actions{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  
+  /* WhatsApp Knop */
+  .whatsapp-btn{
+    position: fixed;
+    bottom: 80px;
+    right: 16px;
+    z-index: 25;
+    background: var(--whatsapp-green);
+    border: none;
+    border-radius: 50%;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+    pointer-events: none;
+  }
+  .whatsapp-btn svg{
+    width: 32px;
+    height: 32px;
+  }
+  .whatsapp-btn.show{
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    pointer-events: auto;
+  }
+  .whatsapp-btn:active{
+    transform: scale(0.95) translateY(0);
+  }
+  
+  /* Hamburger Menu */
+  .hamburger{
+    background:rgba(17,24,39,.85);
+    border:1px solid var(--border);
+    border-radius:9px;
+    padding:8px;
+    cursor:pointer;
+    font-size:16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:32px;
+    height:32px;
+  }
+  .hamburger:active{transform:scale(.95)}
+  
+  .dropdown-menu{
+    position:absolute;
+    top:48px;
+    left: 10px; /* --- WIJZIGING: Menu opent nu vanaf links --- */
+    background:rgba(15,23,42,.98);
+    border:1px solid var(--border);
+    border-radius:12px;
+    box-shadow:var(--shadow);
+    padding:8px;
+    min-width:200px;
+    max-width:280px;
+    opacity:0;
+    visibility:hidden;
+    transform:translateY(-10px);
+    transition:all .2s ease;
+    z-index:1000;
+  }
+  .dropdown-menu.open{
+    opacity:1;
+    visibility:visible;
+    transform:translateY(0);
+  }
+  .dropdown-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 12px;
+    border-radius:8px;
+    font-size:13px;
+    transition:background .15s ease;
+    cursor:pointer;
+  }
+  .dropdown-item:hover{
+    background:rgba(255,255,255,.05);
+  }
+  .dropdown-item .icon{
+    font-size:18px;
+  }
+  .dropdown-divider{
+    height:1px;
+    background:var(--border);
+    margin:6px 0;
+  }
+  
+  .action-button{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 12px;
+    background:linear-gradient(135deg,var(--accent1),var(--accent2));
+    color:#0b1220;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+    transition:all .15s ease;
+    cursor:pointer;
+  }
+  .action-button.gold{
+    background:linear-gradient(135deg,var(--gold),#f59e0b);
+  }
+  .action-button.danger{
+    background:linear-gradient(135deg,var(--danger-red),#dc2626);
+    color:#fff;
+  }
+  .action-button.admin{
+    background:linear-gradient(135deg, var(--admin-blue), #1d4ed8);
+    color: #fff;
+  }
+  .action-button:hover{
+    transform:scale(1.02);
+    box-shadow:0 4px 12px rgba(0,0,0,.3);
+  }
+  .action-button:active{
+    transform:scale(0.98);
+  }
+  
+  .controls{display:flex;gap:6px;margin-top:6px}
+  input[type=search],
+  input[type=text],
+  input[type=password],
+  select {
+    flex:1;background:rgba(15,23,42,.85);border:1px solid var(--border);
+    border-radius:9px;padding:8px 10px;color:var(--text);outline:none;font-size:12px
+  }
+  select { appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em; padding-right: 2.5rem; }
+
+  .btn{
+    background:rgba(17,24,39,.85);
+    border:1px solid var(--border);
+    border-radius:9px;
+    padding:7px 9px;
+    font-size:12px;
+    cursor:pointer;
+  }
+  .btn:active{transform:scale(.98)}
+  .cats{display:flex;gap:6px;overflow:auto;padding-top:6px}
+  .cats::-webkit-scrollbar{display:none}
+  .chip{
+    border:1px solid var(--border);
+    background:rgba(17,24,39,.85);
+    color:var(--text);padding:6px 9px;border-radius:999px;
+    white-space:nowrap;font-size:11.5px;opacity:.97;
+    cursor:pointer;
+  }
+  .chip.active{
+    background:linear-gradient(135deg,var(--accent1),var(--accent2));
+    color:#061018;border-color:transparent;font-weight:700
+  }
+  .chip.favorites{
+    background:linear-gradient(135deg,var(--gold),#f59e0b);
+    color:#061018;border-color:transparent;font-weight:700
+  }
+  .chip.favorites.active{
+    background:linear-gradient(135deg,var(--gold),#f59e0b);
+    box-shadow:0 0 12px rgba(251,191,36,.4);
+  }
+
+  /* 18+ & Film secties */
+  #adultVideoSection, #filmVideoSection {
+    display: none;
+    padding: 10px;
+    margin: 10px 10px 0 10px;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+
+  #adultVideoSection {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid var(--danger-red);
+  }
+  #filmVideoSection {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid var(--success-green);
+  }
+  
+  #adultVideoSection.show, #filmVideoSection.show { 
+    display: block; 
+  }
+  
+  #adultVideoSection a, #filmVideoSection a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.3s;
+  }
+  #adultVideoSection a { background: rgba(239, 68, 68, 0.2); }
+  #filmVideoSection a { background: rgba(16, 185, 129, 0.2); }
+
+  #adultVideoSection a:hover { background: rgba(239, 68, 68, 0.3); transform: translateX(5px); }
+  #filmVideoSection a:hover { background: rgba(16, 185, 129, 0.3); transform: translateX(5px); }
+  
+  main{
+    padding: 12px 10px 0;
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+  #channelGrid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 8px;
+    padding-bottom: 78px;
+  }
+
+  /* Cards */
+  .card{
+    position:relative;border-radius:10px;overflow:hidden;
+    background:var(--card);border:1px solid var(--border);
+    box-shadow:0 3px 10px rgba(0,0,0,.2);
+    width:100%;
+    transition:transform .08s ease
+  }
+  .card:active{transform:scale(.985)}
+  .card::before{
+    content:"";position:absolute;inset:-1px;border-radius:10px;padding:1px;
+    background:linear-gradient(135deg, rgba(34,211,238,.45), rgba(139,92,246,.45));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.4
+  }
+  .card.is-favorite::after{
+    content:"⭐";
+    position:absolute;
+    top:3px;
+    right:3px;
+    font-size:11px;
+    z-index:2;
+    filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));
+  }
+  .thumb{
+    position:relative;aspect-ratio:4/3;
+    display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(400px 220px at 20% 0%, rgba(34,211,238,.12), transparent 50%),
+               radial-gradient(400px 220px at 80% 100%, rgba(139,92,246,.12), transparent 50%),
+               #0f172a;
+  }
+  .thumb img{
+    max-width:75%;max-height:75%;
+    object-fit:contain;filter:drop-shadow(0 3px 10px rgba(0,0,0,.28))
+  }
+  .locked::after{
+    content:"🔒 18+ vergrendeld";position:absolute;inset:0;background:rgba(0,0,0,.55);
+    display:flex;align-items:center;justify-content:center;font-weight:800;letter-spacing:.2px;font-size:11px
+  }
+  .info{padding:6px 7px 8px}
+  .title{
+    font-weight:800;font-size:11.5px;line-height:1.25;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+    min-height:2.4em;
+  }
+
+  /* Empty state */
+  .empty-favorites{
+    padding:40px 20px;
+    text-align:center;
+    color:var(--muted);
+    grid-column: 1 / -1;
+  }
+  .empty-favorites .icon{
+    font-size:48px;
+    opacity:0.3;
+    margin-bottom:12px;
+  }
+  .empty-favorites .text{
+    font-size:13px;
+    line-height:1.5;
+  }
+
+  /* Bottom sheet */
+  .sheet{position:fixed;inset:0;z-index:30;opacity:0;pointer-events:none;transition:opacity .2s ease}
+  .sheet.open{opacity:1;pointer-events:auto}
+  .sheet .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.55)}
+  .panel{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%, calc(-50% + 100vh));
+    width:calc(100% - 32px);
+    max-width:500px;
+    background:rgba(15,23,42,.98);
+    border-radius:14px;
+    border:1px solid var(--border);
+    padding:10px 12px 12px;
+    transition:transform .22s ease;
+    box-shadow:0 16px 40px rgba(0,0,0,.45)
+  }
+  .sheet.open .panel{
+    transform:translate(-50%, -50%);
+  }
+  .handle{width:40px;height:4px;border-radius:999px;margin:0 auto 6px;background:rgba(255,255,255,.18)}
+  .sheet h3{margin:4px 0 8px;font-size:13px}
+  
+  /* Video Player */
+  .video-container{
+    position:relative;
+    width:100%;
+    aspect-ratio:16/9;
+    background:#000;
+    border-radius:10px;
+    overflow:hidden;
+    margin-bottom:10px;
+  }
+  .video-container video,
+  .video-container iframe,
+  .video-container #youtube-player { /* NIEUW: Styling voor YouTube player container */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width:100%;
+    height:100%;
+    object-fit:contain;
+  }
+  .video-error{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--muted);
+    font-size:12px;
+    text-align:center;
+    padding:10px;
+  }
+  
+  /* Favorite button */
+  .favorite-btn{
+    position:absolute;
+    top:8px;
+    left:8px;
+    background:rgba(15,15,15,.75);
+    border:2px solid rgba(255,255,255,.2);
+    border-radius:50%;
+    width:36px;
+    height:36px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:16px;
+    cursor:pointer;
+    z-index:5;
+    opacity:0;
+    transform:scale(0.8);
+    transition:all .3s ease;
+    box-shadow:0 3px 8px rgba(0,0,0,.5);
+  }
+  .favorite-btn.show{
+    opacity:1;
+    transform:scale(1);
+  }
+  .favorite-btn:not(.is-favorite){
+    color: #9ca3af;
+    filter:grayscale(1) brightness(0.7);
+  }
+  .favorite-btn.is-favorite{
+    color: #0b1220;
+    background:linear-gradient(135deg, #fbbf24, #f59e0b);
+    border-color:#fbbf24;
+    filter:none;
+    box-shadow:0 0 15px rgba(251,191,36,.6);
+  }
+  .favorite-btn.disabled{
+    opacity:0.3;
+    cursor:not-allowed;
+  }
+  .favorite-btn:hover:not(.disabled){
+    transform:scale(1.15);
+  }
+  .favorite-btn:active:not(.disabled){
+    transform:scale(0.95);
+  }
+  
+  /* Player lijst */
+  .player-list{
+    display: flex;
+    flex-wrap: wrap;
+    gap:5px;
+    justify-content: center;
+  }
+  .player{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:3px;
+    background:#111827;
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:6px 4px;
+    cursor:pointer;
+    width: calc(20% - 4px);
+    min-width: 50px;
+  }
+  .player .emo{font-size:14px}
+  .player .pname{font-size:9px}
+  
+  .close-player-btn{
+    position:absolute;
+    top:10px;
+    right:10px;
+    background:rgba(0,0,0,.5);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:6px 10px;
+    font-size:11px;
+    cursor:pointer;
+    z-index:5;
+  }
+
+  footer{
+    position:fixed;left:0;right:0;bottom:0;z-index:10;
+    background:rgba(11,18,32,.92);backdrop-filter:blur(6px);
+    border-top:1px solid var(--border);padding:7px 9px;color:var(--muted);font-size:11px;
+    flex-shrink: 0;
+  }
+
+  .hidden{display:none !important}
+
+  /* Modal */
+  .modal {
+    position:fixed;inset:0;z-index:35;opacity:0;pointer-events:none;
+    transition:opacity .2s ease;
+    -webkit-overflow-scrolling: touch;
+  }
+  .modal.open {
+    opacity:1;pointer-events:auto;
+  }
+  .modal .backdrop{
+    position:absolute;inset:0;background:rgba(0,0,0,.6);
+  }
+  .modal .box{
+    position:absolute;left:14px;right:14px;top:50%;
+    transform:translateY(-50%);background:#0f172a;
+    border:1px solid var(--border);border-radius:12px;
+    padding:12px;box-shadow:var(--shadow);
+    max-width: 400px; margin-left: auto; margin-right: auto;
+    max-height: 90vh; overflow-y: auto;
+  }
+  .modal .box h3 { margin:0 0 6px; font-size:15px; }
+  .modal .box p.muted { font-size:12px; color:var(--muted); margin: 0 0 8px;}
+  .modal .box .inputs { margin:12px 0; display:flex; flex-direction:column; gap:8px; }
+  .modal .box .actions { display:flex; gap:6px; }
+  .modal .box input, .modal .box select { width: 100%; }
+  .modal .box .btn { flex:1; }
+
+  /* Admin paneel */
+  #adminPanel .box {
+    top: 15px; transform: translateY(0); max-width: 500px;
+  }
+  #adminPanel .form-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    margin: 8px 0 4px;
+    display: block;
+  }
+  .admin-channel-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    border-radius: 6px;
+    background-color: var(--bg);
+    margin-bottom: 5px;
+    font-size: 12px;
+  }
+  .admin-channel-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: 10px;
+  }
+  .delete-btn {
+    background: var(--danger-red);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 4px 8px;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  /* Export knop styling */
+  .export-btn {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 15px;
+    transition: all 0.3s;
+  }
+  .export-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  }
+
+  /* Checkbox styling */
+  .checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0;
+  }
+  .checkbox-group input[type="checkbox"] {
+    width: auto;
+    cursor: pointer;
+  }
+  .checkbox-group label {
+    color: var(--text);
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+</style>
+</head>
+<body>
+
+<div id="mainApp">
+  <header>
+    <div class="header-top">
+      <!-- --- WIJZIGING: Hamburgerknop verplaatst naar links --- -->
+      <div class="brand">
+        <button id="hamburgerBtn" class="hamburger">☰</button>
+      </div>
+      
+      <div class="header-actions">
+        <!-- Deze div is nu leeg, de knop staat in .brand -->
+      </div>
+    </div>
+    
+    <div id="dropdownMenu" class="dropdown-menu">
+      <div class="action-button gold" id="goToFavorites">
+        <span class="icon">⭐</span>
+        <span>Favorilere Git</span>
+      </div>
+      <div class="dropdown-divider"></div>
+      
+      <div class="action-button admin" id="controlPanelBtn">
+        <span class="icon">⚙️</span>
+        <span>Control Panel</span>
+      </div>
+      <div class="dropdown-divider"></div>
+      <div class="action-button danger" id="testPageBtn">
+        <span class="icon">🔧</span>
+        <span>Turis'e Ait</span>
+      </div>
+      <div class="dropdown-divider"></div>
+      <div class="action-button" id="clearFavorites">
+        <span class="icon">🗑️</span>
+        <span>Favorileri temizle</span>
+      </div>
+      <div class="dropdown-divider"></div>
+      <div style="padding:8px 12px;font-size:11px;color:var(--muted);font-weight:600">OYNATICILARI İNDİR</div>
+      <div class="dropdown-divider"></div>
+      <a href="https://play.google.com/store/apps/details?id=org.videolan.vlc" target="_blank" class="dropdown-item">
+        <span class="icon">🦊</span>
+        <span>VLC Player İndir</span>
+      </a>
+      <a href="https://drive.google.com/file/d/1BtoFqahQgvpl2l7nj5xIjzvSyRL_RX2d/view?usp=drive_link" target="_blank" class="dropdown-item">
+        <span class="icon">🐺</span>
+        <span>Wuffy Player İndir</span>
+      </a>
+      <a href="https://play.google.com/store/apps/details?id=com.kmplayer" target="_blank" class="dropdown-item">
+        <span class="icon">📽️</span>
+        <span>KMPlayer İndir</span>
+      </a>
+      <a href="https://play.google.com/store/apps/details?id=com.mxtech.videoplayer.ad" target="_blank" class="dropdown-item">
+        <span class="icon">🎬</span>
+        <span>MX Player İndir</span>
+      </a>
+      <a href="https://drive.google.com/file/d/1K0GesHSvL3d2M8yigNNx1M6ZurdPOFRM/view?usp=drive_link" target="_blank" class="dropdown-item">
+        <span class="icon">🅾️</span>
+        <span>OPlayer İndir</span>
+      </a>
+      <a href="https://drive.google.com/file/d/181ntZNZ1RC-SeV3Ren_u9OD0QKSzOIDS/view?usp=drive_link" target="_blank" class="dropdown-item">
+        <span class="icon">▶️</span>
+        <span>Perfect Player İndir</span>
+      </a>
+      <div class="dropdown-divider"></div>
+      <a href="https://www.videolan.org/vlc/download-android.html" target="_blank" class="dropdown-item">
+        <span class="icon">🦊</span>
+        <span>VLC Website</span>
+      </a>
+      <a href="https://www.mxplayer.in/" target="_blank" class="dropdown-item">
+        <span class="icon">🎬</span>
+        <span>MX Player Website</span>
+      </a>
+    </div>
+
+    <div class="controls">
+      <input id="search" type="search" placeholder="Kanal veya kategorie ara..." autocomplete="off">
+      <button id="btnAdultLock" class="btn" title="18+ kilitleme/kilidi açma"> </button>
+    </div>
+    <div id="cats" class="cats"></div>
+  </header>
+  
+  <main>
+    <div id="filmVideoSection">
+      <a href="https://turis-tv.github.io/2026-Menu/4-Filmler/index.html" target="_blank">
+        <span style="font-size: 24px;">🎬</span>
+        <span style="font-weight: 600;"> Filmler izle - Tikla</span>
+      </a>
+    </div>
+    <div id="adultVideoSection">
+      <a href="https://merhmet.github.io/XXX.io/xxx/indexx.html" target="_blank">
+        <span style="font-size: 24px;">🔞</span>
+        <span style="font-weight: 600;">18+ Premium Web-Siteleri - Tikla</span>
+      </a>
+    </div>
+    <div id="channelGrid"></div>
+  </main>
+</div>
+
+<!-- Deze elementen staan buiten de hoofd layout container voor een correcte 'fixed' positionering -->
+<div id="urlBlocker" class="url-blocker"></div>
+<div id="notificationBalloon" class="notification-balloon">
+ ☰ Menüsünden Tüm Playerleri indirin! SPOR DIGER PLAYERLER ile CALISIYOR
+</div>
+<a href="https://wa.me/486790423" target="_blank" id="whatsappBtn" class="whatsapp-btn" title="Contact via WhatsApp">
+  <svg fill="currentColor" viewBox="0 0 24 24">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"></path>
+  </svg>
+</a>
+<footer>
+Bir kanalı VLC, Wuffy, KMPlayer, MX Player, veya SYSTEM ile açmak için kanala dokunun.
+</footer>
+
+<div id="chooser" class="sheet" aria-hidden="true">
+  <div class="backdrop" data-close></div>
+  <div class="panel">
+    <div class="handle"></div>
+    <h3 id="chooserTitle">Şununla aç:</h3>
+    <div class="video-container" id="videoContainer">
+      <!-- Inhoud wordt dynamisch geladen door JS -->
+    </div>
+    <div class="player-list">
+      <a class="player" id="btnVLC"><div class="emo">🦊</div><div class="pname">VLC</div></a>
+      <a class="player" id="btnWuffy"><div class="emo">🐺</div><div class="pname">Wuffy</div></a>
+      <a class="player" id="btnKMPlayer"><div class="emo">📽️</div><div class="pname">KM</div></a>
+      <a class="player" id="btnMX"><div class="emo">🎬</div><div class="pname">MX</div></a>
+      <a class="player" id="btnOPlayer"><div class="emo">🅾️</div><div class="pname">OPlayer</div></a>
+      <a class="player" id="btnPerfectPlayer"><div class="emo">▶️</div><div class="pname">Perfect</div></a>
+      <a class="player" id="btnSystem"><div class="emo">📱</div><div class="pname">System</div></a>
+      <button class="player" id="btnWebPlayer"><div class="emo">🌐</div><div class="pname">Web</div></button>
+    </div>
+  </div>
+</div>
+<div id="adultGate" class="modal" aria-hidden="true">
+  <div class="backdrop" data-close></div>
+  <div class="box">
+    <h3>🔞 18+ yaş için</h3>
+    <p class="muted">Bu içeriği görüntülemek için şifreyi girin.</p>
+    <div class="inputs">
+      <input type="password" id="pw1" placeholder="Şifre">
+    </div>
+    <div class="actions">
+      <button class="btn" id="btnCancelAdult">İptal</button>
+      <button class="btn" id="btnUnlockAdult" style="background:linear-gradient(135deg,var(--accent1),var(--accent2));border:none;font-weight:600">Kilidi aç</button>
+    </div>
+    <p id="pwError" class="muted danger hidden" style="color:#fca5a5;font-size:11px">Yanlış şifre.</p>
+  </div>
+</div>
+<div id="testGate" class="modal" aria-hidden="true">
+  <div class="backdrop" data-close></div>
+  <div class="box">
+    <h3>🔧 Test Sayfası Erişimi</h3>
+    <p class="muted">Test sayfasına erişmek için yönetici şifresini girin.</p>
+    <div class="inputs">
+      <input type="password" id="testPw" placeholder="Yönetici şifresi">
+    </div>
+    <div class="actions">
+      <button class="btn" id="btnCancelTest">İptal</button>
+      <button class="btn" id="btnUnlockTest" style="background:linear-gradient(135deg,#ef4444,#dc2626);border:none;font-weight:600;color:#fff">Teste Git</button>
+    </div>
+    <p id="testPwError" class="muted danger hidden" style="color:#fca5a5;font-size:11px">Yanlış şifre.</p>
+  </div>
+</div>
+<div id="adminGate" class="modal" aria-hidden="true">
+  <div class="backdrop" data-close></div>
+  <div class="box">
+    <h3>⚙️ Control Panel Erişimi</h3>
+    <p class="muted">Control Panel'e erişmek voor admin şifresini girin.</p>
+    <div class="inputs">
+      <input type="password" id="adminPw" placeholder="Admin şifresi">
+    </div>
+    <div class="actions">
+      <button class="btn" id="btnCancelAdmin">İptal</button>
+      <button class="btn" id="btnUnlockAdmin" style="background:linear-gradient(135deg, var(--admin-blue), #1d4ed8);border:none;font-weight:600;color:#fff">Giriş Yap</button>
+    </div>
+    <p id="adminPwError" class="muted danger hidden" style="color:#fca5a5;font-size:11px">Yanlış şifre.</p>
+  </div>
+</div>
+<div id="adminPanel" class="modal" aria-hidden="true">
+  <div class="backdrop" data-close></div>
+  <div class="box">
+    <h3>⚙️ Kanal Ekleme Paneli</h3>
+    <label for="newChannelName" class="form-label">Kanal Adı:</label>
+    <input type="text" id="newChannelName" placeholder="Örn: TRT 1 HD">
+    <label for="newChannelUrl" class="form-label">Kanal URL (.m3u8 of website link):</label>
+    <input type="text" id="newChannelUrl" placeholder="https://..../master.m3u8">
+    <label for="newChannelLogo" class="form-label">Logo URL (resim linki):</label>
+    <input type="text" id="newChannelLogo" placeholder="https://..../logo.png">
+    <label for="newChannelCategory" class="form-label">Kategori:</label>
+    <select id="newChannelCategory"></select>
+    <div class="checkbox-group">
+      <input type="checkbox" id="isLinkType">
+      <label for="isLinkType">Dit is een externe link (a href) - opent in nieuwe tab</label>
+    </div>
+    <div class="checkbox-group">
+      <input type="checkbox" id="isAdult18">
+      <label for="isAdult18">18+ Content (alleen voor adult categorie)</label>
+    </div>
+    <div class="actions" style="margin-top: 15px;">
+      <button id="addChannelBtn" class="btn" style="flex:1; background:linear-gradient(135deg, var(--accent1), var(--accent2)); border:none; font-weight:600;">Kanalı Kaydet</button>
+    </div>
+    <button id="exportHTMLBtn" class="export-btn">
+      💾 HTML Exporteren (Download met alle kanalen)
+    </button>
+    <div id="adminChannelListSection" class="hidden" style="margin-top: 20px;">
+      <div class="dropdown-divider"></div>
+      <h3 style="margin-top: 15px;">Kaydedilmiş Kanallar</h3>
+      <p class="muted" style="margin-bottom: 10px;">Bu kanallar tarayıcınızda saklanır. Silmek için "Sil"e tıklayın.</p>
+      <div id="adminChannelList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  // NOTIFICATIE
+  if (!sessionStorage.getItem('notificationShown')) {
+    const notificationBalloon = document.getElementById('notificationBalloon');
+    const originalNotificationText = notificationBalloon.textContent.trim();
+    
+    setTimeout(() => {
+      notificationBalloon.classList.remove('hide');
+      notificationBalloon.classList.add('show');
+      
+      let countdownSeconds = 5;
+      notificationBalloon.textContent = `${originalNotificationText} (${countdownSeconds}s)`;
+      
+      const countdownInterval = setInterval(() => {
+        countdownSeconds--;
+        notificationBalloon.textContent = `${originalNotificationText} (${countdownSeconds}s)`;
+        
+        if (countdownSeconds <= 0) {
+          clearInterval(countdownInterval);
+          notificationBalloon.classList.remove('show');
+          notificationBalloon.classList.add('hide');
+        }
+      }, 1000);
+      
+    }, 500);
+
+    sessionStorage.setItem('notificationShown', 'true');
+  }
+
+  // BASISKANALEN
+  const channels = {    
+    ulusal: {
+      title: "Ulusal",
+      icon: "🏅",
+      adult: false,
+      items: [
+        { name:"TRT 1", url:"http://origi-jw-5.ravenclaw-house.com:80/TR-TRT1/tracks-v1a1/mono.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"TRT 1", url:"https://tatatam.trt1sultanfatihss.workers.dev/http://origi-jw-5.ravenclaw-house.com:80/TR-TRT1/tracks-v1a1/mono.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"ATV", url:"https://tatatam.trt1sultanfatihss.workers.dev/http://origi-jw-5.ravenclaw-house.com:80/TR-ATV/tracks-v1a1/mono.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"ATV", url:"https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/atv/atv_720p.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"ATV", url:"https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/atv/atv_480p.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"ATV", url:"https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/atv/atv.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"ATV", url:"http://stream.tvcdn.net/ulusal/atv.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"KANAL D", url:"https://tatatam.trt1sultanfatihss.workers.dev/https://kdlive.duhnet.tv/S2/HLS_LIVE/kanalddainp/track_4_1250/playlist.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"KANAL D", url:"https://ackaxsqacw.turknet.ercdn.net/ozfkfbbjba/kanald/kanald.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"EUR D", url:"https://live.duhnet.tv/S2/HLS_LIVE/eurodnp/track_4_1000/playlist.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"STAR TV", url:"https://emmazbvkkf.turknet.ercdn.net/cnifuowzza/startv/startv.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"SHOW TÛRK", url:"https://raw.githubusercontent.com/rideordie16/YouTube/main/ch/showturk.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"SHOW TV", url:"https://tatatam.trt1sultanfatihss.workers.dev/http://origi-jw-5.ravenclaw-house.com:80/TR-SHOW/tracks-v1a1/mono.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"SHOW TV", url:"https://rmtftbjlne.turknet.ercdn.net/bpeytmnqyp/showtv/showtv.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"NOW TV", url:"https://uycyyuuzyh.turknet.ercdn.net/nphindgytw/nowtv/nowtv.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"TV 8", url:"https://rkhubpaomb.turknet.ercdn.net/fwjkgpasof/tv8/tv8.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"TV 8,5", url:"https://rkhubpaomb.turknet.ercdn.net/fwjkgpasof/tv8bucuk/tv8bucuk.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"A 2", url:"https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/a2tv/a2tv.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"TABII TV", url:"https://ceokzokgtd.erbvr.com/tabiitv/tabiitv.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"KANAL 7", url:"https://yurhnwtpys.turknet.ercdn.net/cvmbjbpmdx/kanal7/kanal7.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"KANAL7 EU", url:"https://livetv.radyotvonline.net/kanal7live/kanal7avr/playlist.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"SHOW MAX", url:"https://rmtftbjlne.turknet.ercdn.net/bpeytmnqyp/showmax/showmax.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"BEYAZ TV", url:"https://beyaztv-live.daioncdn.net/beyaztv/beyaztv.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"TV 360", url:"https://turkmedya-live.ercdn.net/tv360/tv360.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"TRT TÛRK", url:"https://tv-trtturk.medya.trt.com.tr/master.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"TRT AVAZ", url:"https://tv-trtavaz.medya.trt.com.tr/master.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"TRT 2", url:"https://tv-trt2.medya.trt.com.tr/master.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"BEYAZ TV", url:"https://beyaztv-live.daioncdn.net/beyaztv/beyaztv_1080p.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+        { name:"ARABESK", url:"https://canli.arabeskinmerkezi.com/9180/stream", logo:"https://od.lk/s/OTFfNDA2MDkyMzBf/image%20%2810%29.png" },
+ 
+      ]
+    },
+    haber: {
+      title: "Haber",
+      icon: "📡",
+      adult: false,
+      items: [
+         { name:"CNN TÛRK", url:"https://tatatam.trt1sultanfatihss.workers.dev/http://origi-jw-5.ravenclaw-house.com:80/TR-CNN-TURK/tracks-v1a1/mono.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+         { name:"CNN TÛRK", url:"http://116.202.238.88/CNNTURK_TR/index.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+        { name:"A HABER", url:"http://stream.tvcdn.net/haber/a-haber.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+        { name:"ÛLKE TV", url:"https://livetv.radyotvonline.net/kanal7live/ulketv/playlist.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+        { name:"AKIT TV", url:"http://akittv-live.ercdn.net/akittv/akittv_360p.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+        { name:"HALK TV", url:"https://halktv-live.daioncdn.net/halktv/haltv.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+        { name:"TELE 1", url:"https://tele1-live.ercdn.net/tele1/tele1.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+        { name:"FLASH HABER", url:"https://flashhaber-live.ercdn.net/flashhaber/flashhaber.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+        { name:"NTV", url:"https://dogus-live.daioncdn.net/ntv/ntv_720p.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+        { name:"BLOOM BERGHT", url:"https://bloomberght-live.daioncdn.net/bloomberght/bloomberght.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+        { name:"HABER GLOBAL", url:"https://ensonhaber-live.ercdn.net/haberglobal/haberglobal.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+        { name:"TRT TÛRK", url:"https://tv-trthaber.medya.trt.com.tr/master.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+        { name:"HABER TÛRK", url:"https://rmtftbjlne.turknet.ercdn.net/bpeytmnqyp/haberturktv/haberturktv.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+        { name:"TV 100", url:"https://tv100-live.daioncdn.net/tv100/tv100.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+        { name:"TV 24", url:"https://turkmedya-live.ercdn.net/tv24/tv24.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+        { name:"TRT HABER", url:"https://tv-trthaber.medya.trt.com.tr/master_360.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+        { name:"BENGÛ TÛRK", url:"https://trn03.tulix.tv/gt-benguturk/index.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+        { name:"TBBM", url:"https://meclistv-live.ercdn.net/meclistv/meclistv.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+        { name:"TGRT", url:"https://tgrthaber-live.daioncdn.net/tgrthaber/tgrthaber.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+        { name:"TGRT HABER", url:"https://tgrthaber-live.daioncdn.net/tgrthaber/tgrthaber_480p.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+        { name:"A HABER", url:"https://trkvz-live.ercdn.net/ahaberhd/ahaberhd_720p.m3u8?st=SuvEmRnFpAsxxCngY3uWcQ&e=1760529751", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+        { name:"TVNET", url:"https://mn-nl.mncdn.com/tvnet/tvnet/playlist.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+        { name:"HABER GLOBAL", url:"https://tv.ensonhaber.com/haberglobal/haberglobal.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+        { name:"REHBER TV", url:"https://cdn4.yayin.com.tr/rehbertv/tracks-v1a1/mono.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+
+
+
+
+
+        { name:"BLOOMBERG", url:"https://bloomberght-live.daioncdn.net/bloomberght/bloomberght.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjZf/image%20%281%29.png" },
+      ]
+    },
+    spor: {
+      title: "Spor",
+      icon: "⚽",
+      adult: false,
+      items: [
+        { name:"BEIN SPOR 1", url:"https://andro.okan9gote10sokan.cfd/checklist/androstreamlivebs1.m3u8", logo:"https://od.lk/s/NzJfNDc2NzI0MDFf/BosK.png" },
+        { name:"BEIN SPOR 2", url:"https://cdn-8878.varplaycdn.cfd/602/tracks-v1a1/mono.m3u8", logo:"https://od.lk/s/NzJfNDc2NzI0MDFf/BosK.png" },
+        { name:"BEIN SPOR 3", url:"https://cdn-8878.varplaycdn.cfd/603/tracks-v1a1/mono.m3u8", logo:"https://od.lk/s/NzJfNDc2NzI0MDFf/BosK.png" },
+        { name:"BEIN SPOR 4", url:"https://cdn-8878.varplaycdn.cfd/604/tracks-v1a1/mono.m3u8", logo:"https://od.lk/s/NzJfNDc2NzI0MDFf/BosK.png" },
+        { name:"BEIN SPOR 5", url:"https://one.6c53c716e5c951f6.click/live/selcukbeinsports5/playlist.m3u8?_HLS_skip=YES", logo:"https://od.lk/s/NzJfNDc2NzI0MDFf/BosK.png" },
+        { name:"BEIN SPOR 5", url:"https://alfaromeo.zirvedesin22.sbs/yayinb5.m3u8", logo:"https://od.lk/s/NzJfNDc2NzI0MDFf/BosK.png" },
+        { name:"BEIN MAX", url:"https://one.6c53c716e5c951f6.click/live/selcukbeinsportsmax1/playlist.m3u8?_HLS_skip=YES", logo:"https://od.lk/s/NzJfNDc2NzI0MDFf/BosK.png" },
+        { name:"BEIN MAX 2", url:"https://alfaromeo.zirvedesin22.sbs/yayinbm2.m3u8", logo:"https://od.lk/s/NzJfNDc2NzI0MDFf/BosK.png" },
+        { name:"SPORTS TV", url:"https://live.sportstv.com.tr/hls/low/sportstv.m3u8", logo:"https://od.lk/s/NzJfNDc2NzI0MDFf/BosK.png" },
+         { name:"TJK TV", url:"https://tjktv-live.tjk.org/tjktv.m3u8", logo:"https://od.lk/s/NzJfNDc2NzI0MDFf/BosK.png" },
+ 
+
+
+
+      ]
+    },
+    muzik: {
+      title: "Muzik",
+      icon: "🎵",
+      adult: false,
+      items: [
+        { name:"VOSTOK TV", url:"http://911play.ru:3456/live/VostokSite/cdnVostaoc911tv123456/489.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"NR 1 DAMAR", url:"https://b01c02nl.mediatriple.net/videoonlylive/mtkgeuihrlfwlive/u_stream_5c9e198784bdc_1/playlist.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"MİLYON TV", url:"https://sosyoapp-live.cdnnew.com/sosyo/buraya-bir-isim-verin.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"KRAL", url:"https://dogus-live.daioncdn.net/kralpoptv/kralpoptv_720p.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"FiNEST TV", url:"http://media.finest.tv/hls/live.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"SILA TV", url:"https://tvsms.club/tv.php?kanal=silatv&file=.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"DAMAR TV", url:"https://tvsms.club/tv.php?kanal=damar&file=.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"ERCIYES TV", url:"https://cdn1-ercistv.yayin.com.tr/ercistv/amlst:ercistv/chunklist.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"ZEYNO TV", url:"https://tvsms.club/tv.php?kanal=zeynotv&file=.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"TRT MÛZIK", url:"https://tv-trtmuzik.medya.trt.com.tr/master.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"NR1 TÛRK", url:"https://listen.powerapp.com.tr/pturktaptaze/taptaze.smil/playlist.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"POWER", url:"https://livetv.powerapp.com.tr/powerTV/powerhd.smil/playist.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"POWER TÛRK", url:"https://listen.powerapp.com.tr/pturkakustik/akustik.smil/playlist.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"DREAM TÛRK", url:"https://ancient-shape-c20a.yedekbirkankam.workers.dev/https://live.duhnet.tv/S2/HLS_LIVE/dreamturknp/playlist.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"KANAL 19", url:"https://live.euromediacenter.com/kanal19/index.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"ARABESK", url:"https://yayin.santraltr.com/hls/arabeskyeni.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"TEMPO TV", url:"https://live.artidijitalmedya.com/artidijital_tempotv/tempotv/playlist.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"ERCIYES TV", url:"https://cdn1-ercistv.yayin.com.tr/ercistv/amlst:ercistv/chunklist.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"NR 1 AŞK", url:"https://b01c02nl.mediatriple.net/videoonlylive/mtkgeuihrlfwlive/u_stream_5c9e18f9cea15_1/playlist.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"NR 1 DANCE", url:"https://b01c02nl.mediatriple.net/videoonlylive/mtkgeuihrlfwlive/broadcast_5c9e187770143.smil/playlist.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"NR 1", url:"https://b01c02nl.mediatriple.net/videoonlylive/mtkgeuihrlfwlive/broadcast_5c9e2ee690051.smil/playlist.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"POWER DANCE", url:"http://livetv.powerapp.com.tr/dance/dance.smil/playlist.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"POWER LOVE", url:"https://listen.powerapp.com.tr/plove/love.smil/playlist.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"POWER SLOW", url:"https://listen.powerapp.com.tr/pturkslow/slow.smil/playlist.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"POWER TÜRK", url:"https://live.artidijitalmedya.com/artidijital_powerturktv/powerturktv/playlist.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"POWER TÜRK AKOSTIK", url:"https://listen.powerapp.com.tr/pturkakustik/akustik.smil/playlist.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"POWER TÜRK TAPTAZE", url:"https://listen.powerapp.com.tr/pturktaptaze/taptaze.smil/playlist.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"RİZE TÜRK", url:"https://yayin.rizeturk.com:3777/hybrid/play.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"TEMPO TV", url:"https://live.artidijitalmedya.com/artidijital_tempotv/tempotv/playlist.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"TOP POP", url:"https://tvsms.club/tvz.php?kanal=toppop&file=.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"TİVİ TÜRK", url:"https://stream.tiviturk.de/live/tiviturk.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+        { name:"TEMPO TV", url:"https://live.artidijitalmedya.com/artidijital_tempotv/tempotv/playlist.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjlf/image%20%2811%29.png" },
+ 
+      ]
+    },
+    belgesel: {
+      title: "Belgesel",
+      icon: "🐘",
+      adult: false,
+      items: [
+        { name:"TEVE 2", url:"https://ackaxsqacw.turknet.ercdn.net/ozfkfbbjba/teve2/teve2.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjhf/image%20%2812%29.png" },
+        { name:"TLC", url:"https://emmazbvkkf.turknet.ercdn.net/cnifuowzza/tlc/tlc.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjhf/image%20%2812%29.png" },
+        { name:"DMAX", url:"https://emmazbvkkf.turknet.ercdn.net/cnifuowzza/dmax/dmax.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjhf/image%20%2812%29.png" },
+        { name:"TRT BELGESEL", url:"https://tv-trtbelgesel.medya.trt.com.tr/master.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjhf/image%20%2812%29.png" },
+        { name:"TARIH TV", url:"https://ancient-shape-c20a.yedekbirkankam.workers.dev/https://tv1.arectv30.sbs/live/tarihtv.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjhf/image%20%2812%29.png" },
+        { name:"BBC", url:"https://ancient-shape-c20a.yedekbirkankam.workers.dev/https://tv1.arectv30.sbs/live/bbc.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjhf/image%20%2812%29.png" },
+        { name:"Ciftci TV", url:"https://live.artidijitalmedya.com/artidijital_ciftcitv/ciftcitv/playlist.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjhf/image%20%2812%29.png" },
+        { name:"CINE 1", url:"https://live.artidijitalmedya.com/artidijital_cine1/cine1/playlist.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjhf/image%20%2812%29.png" },
+        { name:"CNBC-E", url:"https://raw.githubusercontent.com/tecotv2025/tecotv/refs/heads/main/playlist/CNBC_E.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjhf/image%20%2812%29.png" },
+        { name:"DHA", url:"https://603c568fccdf5.streamlock.net/live/dhaweb1_C5efC/playlist.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjhf/image%20%2812%29.png" },
+
+
+
+
+
+      ]
+    },
+    film: {
+      title: "Film",
+      icon: "🎬",
+      adult: false,
+      items: [
+        { name:"SINEMA 1", url:"https://host.onlineradyotv.net:8081/sdmtv/tracks-v1a1/mono.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjdf/image%20%2813%29.png" },
+        { name:"KANAL 19", url:"https://live.euromediacenter.com/kanal19/index.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjdf/image%20%2813%29.png" },
+        { name:"ONE 4", url:"https://edge1.socialsmart.tv/on4/bant1/playlist.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjdf/image%20%2813%29.png" },  
+        { name:"ONE 6", url:"https://live.artidijitalmedya.com/artidijital_kanal16/kanal16/playlist.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjdf/image%20%2813%29.png" },   
+        { name:"TIVI 6", url:"https://live.artidijitalmedya.com/artidijital_tivi6/tivi6/playlist.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjdf/image%20%2813%29.png" },   
+        { name:"TV 4", url:"https://turkmedya-live.ercdn.net/tv4/tv4.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjdf/image%20%2813%29.png" },
+        { name:"RIZE TÛRK", url:"https://yayin.rizeturk.com:3777/hybrid/play.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjdf/image%20%2813%29.png" },
+        { name:"SUPER TÛRK", url:"http://75.119.144.48/SUPERTURK_TV_STREAM/index.m3u8?start=LIVE&end=END", logo:"https://od.lk/s/OTFfNDA2MDkyMjdf/image%20%2813%29.png" },
+      ]
+    },
+   dini: {
+      title: "Dini",
+      icon: "🕌",
+      adult: false,
+      items: [
+        { name:"ILAHI TV", url:"http://stream.tvcdn.net/dini/ilahiler-tv.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjVf/image%20%282%29.png" },
+        { name:"DOST TV", url:"https://dost.stream.emsal.im/tv/live.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjVf/image%20%282%29.png" },
+        { name:"DIYANET", url:"https://eustr73.mediatriple.net/videoonlylive/mtikoimxnztxlive/broadcast_5e3bf95a47e07.smil/playlist.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjVf/image%20%282%29.png" },
+        { name:"MELTEM TV", url:"https://vhxyrsly.rocketcdn.com/meltemtv/playlist.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjVf/image%20%282%29.png" },
+        { name:"SEMERKANT TV", url:"http://stream.tvcdn.net/dini/semerkand-way.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjVf/image%20%282%29.png" },
+        { name:"DIYAR TV", url:"http://stream.tvcdn.net/dini/diyar-tv.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjVf/image%20%282%29.png" },
+        { name:"KUDUS TV", url:"http://stream.tvcdn.net/dini/kudus-tv.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjVf/image%20%282%29.png" },
+        { name:"LALEGÛL TV", url:"http://stream.tvcdn.net/dini/lalegul-tv.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjVf/image%20%282%29.png" },
+        { name:"ON4 TV", url:"http://stream.tvcdn.net/dini/on4-tv.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjVf/image%20%282%29.png" },
+        { name:"AILE TV", url:"http://stream.tvcdn.net/dini/aile-tv.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjVf/image%20%282%29.png" },
+        { name:"ASR-SERIF", url:"http://stream.tvcdn.net/dini/asr-i-serif-tv.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjVf/image%20%282%29.png" },
+        { name:"KUR'AN", url:"http://stream.tvcdn.net/dini/kuran-i-kerim-dersleri.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjVf/image%20%282%29.png" },
+        { name:"ISLAM TV", url:"http://stream.tvcdn.net/dini/islam-tv.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjVf/image%20%282%29.png" },
+        { name:"ILMIHAL TV", url:"http://stream.tvcdn.net/dini/ilmihal-tv.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjVf/image%20%282%29.png" },
+        { name:"ASR SAADET TV", url:"http://stream.tvcdn.net/dini/asr-i-saadet-tv.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjVf/image%20%282%29.png" },
+        { name:"VAAZ TV", url:"http://stream.tvcdn.net/dini/vaaz-tv.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjVf/image%20%282%29.png" },
+ 
+      ]
+    },
+    cocuk: {
+      title: "Cocuk",
+      icon: "👶",
+      adult: false,
+      items: [
+        { name:"CARTOON", url:"http://stream.tvcdn.net/cocuk-egitim/cartoon-network.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjNf/image%20%284%29.png" },
+        { name:"CINE 5", url:"https://cdn-cine5.yayin.com.tr/cine5/cine5/playlist.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjNf/image%20%284%29.png" },
+        { name:"MINIKA COCUK", url:"https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/minikago_cocuk/minikago_cocuk.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjNf/image%20%284%29.png" },
+        { name:"MINIKA GO", url:"https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/minikago/minikago.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjNf/image%20%284%29.png" },
+        { name:"CARTOON", url:"https://tv.arectv34.sbs/live/cartoonnetwork.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjNf/image%20%284%29.png" },
+        { name:"TRT COCUK", url:"https://tv-trtcocuk.medya.trt.com.tr/master.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjNf/image%20%284%29.png" },
+        { name:"ÔZEL TV", url:"http://stream.tvcdn.net/cocuk-egitim/cocuklara-ozel-tv.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjNf/image%20%284%29.png" },
+        { name:"CIZGI TV", url:"http://stream.tvcdn.net/cocuk-egitim/cizgi-film-tv.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjNf/image%20%284%29.png" },
+ 
+      ]
+    },
+    youtube: {
+      title: "YouTube",
+      icon: "📽️",
+      adult: false,
+      type: "youtube",
+      items: [
+        { name:"Evlerinin Önü Yoldur", url:"https://www.youtube.com/embed/JjTeViaVdoI", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"O Yar Gelir", url:"https://www.youtube.com/embed/MqV55hD0Sv4", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Kar Yağar Kar", url:"https://www.youtube.com/embed/qaxtyajdjmc", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Lorke Lorke", url:"https://www.youtube.com/embed/Mwu43X40PgE", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Eminem", url:"https://www.youtube.com/embed/lvBzN8BsWtE", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Sigaramın Dumanı ", url:"https://www.youtube.com/embed/YByNhFSYWw4", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Çamlar Altında", url:"https://www.youtube.com/embed/WD014Ym7Zno", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Dam Üstüne Çul Serer", url:"https://www.youtube.com/embed/kEQRhS1nsIc", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Dane dane benleri ", url:"https://www.youtube.com/embed/GO4LpAXFbwg", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Vay Nene ", url:"https://www.youtube.com/embed/GbZX0_EQei0", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Kokladığın Güller Olam", url:"https://www.youtube.com/embed/lSQ4zGhvETo", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Makaram Sarı Bağlar", url:"https://www.youtube.com/embed/c1h68yMxb3I", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Ne Güzel Yaratmış", url:"https://www.youtube.com/embed/1O00V1XmxXw", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Vay Nene", url:"https://www.youtube.com/embed/gb__1TCkixo", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Hazalım", url:"https://www.youtube.com/embed/JRg5_qcx6es", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Kara Gözlüm", url:"https://www.youtube.com/embed/wmHeQKY2Wl0", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Evlerinin Önü Yonca", url:"https://www.youtube.com/embed/UYjuzPRl9R0", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"İğne Attım Tarlaya", url:"https://www.youtube.com/embed/JW5W2kVLxAA", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Emo Suya Gider", url:"https://www.youtube.com/embed/N0_lo8I_rcI", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Gel Kibarım Kibarım ", url:"https://www.youtube.com/embed/7a14nHuBvFo", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Leyli Güzel ", url:"https://www.youtube.com/embed/qUE2jtJIB1c", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Zor imiş Meğer", url:"https://www.youtube.com/embed/Bv3GSlGqI4c", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Duydunuz mu ", url:"https://www.youtube.com/embed/bbYjyvwAfhU", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Çiçekten Harman Olmaz", url:"https://www.youtube.com/embed/eReCg-HND3k", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Bahçe Duvarından Aştım ", url:"https://www.youtube.com/embed/_OpDqueYdQM", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Başındaki Poşu mudur", url:"https://www.youtube.com/embed/Ae2uE9_m73I", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Evlerinin Önü Yonca", url:"https://www.youtube.com/embed/UYjuzPRl9R0", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Mihriban", url:"https://www.youtube.com/embed/fv0EMA1ND3Q", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Dağlar kızı reyhan", url:"https://www.youtube.com/embed/kZP5NDX4U9c", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Caney", url:"https://www.youtube.com/embed/woJh8kBmJ20", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Kız Meryem", url:"https://www.youtube.com/embed/FzKjPiq44lY", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" },
+        { name:"Acıyor Canım Gel", url:"https://www.youtube.com/embed/rRXFWGYoMn4", logo:"https://od.lk/s/OTFfNDA2MDkyMjJf/image%20%285%29.png", type:"youtube" }
+      ]
+    },
+    __favorites__: {
+      title: "Favorieten",
+      icon: "⭐",
+      adult: false,
+      items: []
+    },
+    adult: {
+      title: "18+",
+      icon: "🔞",
+      adult: true,
+      items: [
+        { name:"💋 XXX Website", url:"https://nl.pornhub.com", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png", type:"link" },
+        { name:"Anal", url:"https://cdn.adultiptv.net/anal.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Anal-1", url:"https://live.mycamtv.com/anal.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Asian", url:"https://cdn.adultiptv.net/asian.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Big Ass", url:"https://cdn.adultiptv.net/bigass.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Big Dick", url:"https://cdn.adultiptv.net/bigdick.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Big Tits", url:"https://cdn.adultiptv.net/bigtits.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Blonde", url:"https://cdn.adultiptv.net/blonde.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Blowjob", url:"https://cdn.adultiptv.net/blowjob.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Brunette", url:"https://cdn.adultiptv.net/brunette.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Compilation", url:"https://cdn.adultiptv.net/compilation.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Cuckold", url:"https://cdn.adultiptv.net/cuckold.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Fetish", url:"https://cdn.adultiptv.net/fetish.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Gangbang", url:"https://cdn.adultiptv.net/gangbang.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Hardcore", url:"https://cdn.adultiptv.net/hardcore.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Interracial", url:"https://cdn.adultiptv.net/interracial.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Latina", url:"https://cdn.adultiptv.net/latina.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Lesbian", url:"https://cdn.adultiptv.net/lesbian.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Live Cams", url:"https://cdn.adultiptv.net/livecams.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"MILF", url:"https://cdn.adultiptv.net/milf.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Pornstar", url:"https://cdn.adultiptv.net/pornstar.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"POV", url:"https://cdn.adultiptv.net/pov.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Rough", url:"https://cdn.adultiptv.net/rough.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Russian", url:"https://cdn.adultiptv.net/russian.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Teen", url:"https://cdn.adultiptv.net/teen.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Threesome", url:"https://cdn.adultiptv.net/threesome.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Woman", url:"https://live.redtraffic.net/woman.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Miami TV Jenny", url:"https://59ec5453559f0.streamlock.net/JennyLive/JennyLive/playlist.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Anal", url:"https://live.mycamtv.com/anal.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Asian", url:"https://live.mycamtv.com/asian.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Big Ass", url:"https://live.mycamtv.com/defstream.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Blonde", url:"https://live.mycamtv.com/blonde.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Brunette", url:"https://live.mycamtv.com/brunette.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Ebony", url:"https://live.mycamtv.com/medium.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Latina", url:"https://live.mycamtv.com/latina.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Skinny", url:"https://live.mycamtv.com/arab.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Squirt", url:"https://live.mycamtv.com/squirt.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"White", url:"https://live.mycamtv.com/white.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Asian", url:"https://live.mycamtv.com/asian.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"XXL", url:"http://live.redtraffic.xyz/teen.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"REDLIGHT", url:"http://live.redtraffic.xyz/pornstar.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"Gangbang", url:"http://live.redtraffic.xyz/gangbang.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"FUNDORADO", url:"http://live.redtraffic.xyz/fetish.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"BRASILEIRINHAS", url:"http://live.redtraffic.xyz/latina.m3u8", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"PORNOS", url:"http://videos.galleries.pornpros.com/galleries.tiny4k.com/htdocs/fb01/fb01_dakotaskye040314/content/vid01.mp4", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+        { name:"VOD2", url:"http://videos.galleries.pornpros.com/galleries.tiny4k.com/htdocs/fb01/fb01_sabrinabanks071414/content/vid01.mp4", logo:"https://od.lk/s/OTFfNDA2MDkyMjFf/image%20%286%29.png" },
+      ]
+    },
+    diger: {
+      title: "Diğer",
+      icon: "📝",
+      adult: false,
+      type: "diger",
+      items: [
+        { name:"Mp3 Dinle", url:"https://turis-tv.github.io/2026-Menu/3-Mp3/1-Mp3-Playlist/index.html", logo:"https://od.lk/s/OTFfNDA2MDkyMjBf/image%20%287%29.png"  },
+        { name:"Filmler", url:"https://turis-tv.github.io/2026-Menu/4-Filmler/index.html", logo:"https://od.lk/s/OTFfNDA2MDkyMjBf/image%20%287%29.png"  },
+        { name:"Dini", url:"https://turis-tv.github.io/2026-Menu/5-Dini/index.html", logo:"https://od.lk/s/OTFfNDA2MDkyMjBf/image%20%287%29.png", type:"mp3" },
+        { name:"Youtube Dizi", url:"https://turis-tv.github.io/2026-Menu/16-Youtube/1-Youtube/index.html", logo:"https://od.lk/s/OTFfNDA2MDkyMjBf/image%20%287%29.png", type:"mp3" },
+        { name:"Radyolar", url:"https://turis-tv.github.io/2026-Menu/6-Radyolar/index.htm", logo:"https://od.lk/s/OTFfNDA2MDkyMjBf/image%20%287%29.png", type:"mp3" },
+        { name:"Radyolar", url:"https://turis-tv.github.io/2026-Menu/6-Radyolar/index.htm", logo:"https://od.lk/s/OTFfNDA2MDkyMjBf/image%20%287%29.png", type:"mp3" },
+      ]
+    }
+  };
+
+  // CONSTANTEN
+  const DEFAULT_ADULT_PASSWORD = "Turis+18";
+  const TEST_PAGE_PASSWORD = "Turis-Admin";
+  const ADMIN_PASSWORD = "Turis-5";
+  const TEST_PAGE_URL = "https://merhmet.github.io/XXX.io/xxx/indexx.html";
+  const LOCAL_STORAGE_KEY = 'turisTvCustomChannels';
+  
+  let adultUnlocked = false;
+  let currentHls = null;
+  // NIEUW: Variabelen voor de YouTube player
+  let youtubePlayer = null;
+  let youtubePlaylistItems = [];
+  let currentYoutubeIndex = -1;
+
+  let favorites = JSON.parse(localStorage.getItem('iptvFavorites') || '[]');
+  let favoriteTimeout = null;
+  let pendingAdultCategory = null;
+  let whatsappTimeout = null;
+
+  const players = [
+    { key:"vlc", name:"VLC", pkg:"org.videolan.vlc", store:"https://play.google.com/store/apps/details?id=org.videolan.vlc" },
+    { key:"wuffy", name:"Wuffy", pkg:"co.wuffy.player", store:"https://play.google.com/store/apps/details?id=co.wuffy.player" },
+    { key:"kmplayer", name:"KMPlayer", pkg:"com.kmplayer", store:"https://play.google.com/store/apps/details?id=com.kmplayer" },
+    { key:"mx", name:"MX Player", pkg:"com.mxtech.videoplayer.ad", store:"https://play.google.com/store/apps/details?id=com.mxtech.videoplayer.ad" },
+    { key:"oplayer", name:"OPlayer", pkg:"com.olimsoft.android.oplayer.pro", store:"https://play.google.com/store/apps/details?id=com.olimsoft.android.oplayer.pro" },
+    { key:"perfect", name:"Perfect", pkg:"com.niklabs.pp", store:"https://play.google.com/store/apps/details?id=com.niklabs.pp" }
+  ];
+
+  // DOM ELEMENTEN
+  const catsEl = document.getElementById("cats");
+  const channelGridEl = document.getElementById("channelGrid");
+  const searchEl = document.getElementById("search");
+  const btnAdultLock = document.getElementById("btnAdultLock");
+  const chooser = document.getElementById("chooser");
+  const chooserTitle = document.getElementById("chooserTitle");
+  const videoContainer = document.getElementById("videoContainer");
+  const hamburgerBtn = document.getElementById("hamburgerBtn");
+  const dropdownMenu = document.getElementById("dropdownMenu");
+  const urlBlocker = document.getElementById("urlBlocker");
+  const adultVideoSection = document.getElementById("adultVideoSection");
+  const filmVideoSection = document.getElementById("filmVideoSection");
+
+  const btnVLC = document.getElementById("btnVLC");
+  const btnWuffy = document.getElementById("btnWuffy");
+  const btnKMPlayer = document.getElementById("btnKMPlayer");
+  const btnMX = document.getElementById("btnMX");
+  const btnOPlayer = document.getElementById("btnOPlayer");
+  const btnPerfectPlayer = document.getElementById("btnPerfectPlayer");
+  const btnSystem = document.getElementById("btnSystem");
+  const btnWebPlayer = document.getElementById("btnWebPlayer");
+
+  const goToFavorites = document.getElementById("goToFavorites");
+  const clearFavorites = document.getElementById("clearFavorites");
+  const testPageBtn = document.getElementById("testPageBtn");
+
+  const adultGate = document.getElementById("adultGate");
+  const pw1 = document.getElementById("pw1");
+  const btnUnlockAdult = document.getElementById("btnUnlockAdult");
+  const btnCancelAdult = document.getElementById("btnCancelAdult");
+  const pwError = document.getElementById("pwError");
+  
+  const testGate = document.getElementById("testGate");
+  const testPw = document.getElementById("testPw");
+  const btnUnlockTest = document.getElementById("btnUnlockTest");
+  const btnCancelTest = document.getElementById("btnCancelTest");
+  const testPwError = document.getElementById("testPwError");
+  
+  const controlPanelBtn = document.getElementById("controlPanelBtn");
+  const adminGate = document.getElementById("adminGate");
+  const adminPw = document.getElementById("adminPw");
+  const btnUnlockAdmin = document.getElementById("btnUnlockAdmin");
+  const btnCancelAdmin = document.getElementById("btnCancelAdmin");
+  const adminPwError = document.getElementById("adminPwError");
+  const adminPanel = document.getElementById("adminPanel");
+  const addChannelBtn = document.getElementById("addChannelBtn");
+  const newChannelName = document.getElementById("newChannelName");
+  const newChannelUrl = document.getElementById("newChannelUrl");
+  const newChannelLogo = document.getElementById("newChannelLogo");
+  const newChannelCategory = document.getElementById("newChannelCategory");
+  const isLinkType = document.getElementById("isLinkType");
+  const isAdult18 = document.getElementById("isAdult18");
+  const exportHTMLBtn = document.getElementById("exportHTMLBtn");
+  const adminChannelListSection = document.getElementById("adminChannelListSection");
+  const adminChannelList = document.getElementById("adminChannelList");
+
+  const firstCategoryWithItems = Object.keys(channels).find(key => 
+    key !== '__favorites__' && channels[key].items && channels[key].items.length > 0
+  ) || Object.keys(channels).find(key => key !== '__favorites__');
+  const state = { currentCat: firstCategoryWithItems };
+  
+  // NIEUW: Helper functies voor YouTube
+  function getYouTubeID(url) {
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+      const match = url.match(regExp);
+      return (match && match[2].length === 11) ? match[2] : null;
+  }
+
+  function onPlayerStateChange(event) {
+    if (event.data === YT.PlayerState.ENDED) {
+        currentYoutubeIndex++;
+        if (currentYoutubeIndex < youtubePlaylistItems.length) {
+            const nextVideo = youtubePlaylistItems[currentYoutubeIndex];
+            const nextVideoId = getYouTubeID(nextVideo.url);
+            chooserTitle.textContent = nextVideo.name;
+            if (nextVideoId) {
+                youtubePlayer.loadVideoById(nextVideoId);
+            }
+        } else {
+            console.log("YouTube playlist finished.");
+            closeChooser();
+        }
+    }
+  }
+
+  function createYoutubePlayer(videoId) {
+    youtubePlayer = new YT.Player('youtube-player', {
+        height: '100%',
+        width: '100%',
+        videoId: videoId,
+        playerVars: { 'autoplay': 1, 'controls': 1, 'playsinline': 1 },
+        events: {
+            'onStateChange': onPlayerStateChange
+        }
+    });
+  }
+
+  // LOKALE OPSLAG
+  function getCustomChannels() {
+    try {
+      return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
+    } catch (e) {
+      console.error("Error reading custom channels", e);
+      return [];
+    }
+  }
+
+  function saveCustomChannels(customChannels) {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(customChannels));
+  }
+
+  function loadCustomChannels() {
+    const customChannels = getCustomChannels();
+    customChannels.forEach(channel => {
+      if (channels[channel.category] && Array.isArray(channels[channel.category].items)) {
+        if (!channels[channel.category].items.some(item => item.url === channel.url)) {
+          channels[channel.category].items.push(channel);
+        }
+      }
+    });
+  }
+
+  // APP FUNCTIES
+  function showWhatsappButton() {
+    if (whatsappTimeout) clearTimeout(whatsappTimeout);
+    const waBtn = document.getElementById('whatsappBtn');
+    if (waBtn) {
+        waBtn.classList.add('show');
+        whatsappTimeout = setTimeout(() => {
+          waBtn.classList.remove('show');
+        }, 5000);
+    }
+  }
+
+  function updateFavoritesCategory() {
+    channels.__favorites__.items = favorites.filter(fav => !fav.isAdult);
+  }
+
+  function renderCats() {
+    catsEl.innerHTML = "";
+    const visibleFavoritesCount = favorites.filter(f => !f.isAdult).length;
+    for (const [key, cat] of Object.entries(channels)) {
+      if (key === '__favorites__' && visibleFavoritesCount === 0) continue;
+      if (key !== '__favorites__' && (!cat.items || cat.items.length === 0)) continue;
+      const btn = document.createElement("button");
+      btn.className = "chip";
+      if (key === '__favorites__') {
+        btn.className += " favorites";
+        btn.textContent = `${cat.icon} ${cat.title} (${visibleFavoritesCount})`;
+      } else {
+        btn.textContent = `${cat.icon || "📺"} ${cat.title}`;
+      }
+      if (state.currentCat === key) btn.className += " active";
+      btn.onclick = () => {
+        if (cat.adult && !adultUnlocked) {
+          pendingAdultCategory = key;
+          openModal(adultGate);
+        } else {
+          state.currentCat = key;
+          highlightCat();
+          renderChannels();
+          showWhatsappButton();
+          
+          adultVideoSection.classList.toggle('show', cat.adult && adultUnlocked);
+          filmVideoSection.classList.toggle('show', state.currentCat === 'film');
+        }
+      };
+      catsEl.appendChild(btn);
+    }
+    highlightCat();
+  }
+  
+  function highlightCat() {
+    [...catsEl.children].forEach(c => {
+      const cat = channels[state.currentCat];
+      c.classList.toggle("active", c.textContent.includes(cat.title));
+    });
+  }
+
+  function renderChannels() {
+    const cat = channels[state.currentCat];
+    const q = searchEl.value.trim().toLowerCase();
+    if (state.currentCat === '__favorites__') updateFavoritesCategory();
+    const list = (cat?.items || []).filter(it =>
+      it.name?.toLowerCase().includes(q) || cat.title?.toLowerCase().includes(q)
+    );
+    channelGridEl.innerHTML = "";
+    if (list.length === 0) {
+      const emptyMessage = state.currentCat === '__favorites__' ? `
+        <div class="empty-favorites"><div class="icon">⭐</div><div class="text">${q ? 'Favori bulunamadı' : 'Henüz favori eklenmedi'}</div></div>`
+        : '<div style="padding:20px;color:var(--muted);font-size:12px; grid-column: 1 / -1;">Hiçbir kanal bulunamadı</div>';
+      channelGridEl.innerHTML = emptyMessage;
+      return;
+    }
+    for (const ch of list) {
+      const card = createCard(ch, cat);
+      channelGridEl.appendChild(card);
+    }
+  }
+
+  function createCard(ch, cat) {
+    let card; 
+    if (cat.type === 'diger' || ch.type === 'link') {
+        card = document.createElement("a");
+        card.href = ch.url;
+        card.target = "_blank";
+        card.rel = "noopener noreferrer";
+    } else {
+        card = document.createElement("div");
+        card.dataset.channelUrl = ch.url; 
+        card.tabIndex = 0;
+        card.addEventListener("click", () => {
+            if ((ch.isAdult || cat.adult) && !adultUnlocked) {
+                openModal(adultGate);
+                return;
+            }
+            openChooser(ch, cat);
+        });
+    }
+
+    card.className = "card";
+    
+    if (cat.type !== 'diger' && ch.type !== 'link') {
+        const isFav = favorites.some(f => f.url === ch.url && f.name === ch.name);
+        if (isFav) {
+            card.classList.add("is-favorite");
+        }
+    }
+
+    const thumb = document.createElement("div");
+    thumb.className = "thumb";
+    
+    if ((ch.isAdult || cat.adult) && !adultUnlocked) thumb.classList.add("locked");
+    
+    const img = document.createElement("img");
+    img.alt = ch.name;
+    img.src = ch.logo || "https://img.icons8.com/fluency/96/tv.png";
+    thumb.appendChild(img);
+
+    const info = document.createElement("div");
+    info.className = "info";
+    const t = document.createElement("div");
+    t.className = "title";
+    t.textContent = ch.name || "Kanaal";
+
+    info.appendChild(t);
+    card.appendChild(thumb);
+    card.appendChild(info);
+    
+    return card;
+  }
+  
+  function toggleFavorite() {
+    if (!currentStream || currentStream.type === 'youtube') return;
+    const isAdultContent = currentStream.isAdult || (channels[currentStream.category]?.adult);
+    if (isAdultContent) return;
+    const index = favorites.findIndex(f => f.url === currentStream.url && f.name === currentStream.name);
+    if (index > -1) {
+      favorites.splice(index, 1);
+    } else {
+      const catKey = currentStream.category || Object.keys(channels).find(key => 
+        key !== '__favorites__' && channels[key].items?.some(item => item.url === currentStream.url)
+      );
+      favorites.push({ name: currentStream.name, url: currentStream.url, logo: currentStream.logo, type: currentStream.type, category: catKey, isAdult: false });
+    }
+    document.getElementById("favoriteBtn").classList.toggle("is-favorite", index === -1);
+    localStorage.setItem('iptvFavorites', JSON.stringify(favorites));
+    const cardInGrid = document.querySelector(`.card[data-channel-url="${currentStream.url}"]`);
+    if (cardInGrid) cardInGrid.classList.toggle("is-favorite", index === -1);
+    updateFavoritesCategory();
+    renderCats();
+    if (state.currentCat === '__favorites__') renderChannels();
+  }
+
+  function stopVideo() {
+    if (currentHls) { currentHls.destroy(); currentHls = null; }
+    // AANGEPAST: Stop ook de YouTube player
+    if (youtubePlayer) { youtubePlayer.destroy(); youtubePlayer = null; }
+    
+    if (favoriteTimeout) { clearTimeout(favoriteTimeout); favoriteTimeout = null; }
+    
+    videoContainer.innerHTML = ''; // Maak de container leeg
+  }
+
+  let currentStream = null;
+  function openChooser(ch, cat) {
+    currentStream = { ...ch, category: Object.keys(channels).find(k => channels[k] === cat) || ch.category };
+    chooserTitle.textContent = ch.name;
+    stopVideo();
+
+    // AANGEPAST: Gesplitste logica voor YouTube en andere video's
+    if (ch.type === "youtube") {
+        document.querySelector('.player-list').style.display = 'none'; // Verberg externe spelers
+        videoContainer.innerHTML = `<div id="youtube-player"></div><button class="close-player-btn" id="closePlayerBtn">✕ Kapat</button>`;
+        document.getElementById("closePlayerBtn").addEventListener("click", closeChooser);
+        
+        youtubePlaylistItems = channels.youtube.items;
+        currentYoutubeIndex = youtubePlaylistItems.findIndex(item => item.url === ch.url);
+        
+        const videoId = getYouTubeID(ch.url);
+        if (!videoId) {
+            videoContainer.innerHTML += `<div class="video-error">Ongeldige YouTube URL.</div>`;
+            return;
+        }
+
+        if (typeof YT !== 'undefined' && YT.Player) {
+            createYoutubePlayer(videoId);
+        } else {
+            // Als de API nog niet geladen is, wacht erop
+            window.onYouTubeIframeAPIReady = () => createYoutubePlayer(videoId);
+        }
+    } else {
+        // Originele logica voor HLS/andere streams
+        document.querySelector('.player-list').style.display = 'flex';
+        videoContainer.innerHTML = `
+            <video id="hlsVideo" controls></video>
+            <div id="videoError" class="video-error hidden">Yayın oynatılamıyor. Lütfen harici bir oynatıcı deneyin.</div>
+            <button class="favorite-btn" id="favoriteBtn" title="Favorilere ekle">⭐</button>
+            <button class="close-player-btn" id="closePlayerBtn">✕ Kapat</button>
+        `;
+        document.getElementById("closePlayerBtn").addEventListener("click", closeChooser);
+        document.getElementById("favoriteBtn").addEventListener("click", toggleFavorite);
+        
+        const video = document.getElementById("hlsVideo");
+        const favBtn = document.getElementById("favoriteBtn");
+        const error = document.getElementById("videoError");
+
+        const isAdultContent = ch.isAdult || cat.adult;
+        favBtn.style.display = isAdultContent ? 'none' : '';
+        if (!isAdultContent) {
+          favBtn.classList.toggle("is-favorite", favorites.some(f => f.url === ch.url && f.name === ch.name));
+          favBtn.classList.add("show");
+          favoriteTimeout = setTimeout(() => { favBtn.classList.remove("show"); }, 3000);
+        }
+
+        if (ch.url.endsWith('.m3u8')) {
+            if (Hls.isSupported()) {
+                currentHls = new Hls();
+                currentHls.loadSource(ch.url);
+                currentHls.attachMedia(video);
+                currentHls.on(Hls.Events.ERROR, () => error.classList.remove("hidden"));
+                video.play().catch(() => {});
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = ch.url;
+                video.play().catch(() => {});
+            } else {
+                error.classList.remove("hidden");
+            }
+        } else {
+            video.src = ch.url;
+            video.play().catch(() => {});
+        }
+    }
+    
+    btnVLC.href = buildIntentUrl(ch.url, players[0].pkg, players[0].store);
+    btnWuffy.href = buildIntentUrl(ch.url, players[1].pkg, players[1].store);
+    btnKMPlayer.href = buildIntentUrl(ch.url, players[2].pkg, players[2].store);
+    btnMX.href = buildIntentUrl(ch.url, players[3].pkg, players[3].store);
+    btnOPlayer.href = buildIntentUrl(ch.url, players[4].pkg, players[4].store);
+    btnPerfectPlayer.href = buildIntentUrl(ch.url, players[5].pkg, players[5].store);
+    
+    btnSystem.removeAttribute('href');
+    btnSystem.onclick = (e) => {
+      e.preventDefault();
+      openSystemPlayer(ch.url);
+    };
+
+    chooser.classList.add("open");
+    chooser.setAttribute("aria-hidden", "false");
+  }
+
+  function playWebInternally() {
+    if (!currentStream) return;
+    
+    // Web player logica voor YouTube is nu de standaard, dus deze functie is vooral voor andere types
+    if (currentStream.type === "youtube") {
+      // Al afgehandeld, doe niets extra
+      return;
+    }
+
+    chooserTitle.textContent = `Web Player: ${currentStream.name}`;
+    stopVideo();
+    
+    videoContainer.innerHTML = `
+        <video id="hlsVideo" controls></video>
+        <div id="videoError" class="video-error hidden">Yayın oynatılamıyor. Lütfen harici bir oynatıcı deneyin.</div>
+        <button class="close-player-btn" id="closePlayerBtn">✕ Kapat</button>
+    `;
+    const video = document.getElementById("hlsVideo");
+    const error = document.getElementById("videoError");
+    document.getElementById("closePlayerBtn").addEventListener("click", closeChooser);
+    document.querySelector('.player-list').style.display = 'none';
+
+    if (currentStream.url.endsWith('.m3u8')) {
+      if (Hls.isSupported()) {
+        currentHls = new Hls();
+        currentHls.loadSource(currentStream.url);
+        currentHls.attachMedia(video);
+        currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
+          video.play();
+          if (video.requestFullscreen) video.requestFullscreen();
+        });
+        currentHls.on(Hls.Events.ERROR, () => {
+          error.textContent = "Turis Tv. Harici oynatıcıyı deneyin.";
+          error.classList.remove("hidden");
+        });
+      } else {
+        video.src = currentStream.url;
+        video.play();
+        if (video.requestFullscreen) video.requestFullscreen();
+      }
+    } else {
+      video.src = currentStream.url;
+      video.play();
+      if (video.requestFullscreen) video.requestFullscreen();
+    }
+  }
+  
+  function openSystemPlayer(url) {
+    urlBlocker.classList.add('active');
+    window.open(url, '_blank');
+    closeChooser();
+    setTimeout(() => {
+        urlBlocker.classList.remove('active');
+    }, 3000); 
+  }
+
+  function closeChooser() {
+    stopVideo();
+    document.querySelector('.player-list').style.display = 'flex'; 
+    chooser.classList.remove("open");
+    chooser.setAttribute("aria-hidden", "true");
+  }
+
+  function openModal(el) {
+    const input = el.querySelector('input[type=password]');
+    if (input) {
+      input.value = "";
+      input.focus();
+    }
+    const error = el.querySelector('.danger.hidden');
+    if (error) error.classList.add('hidden');
+    
+    el.classList.add('open');
+    el.setAttribute("aria-hidden", "false");
+  }
+
+  function closeModal(el) {
+    el.classList.remove('open');
+    el.setAttribute("aria-hidden","true");
+  }
+
+  function buildIntentUrl(streamUrl, pkg, fallbackStore) {
+    if (streamUrl.includes('youtube.com/embed/')) {
+        const videoId = getYouTubeID(streamUrl);
+        return `https://www.youtube.com/watch?v=${videoId}`;
+    }
+    let urlPath = streamUrl;
+    let scheme = 'https';
+    if (streamUrl.startsWith('http://')) {
+        scheme = 'http';
+        urlPath = streamUrl.substring(7);
+    } else if (streamUrl.startsWith('https://')) {
+        scheme = 'https';
+        urlPath = streamUrl.substring(8);
+    }
+    const encodedFallback = encodeURIComponent(fallbackStore);
+    return `intent://${urlPath}#Intent;package=${pkg};scheme=${scheme};type=video/*;S.title=TurisTv;S.browser_fallback_url=${encodedFallback};end`;
+  }
+  
+  function isAdultCategory(key) { 
+    return channels[key]?.adult === true; 
+  }
+
+  function exportToHTML() {
+    const allChannels = JSON.parse(JSON.stringify(channels));
+    const customChannels = getCustomChannels();
+    customChannels.forEach(channel => {
+      if (allChannels[channel.category] && allChannels[channel.category].items) {
+        allChannels[channel.category].items.push(channel);
+      }
+    });
+    const channelsJS = `const channels = ${JSON.stringify(allChannels, null, 2)};`;
+    const currentHTML = document.documentElement.outerHTML;
+    const updatedHTML = currentHTML.replace(
+      /const channels = \{[\s\S]*?\};/,
+      channelsJS
+    );
+    const blob = new Blob([updatedHTML], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'turis-tv-' + new Date().toISOString().slice(0,10) + '.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    alert('HTML bestand gedownload met alle kanalen!');
+  }
+
+  // EVENT LISTENERS
+  btnWebPlayer.addEventListener('click', playWebInternally);
+  hamburgerBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    dropdownMenu.classList.toggle("open");
+  });
+  goToFavorites.addEventListener("click", () => {
+    dropdownMenu.classList.remove("open");
+    state.currentCat = '__favorites__';
+    renderCats();
+    renderChannels();
+    showWhatsappButton();
+    adultVideoSection.classList.remove('show');
+    filmVideoSection.classList.remove('show');
+  });
+  testPageBtn.addEventListener("click", () => {
+    dropdownMenu.classList.remove("open");
+    openModal(testGate);
+  });
+  clearFavorites.addEventListener("click", () => {
+    if (confirm('Tüm favorilerinizi silmek istediğinizden emin misiniz?')) {
+      favorites = [];
+      localStorage.setItem('iptvFavorites', JSON.stringify(favorites));
+      updateFavoritesCategory();
+      dropdownMenu.classList.remove("open");
+      if (state.currentCat === '__favorites__') {
+        state.currentCat = firstCategoryWithItems;
+      }
+      renderCats();
+      renderChannels();
+    }
+  });
+  document.addEventListener("click", (e) => {
+    if (!hamburgerBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+      dropdownMenu.classList.remove("open");
+    }
+  });
+  searchEl.addEventListener("input", () => renderChannels());
+  btnAdultLock.addEventListener("click", () => {
+    adultUnlocked = false;
+    adultVideoSection.classList.remove('show');
+    if (isAdultCategory(state.currentCat)) {
+      state.currentCat = firstCategoryWithItems;
+      filmVideoSection.classList.remove('show');
+    }
+    renderCats(); 
+    renderChannels();
+  });
+  chooser.addEventListener("click", (e) => { if (e.target.closest("[data-close]")) { closeChooser(); } });
+  [adultGate, testGate, adminGate, adminPanel].forEach(modal => {
+      modal.addEventListener("click", (e) => {
+          if (e.target.classList.contains("backdrop")) closeModal(modal);
+      });
+  });
+  document.addEventListener("keydown", (e) => { 
+    if (e.key === "Escape") { 
+      closeChooser();
+      [adultGate, testGate, adminGate, adminPanel].forEach(closeModal);
+      dropdownMenu.classList.remove("open"); 
+    } 
+  });
+  btnUnlockAdult.addEventListener("click", () => {
+    if (pw1.value.trim() !== DEFAULT_ADULT_PASSWORD) {
+      pwError.classList.remove("hidden");
+      return;
+    }
+    pwError.classList.add("hidden");
+    adultUnlocked = true;
+    closeModal(adultGate);
+    if (pendingAdultCategory) {
+      state.currentCat = pendingAdultCategory;
+      pendingAdultCategory = null;
+      renderCats();
+      renderChannels();
+      showWhatsappButton();
+      adultVideoSection.classList.add('show');
+      filmVideoSection.classList.remove('show');
+    } else {
+      renderChannels();
+    }
+  });
+  pw1.addEventListener("keypress", (e) => { if (e.key === "Enter") btnUnlockAdult.click(); });
+  btnCancelAdult.addEventListener("click", () => { pendingAdultCategory = null; closeModal(adultGate); });
+  btnUnlockTest.addEventListener("click", () => {
+    if (testPw.value.trim() !== TEST_PAGE_PASSWORD) {
+      testPwError.classList.remove("hidden");
+      return;
+    }
+    testPwError.classList.add("hidden");
+    closeModal(testGate);
+    window.open(TEST_PAGE_URL, '_blank');
+  });
+  testPw.addEventListener("keypress", (e) => { if (e.key === "Enter") btnUnlockTest.click(); });
+  btnCancelTest.addEventListener("click", () => closeModal(testGate));
+
+  // ADMIN PANEL
+  controlPanelBtn.addEventListener("click", () => {
+    dropdownMenu.classList.remove("open");
+    openModal(adminGate);
+  });
+  btnCancelAdmin.addEventListener("click", () => closeModal(adminGate));
+  adminPw.addEventListener("keypress", (e) => { if (e.key === "Enter") btnUnlockAdmin.click(); });
+  btnUnlockAdmin.addEventListener("click", () => {
+    if (adminPw.value.trim() !== ADMIN_PASSWORD) {
+        adminPwError.classList.remove("hidden");
+        return;
+    }
+    adminPwError.classList.add("hidden");
+    closeModal(adminGate);
+    openAdminPanel();
+  });
+  
+  function openAdminPanel() {
+    newChannelCategory.innerHTML = '';
+    Object.keys(channels).forEach(key => {
+        const cat = channels[key];
+        if (key.startsWith('__') || !cat.items) return;
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = `${cat.icon} ${cat.title}`;
+        newChannelCategory.appendChild(option);
+    });
+    
+    newChannelName.value = '';
+    newChannelUrl.value = '';
+    newChannelLogo.value = '';
+    isLinkType.checked = false;
+    isAdult18.checked = false;
+
+    renderAdminChannelList();
+    openModal(adminPanel);
+  }
+
+  function renderAdminChannelList() {
+    const customChannels = getCustomChannels();
+    adminChannelList.innerHTML = '';
+
+    if(customChannels.length > 0) {
+      adminChannelListSection.classList.remove('hidden');
+      customChannels.forEach((channel, index) => {
+        const item = document.createElement('div');
+        item.className = 'admin-channel-list-item';
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'admin-channel-name';
+        nameSpan.textContent = `${channel.name} (${channels[channel.category]?.title || 'Bilinmeyen'})`;
+        nameSpan.title = channel.url;
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.textContent = 'Sil';
+        deleteBtn.onclick = () => deleteCustomChannel(index);
+        
+        item.appendChild(nameSpan);
+        item.appendChild(deleteBtn);
+        adminChannelList.appendChild(item);
+      });
+    } else {
+      adminChannelListSection.classList.add('hidden');
+    }
+  }
+
+  function deleteCustomChannel(index) {
+    if (!confirm("Bu kanalı kalıcı olarak silmek istediğinizden emin misiniz?")) return;
+    
+    let customChannels = getCustomChannels();
+    const deletedChannelName = customChannels[index].name;
+    customChannels.splice(index, 1);
+    saveCustomChannels(customChannels);
+
+    alert(`'${deletedChannelName}' kanalı silindi. Sayfayı yenileyin.`);
+    location.reload();
+  }
+
+  addChannelBtn.addEventListener("click", () => {
+    const name = newChannelName.value.trim();
+    const url = newChannelUrl.value.trim();
+    const logo = newChannelLogo.value.trim();
+    const categoryKey = newChannelCategory.value;
+    const isLink = isLinkType.checked;
+    const is18Plus = isAdult18.checked;
+
+    if (!name || !url || !categoryKey) {
+        alert('Kanal Adı, URL en Categorie zijn verplicht.');
+        return;
+    }
+
+    const newChannel = {
+        name: name,
+        url: url,
+        logo: logo || "https://img.icons8.com/fluency/96/tv.png",
+        category: categoryKey,
+        type: isLink ? "link" : undefined,
+        isAdult: is18Plus ? true : undefined
+    };
+
+    let customChannels = getCustomChannels();
+    customChannels.push(newChannel);
+    saveCustomChannels(customChannels);
+    
+    if (channels[categoryKey] && channels[categoryKey].items) {
+        channels[categoryKey].items.push(newChannel);
+    }
+
+    renderCats();
+    if(state.currentCat === categoryKey) {
+        renderChannels();
+    }
+    
+    renderAdminChannelList();
+
+    newChannelName.value = '';
+    newChannelUrl.value = '';
+    newChannelLogo.value = '';
+    isLinkType.checked = false;
+    isAdult18.checked = false;
+
+    alert(`'${name}' kanalı başarıyla kaydedildi!`);
+  });
+
+  exportHTMLBtn.addEventListener("click", exportToHTML);
+
+  // INITIALISATIE
+  loadCustomChannels();
+  showWhatsappButton();
+  updateFavoritesCategory();
+  renderCats();
+  renderChannels(); 
+})();
+</script>
+</body>
+</html>
