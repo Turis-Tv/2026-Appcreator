@@ -141,7 +141,7 @@
                 <a href="#" class="dropdown-item" onclick="filterByGenre('comedy')">😂 Komedi</a>
                 <a href="#" class="dropdown-item" onclick="filterByGenre('drama')">🎭 Drama</a>
                 <a href="#" class="dropdown-item" onclick="filterByGenre('romance')">❤️ Romantik</a>
-                <a href="#" class="dropdown-item" onclick="openAdminPanel()" style="background-color: rgba(227,10,23,0.3);">🔑 Admin Panel</a>
+
             </div>
         </div>
     </div>
@@ -416,4 +416,5 @@
         let lastTap = 0; document.getElementById('videoModal').addEventListener('touchend', e => { const currentTime = new Date().getTime(); if (currentTime - lastTap < 300) { if (!e.target.closest('.video-controls')) { toggleFullscreen(); e.preventDefault(); } } lastTap = currentTime; });
     </script>
 </body>
+
 </html>
