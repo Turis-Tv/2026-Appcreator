@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <title>Kemal Sunal TV Speler</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Externe bronnen (Fonts en Iconen) -->
+    <link href="https://fonts.googleapis.com/css?family=Fjalla+One|Pirata+One" rel="stylesheet">
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.css'>
+
+    <style>
+        /* ----- FORCEER ZWARTE BASIS (TEGEN WIT SCHERM) ----- */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #000000 !important;
+        }
+
+        /* ----- CSS Gradient Animatie ----- */
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body {
+            font-family: "Fjalla One", sans-serif;
+            color: #fff;
+            /* Start met donkere rood/paarse tinten */
+            background: linear-gradient(-45deg, #2b0505, #580808, #4B134F, #2C5364) !important;
+            background-size: 400% 400% !important;
+            animation: gradient-animation 10s ease infinite !important;
+            transition: background 1s ease; 
+        }
+
+        .video-player-container {
+            width: 100%;
+        }
+
+        /* Fullscreen voor Mobiel (Portrait) */
+        @media (orientation: portrait) and (max-width: 768px) {
+            body { overflow: hidden; }
+            .video-player-container {
+                position: fixed; top: 0; left: 0;
+                width: 100vw; height: 100vh;
+                background: transparent !important;
+            }
+            .video-player {
+                display: flex; flex-direction: column;
+                height: 100%;
+                background: transparent !important;
+            }
+            .video-featured { flex-grow: 1; }
+            .flex-video { height: 100%; padding-bottom: 0; }
+            .tribute-section { display: none; }
+        }
+        
+        .flex-video {
+            height: 0; overflow: hidden;
+            padding-bottom: 56.25%;
+            position: relative; background-color: #000;
+        }
+
+        .flex-video iframe {
+            height: 100%; position: absolute;
+            top: 0; width: 100%; left: 0;
+        }
+
+        .video-player { width: 100%; }
+        
+        /* Desktop Layout */
+        @media (min-width: 1200px) {
+            .page-wrapper {
+                display: flex; flex-direction: column;
+                align-items: center; min-height: 100vh;
+                justify-content: center; padding: 2rem 0;
+            }
+            .video-player-container {
+                max-width: 1170px; width: 80vw;
+            }
+            .video-player {
+                display: grid; grid-template-columns: 3fr 1fr;
+                background: rgba(0, 0, 0, 0.7) !important; 
+                color: #fff;
+                box-shadow: 10px 10px 20px 0px rgba(0, 0, 0, 0.5);
+                border-radius: 8px; overflow: hidden;
+            }
+            .video-list { align-self: start; padding-top: 1rem; }
+        }
+        
+        .video-list.mobile-list {
+            position: fixed; bottom: 1rem; left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(40, 10, 10, 0.95) !important; /* Donkerrood getint zwart */
+            list-style: none; padding: 0.5rem; margin: 0;
+            width: 90vw; max-width: 400px; border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255, 50, 50, 0.2); /* Subtiele rode rand */
+            z-index: 101;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        .video-list li {
+            /* Lettertype klein gehouden */
+            font-size: 0.85rem !important; 
+            padding: 0.5rem;
+            border-radius: 5px;
+            margin-bottom: 0.3rem;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #fff !important;
+        }
+        .video-list li:last-child { margin-bottom: 0; }
+        
+        /* AANGEPAST: Hover is nu rood tint */
+        .video-list.mobile-list li:hover { background-color: rgba(211, 47, 47, 0.5); }
+
+        @media (min-width: 1200px) {
+            .video-list {
+                position: relative; background-color: transparent !important;
+                bottom: auto; left: auto; transform: none;
+                list-style: none; padding: 0 1rem; margin: 0;
+                width: auto; max-width: none; border-radius: 0;
+                box-shadow: none; border: none;
+            }
+            .video-list li { 
+                font-size: 1.1rem !important; 
+                padding: 0.5rem; margin-bottom: 0; 
+            }
+            .video-list li:hover { background-color: rgba(255, 255, 255, 0.2); }
+        }
+        
+        .direct-link-icon {
+            font-size: 1rem;
+            color: #FFF9C4; /* Licht goud/geel ipv groen */
+            margin-left: 10px;
+        }
+        
+        /* AANGEPAST: Actieve video is nu ROOD */
+        .active-video { color: white !important; background-color: #D32F2F !important; }
+
+        .video-list-trigger {
+            position: fixed; bottom: 1rem; right: 1rem; margin: 0;
+            /* AANGEPAST: Knop is nu ROOD */
+            background-color: #D32F2F; 
+            width: 50px; height: 50px;
+            display: flex; justify-content: center; align-items: center;
+            color: #FFF9C4; /* Icoon licht goud */
+            border-radius: 50%; font-size: 1.8rem;
+            padding: 0; box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.5);
+            z-index: 102; cursor: pointer;
+        }
+
+        @media (min-width: 1200px) { .video-list-trigger { display: none; } }
+        .hide { display: none !important; }
+
+        .tribute-section {
+            text-align: center;
+            padding: 3rem 1rem;
+            background: rgba(0, 0, 0, 0.5) !important;
+            border-radius: 10px;
+            margin: 1rem;
+        }
+        .tribute-section img {
+            width: 150px; height: 150px;
+            border-radius: 50%; object-fit: cover;
+            /* AANGEPAST: Rode rand */
+            border: 4px solid #D32F2F;
+            box-shadow: 0 0 25px rgba(211, 47, 47, 0.6);
+        }
+        .tribute-section h2 {
+            font-size: 2.5rem; margin: 1rem 0 0.2rem;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
+        }
+        .tribute-section p {
+            margin: 0; font-size: 1.2rem;
+            color: #FFF9C4; /* Licht goud */
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <div class="video-player-container">
+            <div class="video-player">
+              <div class="video-featured">
+                <div class="flex-video">
+                  <iframe class="video-frame" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen="allowfullscreen"></iframe>
+                </div>
+              </div>
+              <ul class="video-list mobile-list hide">
+                <li class="active-video" data-url="https://www.youtube.com/embed/-ZogVBKVsx8">Öğretmen</li>
+                <li data-url="https://www.youtube.com/embed/CrWFANbYJXU">Korkusuz Korkak</li>
+                <li data-url="https://www.youtube.com/embed/2UrB54MgZuQ">Sakar Şakir</li>
+                <li data-url="https://www.youtube.com/embed/-25lN6CGI1I">Korkusuz Korkak</li>
+                
+                <li data-url="https://www.youtube.com/watch?v=2n3SwDw2E0s" data-direct-link="true">
+                    <span>Yüz Numaralı Adam</span>
+                    <i class="zmdi zmdi-open-in-new direct-link-icon"></i>
+                </li>
+                <li data-url="https://www.youtube.com/embed/stOXnCPxOws">Kibar Feyzo</li>
+                <li data-url="https://www.youtube.com/embed/gPbAredRRqw">Yedi Bela Hüsnü</li>
+
+                <li data-url="https://www.youtube.com/watch?v=BozQ9YUUBkQ" data-direct-link="true">
+                    <span>İnek Şaban</span>
+                    <i class="zmdi zmdi-open-in-new direct-link-icon"></i>
+                </li>
+
+
+                <li data-url="https://www.youtube.com/embed/">İnek Şaban</li>
+                <li data-url="https://www.youtube.com/embed/bOu4OJaA1Wc">En Büyük Şaban</li>
+                <li data-url="https://www.youtube.com/embed/xs9XUjHvZsM">Çöpçüler Kralı</li>
+                <li data-url="https://www.youtube.com/embed/5EgickneU90">Kılıbık</li>
+                <li data-url="https://www.youtube.com/embed/LVw3Q3vqobg">Tokatçı</li>
+                <li data-url="https://www.youtube.com/embed/6xVREEH66iw">Üç Kağıtçı</li>
+                <li data-url="https://www.youtube.com/embed/QNDG1va2smg">Bekçiler Kralı</li>
+              </ul>
+              <p class="video-list-trigger"><i class="zmdi zmdi-view-list-alt"></i></p>
+            </div>
+        </div>
+
+        <div class="tribute-section">
+            <img src="https://i.pinimg.com/originals/8c/7a/7d/8c7a7d57053e1f74805c6d318e80556f.jpg" alt="Kemal Sunal">
+            <h2>Kemal Sunal</h2>
+            <p>(1944 - 2000)</p>
+        </div>
+    </div>
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+    <script>
+        $(document).ready(function() {
+            // ----- JAVASCRIPT KLEURWISSELAAR (Aangepast naar Rood/Paars tinten) -----
+            var colors = [
+                "linear-gradient(-45deg, #4a0000, #8e0e00)", /* Diep rood */
+                "linear-gradient(-45deg, #200122, #6f0000)", /* Paars naar Rood */
+                "linear-gradient(-45deg, #C33764, #1D2671)", /* Roze/Blauw */
+                "linear-gradient(-45deg, #3a1c71, #d76d77, #ffaf7b)", /* Zonsondergang */
+                "linear-gradient(-45deg, #000000, #434343)" /* Zwart/Grijs (Rust) */
+            ];
+            var colorIndex = 0;
+
+            function changeBackground() {
+                $('body').css('background', colors[colorIndex]);
+                colorIndex = (colorIndex + 1) % colors.length;
+            }
+
+            setInterval(changeBackground, 5000);
+            changeBackground();
+
+            // ----- PLAYER LOGICA -----
+            function showList() {
+                var windowWidth = $(window).width();
+                if (windowWidth >= 1200) {
+                    $('.video-list').removeClass('mobile-list hide');
+                } else {
+                    $('.video-list').addClass('mobile-list');
+                }
+            }
+
+            function initPlayer() {
+                var firstVideoUrl = $('.video-list li.active-video').attr('data-url');
+                $('.video-frame').attr('src', firstVideoUrl + '?autoplay=1&rel=0&showinfo=0');
+
+                $('.video-list li').on('click', function() {
+                    var $this = $(this);
+                    
+                    if ($this.data('direct-link')) {
+                        var directUrl = $this.data('url');
+                        window.open(directUrl, '_blank'); 
+                        
+                        if ($('.video-list').hasClass('mobile-list')) {
+                            $('.video-list').addClass('hide');
+                            setTimeout(function() { $('.video-list-trigger').addClass('hide'); }, 3000);
+                        }
+                        return; 
+                    }
+                    
+                    var videoUrl = $this.data('url');
+                    $('.video-frame').attr('src', videoUrl + '?autoplay=1&rel=0&showinfo=0');
+                    
+                    $('.video-list li').removeClass('active-video');
+                    $this.addClass('active-video');
+                    
+                    if ($('.video-list').hasClass('mobile-list')) {
+                        $('.video-list').addClass('hide');
+                        setTimeout(function() { $('.video-list-trigger').addClass('hide'); }, 3000);
+                    }
+                });
+                
+                showList();
+            }
+
+            initPlayer();
+
+            $('.video-list-trigger').on('click', function() {
+                $('.video-list').toggleClass('hide');
+            });
+
+            $(window).on('resize', function() {
+                showList();
+            });
+
+            $(document).on('click', function(event) {
+                if (!$(event.target).closest('.video-list-trigger, .video-list').length) {
+                    if ($('.video-list-trigger').hasClass('hide') && $(window).width() < 1200) {
+                        $('.video-list-trigger').removeClass('hide');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
