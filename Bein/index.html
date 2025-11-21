@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web Player Pro - AutoPlay Force</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{
+  background:#111;
+  color:#fff;
+  height:100vh;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+
+header{
+  text-align:center;
+  padding:10px;
+  flex-shrink:0;
+  background:#181818;
+  border-bottom:1px solid #333;
+}
+header p{color:#ccc; font-size: 14px;}
+
+.main{
+  flex:1;
+  display:flex;
+  gap:15px;
+  padding:15px;
+  overflow:hidden;
+}
+
+.video-container{
+  flex:1;
+  background:#000;
+  border-radius:10px;
+  overflow:hidden;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+}
+
+/* Iframe styling zorgt dat de dynamische iframe goed past */
+iframe {
+  width:100%;
+  height:100%;
+  border:none;
+  display:block;
+  flex:1;
+}
+
+.placeholder{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#666;
+  font-size:20px;
+  z-index: 1;
+  pointer-events: none; /* Zorgt dat je er doorheen kunt klikken als het moet */
+}
+
+/* SIDEBAR STYLES */
+.channels-sidebar{
+  width:280px;
+  background:#1e1e1e;
+  border-radius:10px;
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+  position: relative;
+}
+
+.sidebar-header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.cat-select {
+  flex: 1;
+  background: #333;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 8px;
+  border-radius: 6px;
+  outline: none;
+  cursor: pointer;
+}
+
+.menu-btn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  width: 30px;
+  text-align: center;
+  line-height: 1;
+}
+.menu-btn:hover { color: #ff6b00; }
+
+.options-menu {
+  position: absolute;
+  top: 50px;
+  right: 10px;
+  background: #2c2c2c;
+  border: 1px solid #444;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  display: none;
+  z-index: 100;
+  min-width: 140px;
+}
+.options-menu.show { display: block; }
+
+.menu-item {
+  padding: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  border-bottom: 1px solid #333;
+}
+.menu-item:last-child { border-bottom: none; }
+.menu-item:hover { background: #444; color: #ff6b00; }
+
+.channels-list{
+  overflow-y:auto;
+  flex:1;
+  border:1px solid #333;
+  border-radius:8px;
+  padding:8px;
+}
+
+.channel-item{
+  background:#2c2c2c;
+  margin-bottom:6px;
+  padding:10px;
+  border-radius:6px;
+  cursor:pointer;
+  transition:.3s;
+  border-left:3px solid transparent;
+  font-size: 14px;
+}
+.channel-item:hover{background:#3a3a3a;transform:translateX(4px);}
+.channel-item.active{border-left:3px solid #ff6b00;background:#444;}
+
+.channels-list::-webkit-scrollbar{width:6px;}
+.channels-list::-webkit-scrollbar-thumb{background:#ff6b00;border-radius:3px;}
+.channels-list::-webkit-scrollbar-track{background:#333;border-radius:3px;}
+
+#m3uInput { display: none; }
+
+@media(max-width:768px){
+  .main{flex-direction:column;}
+  .channels-sidebar{width:100%;height:300px;}
+}
+</style>
+</head>
+<body>
+
+  <header>
+
+  </header>
+  
+  <div class="main">
+    <div class="video-container" id="videoContainer">
+      <div class="placeholder" id="placeholder">Kanal seçin</div>
+      <!-- Iframe wordt hier dynamisch ingeladen -->
+    </div>
+
+    <div class="channels-sidebar">
+      <div class="sidebar-header">
+        <select id="categorySelect" class="cat-select">
+          <option value="All">All Categories</option>
+        </select>
+        <button class="menu-btn" id="menuBtn">⋮</button>
+      </div>
+
+      <div class="options-menu" id="optionsMenu">
+        <div class="menu-item" id="uploadBtn">📂 Upload M3U</div>
+      </div>
+      
+      <input type="file" id="m3uInput" accept=".m3u,.m3u8">
+
+      <div class="channels-list" id="channelsList"></div>
+    </div>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  const list = document.getElementById('channelsList');
+  const videoContainer = document.getElementById('videoContainer');
+  const placeholder = document.getElementById('placeholder');
+  const categorySelect = document.getElementById('categorySelect');
+  const menuBtn = document.getElementById('menuBtn');
+  const optionsMenu = document.getElementById('optionsMenu');
+  const uploadBtn = document.getElementById('uploadBtn');
+  const m3uInput = document.getElementById('m3uInput');
+
+  let allChannels = [
+    {id:1, category:'Sports', name:'Bein1',url:'https://main.uxsyplayerbcd362c475.click/index.php?id=sbeinsports-1'},
+    {id:2, category:'Sports', name:'Bein2',url:'https://main.uxsyplayerbcd362c475.click/index.php?id=sbeinsports-2'},
+    {id:3, category:'Sports', name:'Bein3',url:'https://main.uxsyplayerbcd362c475.click/index.php?id=sbeinsports-3'},
+    {id:4, category:'Sports', name:'Bein4',url:'https://main.uxsyplayerbcd362c475.click/index.php?id=sbeinsports-4'},
+    {id:5, category:'Sports', name:'Bein5',url:'https://main.uxsyplayerbcd362c475.click/index.php?id=sbeinsports-5'},
+    {id:6, category:'Sports', name:'Beinmx1',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=sbeinsportsmax-1'},
+    {id:7, category:'Sports', name:'Beinmx2',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=sbeinsportsmax-2'},
+    {id:8, category:'Sports', name:'Sspor1',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=sssport'},
+    {id:9, category:'Sports', name:'Sspor2',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=sssport2'},
+    {id:10, category:'Sports', name:'Ssporplus1',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=sssplus1'},
+    {id:11, category:'Sports', name:'Ssporplus2',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=sssplus2'},
+    {id:12, category:'Ulusal', name:'Tv8',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=stv8'},
+    {id:13, category:'General', name:'Trt1',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=strt1'},
+    {id:14, category:'Sports', name:'TrtSpor',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=strtspor'},
+    {id:15, category:'Sports', name:'TrtSpor2',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=strtspor2'},
+    {id:16, category:'Sports', name:'Tivibu1',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=stivibuspor-1'},
+    {id:17, category:'Sports', name:'Tivibu2',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=stivibuspor-2'},
+    {id:18, category:'Sports', name:'Tivibu3',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=stivibuspor-3'},
+    {id:19, category:'Sports', name:'Tivibu4',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=stivibuspor-4'},
+    {id:20, category:'Sports', name:'Smart1',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=ssmartspor'},
+    {id:21, category:'Sports', name:'Smart2',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=ssmartspor2'},
+    {id:22, category:'Sports', name:'Euro1',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=seurosport1'},
+    {id:23, category:'Sports', name:'Euro2',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=seurosport2'},
+    {id:24, category:'Sports', name:'Dazn1',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=sdazn1'},
+    {id:25, category:'Sports', name:'Dazn2',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=sdazn2'},
+    {id:26, category:'Motorsport', name:'F1DE',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=sskysportsf1de'},
+    {id:27, category:'Motorsport', name:'F1IT',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=sskysportsf1ita'},
+    {id:28, category:'Motorsport', name:'F1UK',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=sskysportsf1uk'},
+    {id:29, category:'Motorsport', name:'Motorssport',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=smotorsporttv'},
+    {id:30, category:'Sports', name:'NFLNetwork',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=nflnetwork'},
+    {id:31, category:'Exxen', name:'Exxen1',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=sexxen-1'},
+    {id:32, category:'Exxen', name:'Exxen2',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=sexxen-2'},
+    {id:33, category:'Exxen', name:'Exxen3',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=sexxen-3'},
+    {id:34, category:'Exxen', name:'Exxen4',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=sexxen-4'},
+    {id:35, category:'Exxen', name:'Exxen5',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=sexxen-5'},
+    {id:36, category:'Exxen', name:'Exxen6',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=sexxen-6'},
+    {id:37, category:'Sports', name:'Nba1',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=snbatv-1'},
+    {id:38, category:'Sports', name:'Nba2',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=snbatv-2'},
+    {id:39, category:'Motorsport', name:'Motorvision',url:'http://main.uxsyplayerbcd362c475.click/index.php?id=smotorvisiontv'},
+  ];
+
+  menuBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    optionsMenu.classList.toggle('show');
+  });
+
+  document.addEventListener('click', () => {
+    optionsMenu.classList.remove('show');
+  });
+
+  uploadBtn.addEventListener('click', () => {
+    m3uInput.click();
+  });
+
+  m3uInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      parseM3U(event.target.result);
+    };
+    reader.readAsText(file);
+  });
+
+  function parseM3U(content) {
+    const lines = content.split('\n');
+    const newChannels = [];
+    let currentChannel = { category: 'Uncategorized' };
+
+    lines.forEach(line => {
+      line = line.trim();
+      if(line.startsWith('#EXTINF')) {
+        const groupMatch = line.match(/group-title="([^"]*)"/);
+        if(groupMatch) currentChannel.category = groupMatch[1];
+        const nameParts = line.split(',');
+        currentChannel.name = nameParts[nameParts.length - 1].trim();
+      } else if (line.startsWith('http')) {
+        currentChannel.url = line;
+        currentChannel.id = Date.now() + Math.random();
+        newChannels.push({...currentChannel});
+        currentChannel = { category: 'Uncategorized' };
+      }
+    });
+
+    if(newChannels.length > 0) {
+      allChannels = newChannels;
+      alert(`Loaded ${newChannels.length} channels!`);
+      initApp();
+    } else {
+      alert("No valid channels found.");
+    }
+  }
+
+  function updateCategoryDropdown() {
+    const categories = ['All', ...new Set(allChannels.map(c => c.category || 'Uncategorized'))].sort();
+    categorySelect.innerHTML = '';
+    categories.forEach(cat => {
+      const opt = document.createElement('option');
+      opt.value = cat;
+      opt.textContent = cat;
+      categorySelect.appendChild(opt);
+    });
+  }
+
+  function renderChannels(filterCategory = 'All') {
+    list.innerHTML = '';
+    const filtered = filterCategory === 'All' 
+      ? allChannels 
+      : allChannels.filter(c => c.category === filterCategory);
+
+    filtered.forEach(ch => {
+      const div = document.createElement('div');
+      div.className = 'channel-item';
+      div.textContent = ch.name;
+      div.addEventListener('click', () => {
+        document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
+        div.classList.add('active');
+        loadChannel(ch);
+      });
+      list.appendChild(div);
+    });
+  }
+
+  categorySelect.addEventListener('change', (e) => {
+    renderChannels(e.target.value);
+  });
+
+  // DIT IS DE NIEUWE LOGICA VOOR AUTOPLAY
+  function loadChannel(ch){
+    placeholder.style.display = 'none';
+
+    // 1. Oude iframe verwijderen als die bestaat
+    const oldFrame = videoContainer.querySelector('iframe');
+    if(oldFrame) {
+      oldFrame.remove();
+    }
+
+    // 2. URL voorbereiden met autoplay parameters
+    let finalUrl = ch.url;
+    if (finalUrl.includes('?')) {
+        finalUrl += '&autoplay=1';
+    } else {
+        finalUrl += '?autoplay=1';
+    }
+
+    // 3. Nieuwe iframe maken
+    const iframe = document.createElement('iframe');
+    iframe.src = finalUrl;
+    iframe.allowFullscreen = true;
+    iframe.referrerPolicy = "no-referrer";
+    // Dit is de belangrijkste regel voor browsers:
+    iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+    
+    // 4. Toevoegen aan pagina
+    videoContainer.appendChild(iframe);
+  }
+
+  function initApp() {
+    updateCategoryDropdown();
+    renderChannels('All');
+  }
+
+  initApp();
+});
+</script>
+</body>
+</html>
