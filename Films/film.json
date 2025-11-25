@@ -1,0 +1,66 @@
+{
+  "filmler": [
+    {
+      "title": "Organize İşler 2: Sazan Sarmalı",
+      "year": "2025",
+      "poster": "https://filmhdizle.net/wp-content/uploads/2025/07/organize-isler-sazan-sarmali-180x270.jpg",
+      "genre": "action",
+      "description": "Beschrijving...",
+      "type": "film",
+      "videoUrl": "https://geo.dailymotion.com/player.html?video=x8rjfcj"
+    },
+    {
+      "title": "Ask Sadece Bir an",
+      "year": "2025",
+      "poster": "https://avatars.mds.yandex.net/i?id=72b380a53992482323f182632e55248323fead42-4688474-images-thumbs&n=13",
+      "genre": "action",
+      "description": "Beschrijving...",
+      "type": "film",
+      "videoUrl": "https://vs17.photofunia.pro/v/Ask.Sadece.Bir.An.2025.WEB-DL.1080p.H.264-HDM/1080.m3u8"
+    }
+  ],
+  "diziler": [
+    {
+      "title": "Gassal",
+      "year": "2025",
+      "poster": "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg",
+      "genre": "action",
+      "description": "Mahalle ve aile dizisi.",
+      "episodes": "1 Bölüm",
+      "type": "series",
+      "videoUrl": "https://dcdl50eadec6df95.xyz/player/U5_TKDV4n3ZwibpwxfUwdTTJ"
+    },
+    {
+      "title": "Gassal",
+      "year": "2025",
+      "poster": "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg",
+      "genre": "action",
+      "description": "İntikam hikayesi.",
+      "episodes": "2 Bölüm",
+      "type": "series",
+      "videoUrl": "https://dcdl50eadec6df95.xyz/player/BpdagJfNspLkTKWCR_7MXgrm"
+    }
+  ],
+  "cizgi": [
+    {
+      "title": "Şirinler",
+      "year": "2025",
+      "poster": "https://jetfilmizle.website/wp-content/posterler/2025/07/sirinler-filmi-smurfs-izle.jpg",
+      "genre": "action",
+      "description": "Beschrijving...",
+      "type": "cizgi",
+      "videoUrl": "https://cnn-edition.jfvid.com/play/TVN4RGZKNUlRS1lYT0IxVkk4dlp0c2E0WlVkeURtczRNUVBHQkZuRmY3cjZ3SHlRZ0dYU1ZCQWxrWDNncFlzVVBqNFAyR1VYWGlyOVpha2tkTzhVY1E9PQ"
+    }
+  ],
+  "youtube": [
+    {
+      "title": "Maher Zain",
+      "year": "2023",
+      "poster": "https://i.ytimg.com/vi/zA0v_v3ht-o/hqdefault.jpg",
+      "genre": "muzik",
+      "description": "Clip",
+      "type": "youtube",
+      "videoUrl": "https://www.youtube.com/embed/zA0v_v3ht-o"
+    }
+  ]
+}
