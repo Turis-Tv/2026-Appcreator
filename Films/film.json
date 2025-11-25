@@ -613,16 +613,26 @@
 
 
 
+
+
+    
   ],
   "youtube": [
     {
-      "title": "Maher Zain",
+      "title": "Zeynep Şimşek",
       "year": "2023",
-      "poster": "https://i.ytimg.com/vi/zA0v_v3ht-o/hqdefault.jpg",
       "genre": "muzik",
       "description": "Clip",
       "type": "youtube",
       "videoUrl": "https://www.youtube.com/embed/JjTeViaVdoI"
     }
   ]
+
+
+
+
+
+
+  
+
 }
