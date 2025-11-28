@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPTV Player Interface</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Iconen: We gebruiken Font Awesome voor de knoppen -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <!-- ============================================= -->
+    <!-- DEEL 1: HOOFDMENU (Channel Grid) -->
+    <!-- ============================================= -->
+    <div id="channel-grid-view">
+        <header class="grid-header">
+            <i class="fas fa-bars menu-icon"></i>
+            <h1>Uyanık TV</h1>
+        </header>
+
+        <div class="channel-grid">
+            <!-- Voorbeeld van een kanaalicoon. Klikken opent de player. -->
+            <div class="channel-item" onclick="openPlayer()">
+                <img src="https://via.placeholder.com/100x100?text=TV4" alt="TV4">
+            </div>
+            <div class="channel-item" onclick="openPlayer()">
+                <img src="https://via.placeholder.com/100x100?text=TELE1" alt="TELE1">
+            </div>
+            <div class="channel-item" onclick="openPlayer()">
+                <img src="https://via.placeholder.com/100x100?text=AKIT+TV" alt="AKIT TV">
+            </div>
+            <!-- Herhaal de .channel-item div voor alle gewenste kanalen -->
+            <div class="channel-item" onclick="openPlayer()">...</div>
+            <div class="channel-item" onclick="openPlayer()">...</div>
+            <div class="channel-item" onclick="openPlayer()">...</div>
+        </div>
+    </div>
+
+
+    <!-- ============================================= -->
+    <!-- DEEL 2: PLAYER VIEW (Start verborgen/gesloten) -->
+    <!-- ============================================= -->
+    <div id="player-view" class="closed">
+
+        <!-- Dit is de video afspeelruimte -->
+        <div id="video-area">
+            <!-- Hier zou de werkelijke video komen, bijv. via een <video> tag of HLS player -->
+
+            <!-- Overlays voor Player Controls -->
+            <div id="controls-overlay" class="hidden">
+
+                <!-- Linker Verticale Bedieningsbalk -->
+                <div class="left-controls">
+                    <button class="control-btn" onclick="toggleEPG()"><i class="fas fa-tv"></i> Yayın Akışı</button>
+                    <button class="control-btn"><i class="fas fa-clock"></i> 24</button>
+                    <button class="control-btn"><i class="fas fa-lock"></i> Canlı</button>
+                    <button class="control-btn"><i class="fas fa-redo"></i></button>
+                </div>
+
+                <!-- Rechter Verticale Kanalen Lijst (Transparant) -->
+                <div class="right-channel-list">
+                    <!-- Dit is de scrollbare lijst van kleine kanalen -->
+                    <div class="channel-thumb"><img src="https://via.placeholder.com/40x40?text=HABER" alt="Haber"></div>
+                    <div class="channel-thumb"><img src="https://via.placeholder.com/40x40?text=SPOR" alt="Spor"></div>
+                    <div class="channel-thumb active"><img src="https://via.placeholder.com/40x40?text=POWER" alt="Power"></div>
+                    <div class="channel-thumb"><img src="https://via.placeholder.com/40x40?text=ULKE" alt="Ulke"></div>
+                    <!-- Herhaal kanalen -->
+                </div>
+
+                <!-- Onderste Controls (Afspelen/Pauze, Seekbar) -->
+                <div class="bottom-controls">
+                    <button class="seek-btn">← 5dk</button>
+                    <button class="seek-btn">← 1dk</button>
+                    <button id="play-pause-btn" onclick="togglePlayPause()"><i class="fas fa-pause"></i></button>
+                    <button class="seek-btn">1dk →</button>
+                    <button class="seek-btn">5dk →</button>
+                    <div class="seek-bar-container">
+                        <div class="seek-bar"></div>
+                    </div>
+                </div>
+
+                <!-- EPG Overlay (Programmagids, start verborgen) -->
+                <div id="epg-overlay" class="hidden">
+                    <div class="epg-item">
+                        <span class="epg-time">16:00</span>
+                        <span class="epg-program">Kanal 7 Hafta Sonu Haberleri</span>
+                    </div>
+                    <div class="epg-item active">
+                        <span class="epg-time">17:00</span>
+                        <span class="epg-program">Gelin (Nu)</span>
+                    </div>
+                </div>
+
+            </div> <!-- /controls-overlay -->
+
+            <!-- Top Controls (Sluiten, Canlı, Fullscreen) -->
+            <div class="top-controls">
+                <button class="close-btn" onclick="closePlayer()">Kapat</button>
+                <span class="live-indicator">Canlı</span>
+                <button class="fullscreen-btn"><i class="fas fa-expand"></i></button>
+            </div>
+
+        </div> <!-- /video-area -->
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

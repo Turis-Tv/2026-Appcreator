@@ -1,0 +1,301 @@
+/* Algemene Reset en Fullscreen Setup */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    font-family: Arial, sans-serif;
+    background-color: #333; /* Achtergrond voor het hoofdmenu */
+}
+
+/* ============================================= */
+/* STYLING HOOFDMENU (Channel Grid) */
+/* ============================================= */
+#channel-grid-view {
+    padding-top: 50px; /* Ruimte voor de header */
+    background: linear-gradient(180deg, #444, #1a1a1a); /* Donkere, subtiele gradient */
+    height: 100%;
+    width: 100%;
+    display: block;
+}
+
+.grid-header {
+    background-color: #92002f; /* Rood/paars uit uw afbeelding */
+    color: white;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 10;
+}
+.menu-icon { margin-right: 15px; font-size: 1.5em; }
+
+.channel-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 kolommen */
+    gap: 15px;
+    padding: 20px;
+}
+
+.channel-item {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    aspect-ratio: 1 / 1; /* Zorgt ervoor dat de items vierkant zijn */
+}
+
+.channel-item:hover {
+    transform: scale(1.05);
+}
+
+.channel-item img {
+    max-width: 90%;
+    max-height: 90%;
+}
+
+
+/* ============================================= */
+/* STYLING PLAYER VIEW (Fullscreen) */
+/* ============================================= */
+
+#player-view {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: black; /* Zwarte achtergrond voor de video */
+    overflow: hidden;
+    z-index: 100;
+    /* Verticale Openingsanimatie (Start onderaan en schuift omhoog) */
+    transform: translateY(100%);
+    transition: transform 0.5s ease-out;
+}
+
+#player-view.open {
+    transform: translateY(0);
+}
+/* De .closed class wordt gebruikt in JS om te verbergen */
+#player-view.closed {
+    display: none;
+}
+
+#video-area {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* Controls Overlay - maakt de knoppen zichtbaar over de video */
+#controls-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 1; /* Begin zichtbaar, JS zorgt voor verbergen na 5s */
+    transition: opacity 0.3s;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+#controls-overlay.hidden {
+    opacity: 0;
+    pointer-events: none; /* Zorgt ervoor dat je door de controls heen kunt klikken */
+}
+
+/* --- Top Controls (Kapat, Canlı) --- */
+.top-controls {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 110;
+}
+
+.close-btn {
+    background-color: #3f68a2;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 15px;
+    font-size: 1em;
+    cursor: pointer;
+}
+.live-indicator {
+    color: white;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+.fullscreen-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5em;
+    cursor: pointer;
+}
+
+/* --- Linker Verticale Controls --- */
+.left-controls {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.4); /* Transparante achtergrond */
+    border-radius: 10px;
+}
+.control-btn {
+    /* Glanzende Knoppen Effect */
+    background: linear-gradient(180deg, #666, #444);
+    border: 1px solid #777;
+    color: white;
+    padding: 15px 10px;
+    border-radius: 5px;
+    width: 80px;
+    text-align: center;
+    font-size: 0.8em;
+    cursor: pointer;
+}
+.control-btn i { font-size: 1.2em; display: block; margin-bottom: 3px; }
+
+/* --- Rechter Kanalen Lijst --- */
+.right-channel-list {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100px;
+    max-height: 80%;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.6); /* Semi-transparant */
+    border-radius: 10px;
+    padding: 5px;
+    z-index: 10;
+}
+
+.channel-thumb {
+    margin-bottom: 5px;
+    border-radius: 5px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 3px solid transparent;
+}
+.channel-thumb.active {
+    border: 3px solid #3f68a2; /* Actief kanaal blauwe rand */
+}
+.channel-thumb img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* --- Bottom Player Controls --- */
+.bottom-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.7); /* Donkerder, transparante achtergrond */
+    border-radius: 15px;
+}
+
+.seek-btn, #play-pause-btn {
+    background: linear-gradient(180deg, #555, #333);
+    border: 1px solid #777;
+    color: white;
+    border-radius: 50%; /* Maak ze rond */
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.8em;
+    cursor: pointer;
+}
+#play-pause-btn i { font-size: 1.5em; }
+
+/* Seekbar Styling (Voortgangsbalk) */
+.seek-bar-container {
+    position: absolute;
+    bottom: 0px; /* Onder de knoppen */
+    width: 80%;
+    left: 10%;
+    height: 5px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+}
+.seek-bar {
+    width: 50%; /* Voorbeeld voortgang */
+    height: 100%;
+    background-color: #3f68a2;
+    border-radius: 5px;
+    position: relative;
+}
+/* De blauwe bol */
+.seek-bar::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translate(50%, -50%);
+    width: 15px;
+    height: 15px;
+    background-color: #3f68a2;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+/* --- EPG (Programma Gids) Overlay --- */
+#epg-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    z-index: 200;
+}
+#epg-overlay.hidden {
+    display: none;
+}
+.epg-item {
+    margin-bottom: 10px;
+    padding: 5px 0;
+    border-left: 2px solid rgba(255, 255, 255, 0.5);
+    padding-left: 10px;
+}
+.epg-item.active {
+    border-left-color: yellow;
+}
+.epg-time {
+    font-weight: bold;
+    display: block;
+}
+.epg-program {
+    font-size: 0.9em;
+}
