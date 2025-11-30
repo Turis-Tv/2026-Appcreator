@@ -10,29 +10,24 @@
     <style>
       :root{
         /* --- MODERN DARK CINEMA GOLD THEMA --- */
-        /* Geen blauw meer, maar diep donkergrijs/zwart voor rust aan de ogen */
         --bg: #050505; 
         --bg2: #121212; 
-        --card: #1e1e1e; /* Matte donkere kaart */
+        --card: #1e1e1e; 
         
-        --text: #e0e0e0; /* Zacht wit, niet verblindend */
+        --text: #e0e0e0; 
         --muted: #888888; 
         --border: rgba(255, 255, 255, 0.08); 
         
-        /* ACCENTEN: Luxe Goud & Amber (Warm en Modern) */
-        --accent1: #FFB300; /* Helder Goud */
-        --accent2: #FF6F00; /* Diep Amber/Oranje */
-        --gold: #FFD700;    /* Puur Goud voor selectie */
+        /* ACCENTEN */
+        --accent1: #FFB300; 
+        --accent2: #FF6F00; 
+        --gold: #FFD700;    
         
         --shadow: 0 10px 30px rgba(0,0,0, 0.7);
-        
-        /* Functionele kleuren (aangepast om blauw te vermijden) */
         --whatsapp-green: #25D366; 
-        --admin-blue: #8b5cf6; /* Veranderd naar Paars */
+        --admin-blue: #8b5cf6; 
         --danger-red: #ef4444;
         --success-green: #10b981;
-        --accent-red: #f43f5e;
-        --accent-red-dark: #be123c;
       }
 
       *{box-sizing:border-box}
@@ -41,7 +36,6 @@
         margin:0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         color:var(--text); -webkit-tap-highlight-color: transparent; display: flex;
         flex-direction: column; overflow: hidden;
-        /* Nieuwe achtergrond: Subtiele warme gloed bovenin, verder diep donker */
         background: radial-gradient(circle at 50% -20%, rgba(255, 179, 0, 0.08), transparent 40%),
                     linear-gradient(180deg, var(--bg), var(--bg2));
         transition: background .5s ease-out;
@@ -71,7 +65,7 @@
       /* Header */
       header{ 
           position:sticky; top:0; z-index:20;
-          background: rgba(18, 18, 18, 0.95); /* Donkergrijs/Zwart */
+          background: rgba(18, 18, 18, 0.95);
           backdrop-filter: saturate(1.2) blur(10px);
           border-bottom: 1px solid var(--border);
           padding: 10px; flex-shrink:0; display: flex; flex-direction: column;
@@ -79,12 +73,7 @@
       }
       
       .header-top{display:flex;align-items:center;justify-content:space-between; margin-bottom: 8px;}
-      .digital-clock{
-          font-family: 'Courier New', monospace; font-size:18px; font-weight:700;
-          color: var(--accent1); /* Goud */
-          letter-spacing:2px;
-          text-shadow: 0 0 8px rgba(255, 179, 0, 0.4); /* Gouden gloed */
-      }
+      .digital-clock{ font-family: 'Courier New', monospace; font-size:18px; font-weight:700; color: var(--accent1); letter-spacing:2px; text-shadow: 0 0 8px rgba(255, 179, 0, 0.4); }
       .hamburger{ background: var(--bg2); border:1px solid var(--border); border-radius:10px; padding:8px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; width:36px; height:36px; color: var(--text); transition: 0.2s; }
       .hamburger:active { background: var(--accent1); color: #000; }
 
@@ -143,10 +132,9 @@
       
       .card.is-favorite::after{ content:"⭐"; position:absolute; top:5px; right:5px; font-size:12px; z-index:2; filter:drop-shadow(0 2px 4px rgba(0,0,0,.8)); }
       
-      /* Thumbnails zonder blauw, maar neutraal donker */
       .thumb{
           position:relative; aspect-ratio:4/3; display:flex; align-items:center; justify-content:center;
-          background: radial-gradient(circle, #2a2a2a 0%, #000000 100%); /* Neutraal donker */
+          background: radial-gradient(circle, #2a2a2a 0%, #000000 100%);
           padding: 10px;
       }
       .thumb img{max-width:85%; max-height:85%; object-fit:contain; filter:drop-shadow(0 5px 15px rgba(0,0,0,.5))}
@@ -166,68 +154,86 @@
       
       #subCategoryNav { padding: 0 0 8px 0; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
       
-      /* --- SUBCATEGORIE AANPASSING (Geen wit meer!) --- */
+      /* SUBCATEGORIE: GOUD KLEUR */
       .special-subcat-chip { 
           background: rgba(255, 255, 255, 0.05); 
           border-color: var(--border); 
           color: var(--muted); 
           font-weight: 500; 
       }
-      
       .special-subcat-chip.active { 
-          /* Hier de verandering: Goud verloop i.p.v. Wit */
           background: linear-gradient(135deg, var(--accent1), var(--accent2));
-          color: #000; /* Zwart tekst leest goed op goud */
+          color: #000;
           border-color: transparent; 
           font-weight: 700; 
-          box-shadow: 0 2px 15px rgba(255, 179, 0, 0.35); /* Gouden gloed */
+          box-shadow: 0 2px 15px rgba(255, 179, 0, 0.35);
       }
 
       #adultVideoSection, #filmVideoSection, #sporVideoSection { display: none; padding: 1px; margin-bottom: 15px; border-radius: 12px; flex-shrink: 0; background: linear-gradient(45deg, #1a1a1a, #252525); border: 1px solid var(--border); }
       #adultVideoSection.show, #filmVideoSection.show, #sporVideoSection.show { display: block; }
       
-      /* Sectie kleuren subtieler gemaakt */
       #adultVideoSection { border-left: 4px solid var(--danger-red); }
       #filmVideoSection { border-left: 4px solid var(--success-green); }
       #sporVideoSection { border-left: 4px solid var(--admin-blue); }
-
       #adultVideoSection a, #filmVideoSection a, #sporVideoSection a { display: flex; align-items: center; gap: 15px; padding: 15px; border-radius: 8px; text-decoration: none; color: var(--text); transition: all 0.3s; }
       
+      /* --- VERBETERDE MODAL / CHOOSER (OPLOSSING VOOR SCROLLEN) --- */
       .sheet{position:fixed;inset:0;z-index:30;opacity:0;pointer-events:none;transition:opacity .3s ease}
       .sheet.open{opacity:1;pointer-events:auto}
       .sheet .backdrop{position:absolute;inset:0;background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);} 
       
       .panel{ 
-          position:absolute;left:50%;top:50%;transform:translate(-50%, calc(-50% + 50px)) scale(0.95); 
-          width:calc(100% - 32px); max-width:500px; background: #18181b; 
-          border-radius:20px; border:1px solid var(--border); padding:20px; 
-          transition:all .3s cubic-bezier(0.19, 1, 0.22, 1);
+          position:absolute; left:50%; top:50%;
+          /* Transformatie aangepast voor betere centrering */
+          transform: translate(-50%, -50%) scale(0.95); 
+          width: calc(100% - 32px); 
+          max-width: 500px; 
+          background: #18181b; 
+          border-radius: 20px; 
+          border: 1px solid var(--border); 
+          padding: 20px; 
+          transition: all .3s cubic-bezier(0.19, 1, 0.22, 1);
           box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-          display: flex; flex-direction: column; max-height: 85vh;
+          /* Belangrijk: Flexbox en Max Height voor scrollen */
+          display: flex; 
+          flex-direction: column; 
+          max-height: 90vh; /* Maximaal 90% van schermhoogte */
       }
-      .sheet.open .panel{transform:translate(-50%,-50%) scale(1)}
-      .handle{width:50px; height:5px; border-radius:99px; margin:0 auto 15px; background: #333; flex-shrink: 0;}
+      
+      .sheet.open .panel { transform: translate(-50%, -50%) scale(1); }
+      .handle { width:50px; height:5px; border-radius:99px; margin:0 auto 15px; background: #333; flex-shrink: 0; }
       
       #chooserTitle {
-          margin: 0 0 20px;
+          margin: 0 0 15px;
           font-size: 22px; font-weight: 300; text-transform: uppercase;
           letter-spacing: 2px; color: var(--accent1); text-align: center;
-          border-bottom: 1px solid var(--border); padding-bottom: 15px;
-          flex-shrink: 0;
+          border-bottom: 1px solid var(--border); padding-bottom: 10px;
+          flex-shrink: 0; /* Titel mag niet krimpen */
       }
 
-      #multiStreamList { overflow-y: auto; flex-shrink: 1; margin-bottom: 10px; scrollbar-width: none; -ms-overflow-style: none; }
-      #multiStreamList::-webkit-scrollbar { display: none; }
+      /* Lijst die moet scrollen als het te groot wordt */
+      #multiStreamList { 
+          overflow-y: auto; 
+          flex: 1; /* Neem alle beschikbare ruimte in */
+          min-height: 0; /* Belangrijk voor scrollen in flexbox */
+          margin-bottom: 10px; 
+          scrollbar-width: thin; /* Dunne scrollbalk */
+          scrollbar-color: var(--accent1) #1a1a1a;
+      }
+      
+      /* Scrollbalk stijl voor Chrome/Safari */
+      #multiStreamList::-webkit-scrollbar { width: 6px; display: block; }
+      #multiStreamList::-webkit-scrollbar-track { background: #1a1a1a; }
+      #multiStreamList::-webkit-scrollbar-thumb { background-color: var(--muted); border-radius: 10px; }
 
       .multi-stream-btn {
           display: flex; width: 100%; align-items: center; justify-content: space-between;
-          background: #27272a; border: 1px solid transparent; padding: 16px 20px;
-          margin-bottom: 10px; border-radius: 12px; color: #e5e5e5; font-weight: 500; font-size: 15px;
+          background: #27272a; border: 1px solid transparent; padding: 14px 18px;
+          margin-bottom: 8px; border-radius: 12px; color: #e5e5e5; font-weight: 500; font-size: 14px;
           text-align: left; transition: all 0.2s; flex-shrink: 0;
       }
       .multi-stream-btn:hover { background: #333; }
       .multi-stream-btn:active { transform: scale(0.98); }
-      .multi-stream-btn span:last-child { opacity: 0.5; font-size: 12px; }
 
       .multi-stream-btn.active-stream {
           border: 1px solid var(--gold);
@@ -236,8 +242,6 @@
       }
       .multi-stream-btn.active-stream span:first-child::before { content: "● "; color: var(--gold); margin-right: 5px; }
 
-      .live-animated{font-weight:700; color: var(--accent-red);}
-      
       .video-container{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden;margin-bottom:15px; flex-shrink: 0; box-shadow: 0 0 20px rgba(0,0,0,0.5);}
       .video-container video,.video-container iframe, .video-container #youtube-player {position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain}
       .close-player-btn{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.7);border:none;border-radius:50%; width:30px; height:30px; display:flex;align-items:center;justify-content:center; font-size:14px; cursor:pointer; z-index:5; color:white;}
@@ -263,18 +267,41 @@
       
       #updatedHtmlContent { width: 100%; height: 40vh; background: #000; border: 1px solid var(--border); color: var(--success-green); font-family: monospace; font-size: 11px; border-radius: 8px; margin-top: 15px; padding: 10px; }
       
-      /* LANDSCAPE FIXES */
+      /* --- LANDSCAPE & MOBILE FIXES (DE OPLOSSING VOOR JE SCREENSHOT) --- */
       @media (max-height: 500px) and (orientation: landscape) {
+          /* Verberg overbodige elementen in header */
           .digital-clock { display: none !important; }
           .controls { display: none !important; }
           header { padding: 4px 10px !important; flex-direction: row !important; align-items: center !important; }
           .header-top { width: auto !important; margin-right: 15px; margin-bottom: 0 !important;}
           .cats { display: flex !important; padding-top: 0 !important; margin-top: 0 !important; flex: 1; padding-bottom: 0 !important;}
           main { padding-top: 5px !important; }
+          
+          /* MENU FIX */
           .dropdown-menu { max-height: 80vh; overflow-y: auto; padding: 4px; }
           .dropdown-item, .action-button { padding: 6px 10px !important; font-size: 11px !important; min-height: 30px; }
           .dropdown-divider { margin: 3px 0; } 
           .dropdown-item .icon, .action-button .icon { font-size: 14px !important; }
+
+          /* POPUP / CHOOSER FIX */
+          .panel {
+              height: 95vh; /* Gebruik bijna volledige hoogte */
+              max-height: none;
+              padding: 10px 15px; /* Minder padding */
+          }
+          .handle { display: none; } /* Verberg het streepje bovenaan voor meer ruimte */
+          #chooserTitle {
+              font-size: 18px; /* Titel kleiner */
+              margin-bottom: 8px;
+              padding-bottom: 8px;
+          }
+          #multiStreamList {
+              margin-bottom: 5px;
+          }
+          .btn[data-close] {
+              padding: 8px; /* Sluit knop compacter */
+              font-size: 12px;
+          }
       }
     </style>
 </head>
@@ -312,10 +339,11 @@
           <div class="dropdown-divider"></div>
           <a href="https://www.youtube.com/watch?v=FahlRE8G2mM" target="_blank" class="dropdown-item"><span class="icon">🔴</span><span>Youtube Reklamsiz</span></a>
           <a href="https://play.google.com/store/apps/details?id=com.brouken.player" target="_blank" class="dropdown-item"><span class="icon">▶️</span><span>Just Player</span></a>
-
-
-
-
+          <a href="https://play.google.com/store/apps/details?id=org.videolan.vlc" target="_blank" class="dropdown-item"><span class="icon">🦊</span><span>VLC</span></a>
+          <a href="https://drive.google.com/file/d/1BtoFqahQgvpl2l7nj5xIjzvSyRL_RX2d/view?usp=drive_link" target="_blank" class="dropdown-item"><span class="icon">🐺</span><span>Wuffy</span></a>
+          <a href="https://play.google.com/store/apps/details?id=com.kmplayer" target="_blank" class="dropdown-item"><span class="icon">📽️</span><span>KMPlayer</span></a>
+          <a href="https://play.google.com/store/apps/details?id=com.mxtech.videoplayer.ad" target="_blank" class="dropdown-item"><span class="icon">🎬</span><span>MX Player</span></a>
+          <a href="https://drive.google.com/file/d/1K0GesHSvL3d2M8yigNNx1M6ZurdPOFRM/view?usp=drive_link" target="_blank" class="dropdown-item"><span class="icon">🅾️</span><span>OPlayer</span></a>
           <div class="dropdown-divider"></div>
         </div>
         <div id="adminActionsMenu" class="dropdown-menu">
