@@ -23,7 +23,7 @@
         --accent2: #FF6F00; 
         --gold: #FFD700;    
         
-        --shadow: 0 10px 30px rgba(0,0,0, 0.7);
+        --shadow: 0 10px 30px rgba(0,0,0, 0.7); 
         
         /* Functionele kleuren (aangepast om blauw te vermijden) */
         --whatsapp-green: #25D366; 
@@ -67,7 +67,7 @@
       #mainApp{display:flex;flex-direction:column;height:100vh}
       
       /* Header */
-      header{ 
+      header{
           position:sticky; top:0; z-index:20;
           background: rgba(18, 18, 18, 0.95); 
           backdrop-filter: saturate(1.2) blur(10px);
@@ -107,7 +107,7 @@
       .action-button{ display:flex;align-items:center;gap:10px;padding:12px; background:linear-gradient(135deg,var(--accent1),var(--accent2));color:#000; border-radius:10px;font-size:14px;font-weight:700;transition:all .15s ease;cursor:pointer; box-shadow: 0 4px 10px rgba(255, 179, 0, 0.2); }
       .action-button.gold{background:linear-gradient(135deg,#FDB931,#9f7928); color: #000;}
       .action-button.danger{ background:linear-gradient(135deg,var(--danger-red),#991b1b); color:#fff; }
-
+      
       .controls{display:flex;gap:6px; margin-top: 0;}
       input[type=search],input[type=text],input[type=password]{
           flex:1; background: #000; border:1px solid var(--border); border-radius:10px;
@@ -242,10 +242,13 @@
           display: none;               /* Voor Chrome/Safari/Brave */
       }
 
+      /* --- AANGEPASTE STIJL VOOR POPUP KNOPPEN (Kleiner en mobielvriendelijk) --- */
       .multi-stream-btn {
           display: flex; width: 100%; align-items: center; justify-content: space-between;
-          background: #27272a; border: 1px solid transparent; padding: 16px 20px;
-          margin-bottom: 10px; border-radius: 12px; color: #e5e5e5; font-weight: 500; font-size: 15px;
+          background: #27272a; border: 1px solid transparent; 
+          padding: 12px 15px; /* Aangepast: kleiner dan voorheen */
+          margin-bottom: 8px; /* Aangepast: minder marge */
+          border-radius: 12px; color: #e5e5e5; font-weight: 500; font-size: 14px;
           text-align: left; transition: all 0.2s; flex-shrink: 0;
       }
       .multi-stream-btn:hover { background: #333; }
@@ -259,6 +262,26 @@
       }
       .multi-stream-btn.active-stream span:first-child::before { content: "● "; color: var(--gold); margin-right: 5px; }
 
+      /* KAPAT KNOP STIJL (Geel en Center) */
+      .close-panel-btn {
+          width: 100%; 
+          padding: 12px; 
+          margin-top: auto;
+          border: 1px solid var(--accent1); /* Gele rand */
+          color: var(--accent1);            /* Gele tekst */
+          border-radius: 12px;
+          background: rgba(255, 179, 0, 0.05); /* Hele lichte gele tint */
+          font-weight: 600;
+          text-align: center;
+          transition: all 0.2s;
+          cursor: pointer;
+      }
+      .close-panel-btn:active {
+          background: var(--accent1);
+          color: #000;
+          transform: scale(0.98);
+      }
+
       .live-animated{font-weight:700; color: var(--accent-red);}
       
       .video-container{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden;margin-bottom:15px; flex-shrink: 0; box-shadow: 0 0 20px rgba(0,0,0,0.5);}
@@ -268,7 +291,7 @@
       .favorite-btn.is-favorite{ color: #000; background: var(--gold); box-shadow: 0 0 10px var(--gold); }
       
       footer{display: none !important;}
-      
+
       /* Modals */
       .modal{position:fixed;inset:0;z-index:35;opacity:0;pointer-events:none;transition:opacity .2s ease}
       .modal.open{opacity:1;pointer-events:auto}
@@ -299,11 +322,20 @@
           .dropdown-divider { margin: 3px 0; } 
           .dropdown-item .icon, .action-button .icon { font-size: 14px !important; }
 
-          /* FIX: Landscape MultiStream panel moet kleiner zijn */
+          /* FIX: Landscape MultiStream panel moet kleiner zijn en scrollbaar */
           .panel { 
             max-height: 90vh; 
-            width: calc(100% - 200px); 
+            width: calc(100% - 100px); /* Breder op landscape */
+            padding: 10px 20px;
           }
+          .multi-stream-btn {
+              padding: 8px 12px; /* Nog compacter in landscape */
+              font-size: 13px;
+              min-height: 36px;
+              margin-bottom: 5px;
+          }
+          #chooserTitle { margin-bottom: 10px; padding-bottom: 8px; font-size: 18px; }
+          .close-panel-btn { padding: 8px; margin-top: 5px; }
       }
     </style>
 </head>
@@ -324,8 +356,7 @@
           </div>
       </div>
     </div>
-
-    <div id="mainApp" class="hidden">
+<div id="mainApp" class="hidden">
       <header>
         <div class="header-top">
           <div class="brand"><button id="hamburgerBtn" class="hamburger">☰</button></div>
@@ -378,7 +409,8 @@
 
         <div class="video-container" id="videoContainer" style="display:none;"></div>
         
-        <button class="btn" style="width:100%; padding:12px; color: var(--muted); margin-top:auto;" data-close>Kapat</button>
+        <!-- KAPAT BUTTON AANGEPAST -->
+        <button class="close-panel-btn" data-close>Kapat</button>
       </div>
     </div>
 
@@ -390,7 +422,7 @@
 
     <script type="application/json" id="approved-devices-data">
 [
-
+ {"id": "turis-trjy5fdqp","name": "diger Turis tv"}, 
  {"id": "turis-lrw8j7t1f","name": "diger iptv githup"},  
  {"id": "turis-6wwztqpdj","name": "Yedek Iptv"},    
  {"id": "turis-jmykjmeaO","name": "Yedek Iptv"},
@@ -541,7 +573,7 @@
                 if(isApproved){ 
                     mainAppEl.classList.remove("hidden"); 
                     loadAllDataAndInit(); 
-                } else {
+                } else { 
                     const approvalOverlay = document.getElementById("approval-overlay");
                     document.getElementById("device-id-display").textContent = deviceId;
                     const copyBtn = document.getElementById("copy-id-btn"), copyBtnText = copyBtn.querySelector(".text"), copyBtnIcon = copyBtn.querySelector(".icon");
@@ -637,7 +669,7 @@
             document.getElementById('btnSelectAllHtml').onclick=()=>document.getElementById('updatedHtmlContent').select();
             window.addEventListener('orientationchange', () => { setTimeout(() => { scrollToLastViewed(); }, 250); });
         }
-        
+
         // --- DATA VERWERKING ---
         function processAndGroupData(dataByCategories) {
             const cats = JSON.parse(JSON.stringify(categoryDefinitions));
@@ -811,4 +843,3 @@
 </body>
 
 </html>
-
