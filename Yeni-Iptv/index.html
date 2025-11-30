@@ -73,8 +73,7 @@
           box-shadow: 0 4px 20px rgba(0,0,0,0.5);
       }
       
-      /* Top rij (Menu, Klok, Admin) strakker */
-      .header-top{display:flex;align-items:center;justify-content:space-between; margin-bottom: 4px;} /* Minder marge onder */
+      .header-top{display:flex;align-items:center;justify-content:space-between; margin-bottom: 4px;} 
       
       .digital-clock{ 
           font-family: 'Courier New', monospace; 
@@ -104,11 +103,10 @@
       .action-button.gold{background:linear-gradient(135deg,#FDB931,#9f7928); color: #000;}
       .action-button.danger{ background:linear-gradient(135deg,var(--danger-red),#991b1b); color:#fff; }
 
-      /* Zoekbalk rij compacter */
       .controls{display:flex;gap:6px;}
       input[type=search],input[type=text],input[type=password]{
           flex:1; background: #000; border:1px solid var(--border); border-radius:8px;
-          padding: 6px 10px; /* Minder padding in input */
+          padding: 6px 10px; 
           color:var(--text); outline:none; font-size:12px; height: 34px;
           transition: border-color 0.3s;
       }
@@ -116,12 +114,11 @@
       
       .btn{background: var(--bg2); border:1px solid var(--border); border-radius:8px; padding:0 10px; height: 34px; display:flex; align-items: center; font-size:12px; cursor:pointer; color: var(--text);}
       
-      /* Categorieën compacter */
       .cats{display:flex;gap:6px;overflow:auto;padding-top:6px; padding-bottom: 2px;}
       .cats::-webkit-scrollbar{display:none}
       .chip{ 
           border:1px solid var(--border); background: var(--bg2); color: var(--muted);
-          padding: 6px 12px; /* Minder lucht in knoppen */
+          padding: 6px 12px; 
           border-radius: 14px; white-space:nowrap; font-size:11px; 
           cursor:pointer; transition: all 0.3s; font-weight: 500;
       }
@@ -132,7 +129,6 @@
           box-shadow: 0 2px 8px rgba(255, 179, 0, 0.3);
       }
       
-      /* Hoofdinhoud */
       main{padding:10px 8px 0; flex-grow:1; overflow-y:auto}
       #channelGrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:8px; padding-bottom:80px}
       #channelGrid.is-youtube-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
@@ -174,7 +170,6 @@
       
       #subCategoryNav { padding: 0 0 6px 0; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
       
-      /* SUBCATEGORIE: GOUD KLEUR */
       .special-subcat-chip { 
           background: rgba(255, 255, 255, 0.05); 
           border-color: var(--border); 
@@ -197,7 +192,6 @@
       #sporVideoSection { border-left: 4px solid var(--admin-blue); }
       #adultVideoSection a, #filmVideoSection a, #sporVideoSection a { display: flex; align-items: center; gap: 15px; padding: 15px; border-radius: 8px; text-decoration: none; color: var(--text); transition: all 0.3s; }
       
-      /* --- VERBETERDE MODAL / CHOOSER (OPLOSSING VOOR SCROLLEN) --- */
       .sheet{position:fixed;inset:0;z-index:30;opacity:0;pointer-events:none;transition:opacity .3s ease}
       .sheet.open{opacity:1;pointer-events:auto}
       .sheet .backdrop{position:absolute;inset:0;background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);} 
@@ -229,18 +223,20 @@
           flex-shrink: 0; 
       }
 
+      /* --- OPLOSSING: SCROLLBALK VERBERGEN --- */
       #multiStreamList { 
           overflow-y: auto; 
           flex: 1; 
           min-height: 0; 
           margin-bottom: 10px; 
-          scrollbar-width: thin; 
-          scrollbar-color: var(--accent1) #1a1a1a;
+          scrollbar-width: none; /* Firefox: Verbergt balk */
+          -ms-overflow-style: none; /* IE/Edge: Verbergt balk */
       }
       
-      #multiStreamList::-webkit-scrollbar { width: 6px; display: block; }
-      #multiStreamList::-webkit-scrollbar-track { background: #1a1a1a; }
-      #multiStreamList::-webkit-scrollbar-thumb { background-color: var(--muted); border-radius: 10px; }
+      /* Chrome / Safari / Android Webview: Verberg balk */
+      #multiStreamList::-webkit-scrollbar { 
+          display: none; 
+      }
 
       .multi-stream-btn {
           display: flex; width: 100%; align-items: center; justify-content: space-between;
