@@ -1,0 +1,893 @@
+<!doctype html>
+<html lang="nl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>IPTV Player · Turis Tv</title>
+    <meta name="theme-color" content="#0b1220">
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <style>
+      :root{
+        --bg:#0b1220; --bg2:#0d132a; --card:rgba(16,23,42,.7); --text:#e5e7eb;
+        --muted:#9ca3af; --border:rgba(255,255,255,.08); --accent1:#22d3ee;
+        --accent2:#8b5cf6; --shadow:0 10px 30px rgba(0,0,0,.35); --gold:#fbbf24;
+        --whatsapp-green: #25D366; --admin-blue: #3b82f6; --danger-red: #ef4444;
+        --success-green: #10b981;
+        --accent-red: #f43f5e;
+        --accent-red-dark: #be123c;
+      }
+      *{box-sizing:border-box}
+      html,body{height:100%}
+      body{
+        margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
+        color:var(--text); -webkit-tap-highlight-color: transparent; display: flex;
+        flex-direction: column; overflow: hidden;
+        background: radial-gradient(1200px 800px at 100% -10%, rgba(34,211,238,.15), transparent 55%),
+                    radial-gradient(900px 700px at -20% 20%, rgba(139,92,246,.15), transparent 50%),
+                    linear-gradient(180deg, var(--bg), var(--bg2));
+        transition: background .5s ease-out;
+      }
+      a{color:inherit;text-decoration:none}
+      button{color:inherit; background:none; border:none; padding:0; font:inherit; cursor:pointer;}
+      .hidden{display:none !important}
+      #approval-overlay { position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+      #approval-overlay.visible { opacity: 1; pointer-events: auto; }
+      #approval-box { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 24px; text-align: center; width: 100%; max-width: 340px; box-shadow: var(--shadow); transform: scale(0.95); transition: transform 0.3s; }
+      #approval-overlay.visible #approval-box { transform: scale(1); }
+      #approval-box h2 { font-size: 22px; margin-top: 0; margin-bottom: 8px; background: -webkit-linear-gradient(135deg, var(--accent1), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+      #approval-box .instructions { color: var(--muted); margin-bottom: 24px; font-size: 14px; line-height: 1.5; }
+      .id-container { background: var(--bg); border-radius: 10px; padding: 16px; margin-bottom: 24px; border: 1px solid var(--border); }
+      .id-container .id-label { font-size: 11px; text-transform: uppercase; color: var(--muted); letter-spacing: 1px; margin-bottom: 8px; display: block; }
+      #device-id-display { font-family: monospace; font-size: 18px; color: var(--gold); word-break: break-all; transition: color 0.3s ease; }
+      #device-id-display.copied { color: var(--success-green) !important; }
+      #approval-box .actions { display: flex; flex-direction: column; gap: 12px; }
+      #copy-id-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, var(--accent1), var(--accent2)); border-radius: 10px; color: var(--bg); padding: 14px; font-weight: 700; font-size: 16px; transition: all .2s; }
+      #copy-id-btn:active { transform: scale(0.95); }
+      #whatsapp-id-btn { display: flex; align-items: center; justify-content: center; background: var(--whatsapp-green); border-radius: 50%; width: 60px; height: 60px; color: white; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4); transition: transform .2s; margin: 10px auto 0; }
+      #whatsapp-id-btn svg { width: 32px; height: 32px; }
+      #whatsapp-id-btn:active { transform: scale(0.9); }
+      
+      #mainApp{display:flex;flex-direction:column;height:100vh}
+      header{ position:sticky;top:0;z-index:20;background:linear-gradient(180deg, rgba(11,18,32,.95), rgba(11,18,32,.78)); backdrop-filter:saturate(1.2) blur(6px);border-bottom:1px solid var(--border);padding:8px 10px 6px;flex-shrink:0; display: flex; flex-direction: column;}
+      .header-top{display:flex;align-items:center;justify-content:space-between}
+      .digital-clock{font-family:'Courier New',Courier,monospace;font-size:18px;font-weight:700;color:var(--accent1);letter-spacing:2px;text-shadow:0 0 5px rgba(34,211,238,.5)}
+      .hamburger{ background:rgba(17,24,39,.85);border:1px solid var(--border);border-radius:9px; padding:8px;cursor:pointer;font-size:16px;display:flex;align-items:center; justify-content:center;width:32px;height:32px }
+      .dropdown-menu{ position:absolute;top:48px;background:rgba(15,23,42,.98);backdrop-filter:blur(8px); border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow); padding:8px;min-width:200px;max-width:280px;opacity:0;visibility:hidden; transform:translateY(-10px);transition:all .2s ease;z-index:1000; max-height:70vh;overflow-y:auto }
+      #mainDropdownMenu{left:10px}
+      #adminActionsMenu{right:10px;left:auto;min-width:180px}
+      .dropdown-menu.open{opacity:1;visibility:visible;transform:translateY(0)}
+      .dropdown-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:13px;transition:background .15s ease;cursor:pointer}
+      .dropdown-item:hover{background:rgba(255,255,255,.05)}
+      .dropdown-divider{height:1px;background:var(--border);margin:6px 0}
+      .action-button{ display:flex;align-items:center;gap:10px;padding:10px 12px; background:linear-gradient(135deg,var(--accent1),var(--accent2));color:#0b1220; border-radius:8px;font-size:13px;font-weight:600;transition:all .15s ease;cursor:pointer }
+      .action-button.gold{background:linear-gradient(135deg,var(--gold),#f59e0b)}
+      .action-button.danger{ background:linear-gradient(135deg,var(--danger-red),#dc2626); color:#fff; }
+      .controls{display:flex;gap:6px;margin-top:6px}
+      input[type=search],input[type=text],input[type=password]{flex:1;background:rgba(15,23,42,.85);border:1px solid var(--border);border-radius:9px;padding:8px 10px;color:var(--text);outline:none;font-size:12px}
+      .btn{background:rgba(17,24,39,.85);border:1px solid var(--border);border-radius:9px;padding:7px 9px;font-size:12px;cursor:pointer}
+      .cats{display:flex;gap:6px;overflow:auto;padding-top:6px}
+      .cats::-webkit-scrollbar{display:none}
+      .chip{ border:1px solid var(--border);background:rgba(17,24,39,.85);color:var(--text); padding:6px 9px;border-radius:999px;white-space:nowrap;font-size:11.5px; opacity:.97;cursor:pointer }
+      .chip.active{background:linear-gradient(135deg,var(--accent1),var(--accent2));color:#061018;border-color:transparent;font-weight:700}
+      main{padding:12px 10px 0;flex-grow:1;overflow-y:auto}
+      #channelGrid{display:grid;grid-template-columns:repeat(auto-fill, minmax(96px, 1fr));gap:8px;padding-bottom:70px}
+      #channelGrid.is-youtube-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+      .card{ position:relative;border-radius:10px;overflow:hidden;background:var(--card); border:1px solid var(--border);box-shadow:0 3px 10px rgba(0,0,0,.2); width:100%;transition:all .2s ease }
+      .card:active{transform:scale(.985)}
+      .card::before{ content:"";position:absolute;inset:-1px;border-radius:10px;padding:1px; background:linear-gradient(135deg, rgba(34,211,238,.45), rgba(139,92,246,.45)); -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0); -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.4 }
+      .card.is-playing { transform: scale(1.05); box-shadow: 0 0 20px rgba(244, 63, 94, 0.6), 0 0 30px rgba(190, 18, 60, 0.4); }
+      .card.is-playing::before { opacity: 1; animation: spin 4s linear infinite; background: linear-gradient(135deg, var(--accent-red-dark), var(--accent-red)); }
+      @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      .card.is-favorite::after{ content:"⭐"; position:absolute; top:3px; right:3px; font-size:11px; z-index:2; filter:drop-shadow(0 2px 4px rgba(0,0,0,.5)); }
+      .thumb{position:relative;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:radial-gradient(400px 220px at 20% 0%, rgba(34,211,238,.12), transparent 50%), radial-gradient(400px 220px at 80% 100%, rgba(139,92,246,.12), transparent 50%), #0f172a}
+      .thumb img{max-width:75%;max-height:75%;object-fit:contain;filter:drop-shadow(0 3px 10px rgba(0,0,0,.28))}
+      .locked::after{content:"🔒 18+ vergrendeld";position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;font-weight:800;letter-spacing:.2px;font-size:11px}
+      .info{padding:6px 7px 8px}
+      .title{font-weight:800;font-size:11.5px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.4em}
+      .card.is-youtube { aspect-ratio: 16 / 9; }
+      .card.is-youtube .thumb { aspect-ratio: unset; position: absolute; inset: 0; background: #000; }
+      .card.is-youtube .thumb img { width: 100%; height: 100%; max-width: 100%; max-height: 100%; object-fit: cover; filter: none; }
+      .card.is-youtube .info { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.85), transparent); padding: 12px 8px 8px; z-index: 3; }
+      .card.is-youtube .title { color: #fff; -webkit-line-clamp: 1; min-height: auto; font-size: 13px; }
+      .card.is-youtube::before { display: none; }
+      #subCategoryNav { padding: 0 0 8px 0; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+      .special-subcat-chip { background: rgba(244, 63, 94, 0.15); border-color: var(--accent-red); color: var(--accent-red); font-weight: 600; }
+      .special-subcat-chip.active { background: linear-gradient(135deg, var(--accent-red), var(--accent-red-dark)); color: #fff; border-color: transparent; font-weight: 700; box-shadow: 0 0 10px rgba(244, 63, 94, 0.5); }
+      #adultVideoSection, #filmVideoSection, #sporVideoSection { display: none; padding: 10px; margin-bottom: 12px; border-radius: 10px; flex-shrink: 0; }
+      #adultVideoSection.show, #filmVideoSection.show, #sporVideoSection.show { display: block; }
+      #adultVideoSection { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger-red); }
+      #filmVideoSection { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success-green); }
+      #sporVideoSection { background: rgba(59, 130, 246, 0.1); border: 1px solid var(--admin-blue); }
+      #adultVideoSection a, #filmVideoSection a, #sporVideoSection a { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 8px; text-decoration: none; color: var(--text); transition: all 0.3s; }
+      #adultVideoSection a:hover, #filmVideoSection a:hover, #sporVideoSection a:hover { transform: translateX(5px); }
+      .sheet{position:fixed;inset:0;z-index:30;opacity:0;pointer-events:none;transition:opacity .2s ease}
+      .sheet.open{opacity:1;pointer-events:auto}
+      .sheet .backdrop{position:absolute;inset:0;background: #000;} 
+      .panel{ position:absolute;left:50%;top:50%;transform:translate(-50%, calc(-50% + 100vh)); width:calc(100% - 32px);max-width:500px;background:rgba(15,23,42,.98); border-radius:14px;border:1px solid var(--border);padding:10px 12px 12px; transition:transform .22s ease, width .22s ease, height .22s ease;box-shadow:0 16px 40px rgba(0,0,0,.45) }
+      .sheet.open .panel{transform:translate(-50%,-50%)}
+      .handle{width:40px;height:4px;border-radius:999px;margin:0 auto 6px;background:rgba(255,255,255,.18)}
+      .sheet h3{margin:4px 0 8px;font-size:13px}
+      #streamList{margin-bottom:10px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+      .stream-choice{ background:rgba(17,24,39,.85);border:1px solid var(--border); border-radius:8px;padding:6px 10px;font-size:11px;cursor:pointer; transition:all .2s }
+      .stream-choice.active{ background:rgba(244, 63, 94, 0.15); border-color:var(--accent-red); box-shadow:0 0 8px rgba(244, 63, 94, 0.3); font-weight:700 }
+      .live-animated{font-weight:700;animation:color-change 4s linear infinite}
+      @keyframes color-change{0%{color:#ef4444}25%{color:#f97316}50%{color:#22c55e}75%{color:#3b82f6}100%{color:#ef4444}}
+      .video-container{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:10px;overflow:hidden;margin-bottom:10px}
+      .video-container video,.video-container iframe, .video-container #youtube-player {position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain}
+      .video-error{position:absolute; inset:0; display:flex; flex-direction: column; align-items:center; justify-content:center; color:var(--muted); font-size:12px; text-align:center; padding:10px; line-height: 1.5;}
+      .close-player-btn{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.5);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:11px;cursor:pointer;z-index:5}
+      .favorite-btn{ position:absolute; top:8px; left:8px; background:rgba(15,15,15,.75); border:2px solid rgba(255,255,255,.2); border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-size:16px; cursor:pointer; z-index:5; transition:all .3s ease; box-shadow:0 3px 8px rgba(0,0,0,.5); }
+      .favorite-btn.is-favorite{ color: #0b1220; background:linear-gradient(135deg, #fbbf24, #f59e0b); border-color:#fbbf24; filter:none; box-shadow:0 0 15px rgba(251,191,36,.6); }
+      .player-list{display:flex;flex-wrap:wrap;gap:5px;justify-content:center}
+      .player{ display:flex;flex-direction:column;align-items:center;gap:3px;background:#111827; border:1px solid var(--border);border-radius:8px;padding:6px 4px;cursor:pointer; width:calc(20% - 4px);min-width:50px; text-decoration: none; }
+      .player .emo{font-size:14px}
+      .player .pname{font-size:9px}
+      footer{display: none !important;}
+      .modal{position:fixed;inset:0;z-index:35;opacity:0;pointer-events:none;transition:opacity .2s ease;-webkit-overflow-scrolling:touch}
+      .modal.open{opacity:1;pointer-events:auto}
+      .modal .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.6)}
+      .modal .box{ position:absolute;left:14px;right:14px;top:50%;transform:translateY(-50%); background:#0f172a;border:1px solid var(--border);border-radius:12px; padding:12px;box-shadow:var(--shadow);max-width:400px;margin-left:auto;margin-right:auto; max-height:90vh;overflow-y:auto }
+      .modal .box h3{margin:0 0 6px;font-size:15px}
+      .modal .box p{font-size:12px;color:var(--muted);margin:0 0 8px}
+      .modal .box .inputs{margin:12px 0;display:flex;flex-direction:column;gap:8px}
+      .modal .box .actions{display:flex;gap:6px}
+      #updatedHtmlContent { width: 100%; height: 40vh; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: monospace; font-size: 11px; border-radius: 8px; margin-top: 8px; }
+      .suggestion-list { display: flex; gap: 10px; margin-top: 10px; justify-content: center; }
+      .suggestion-btn { background: var(--bg2); border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background .2s; }
+      .suggestion-btn:hover { background: var(--accent1); color: var(--bg); }
+      
+      /* --- START RADIO SPELER STIJLEN --- */
+      #radioPlayerContainer{
+        position: fixed; left: 0; right: 0; bottom: 0; z-index: 25;
+        background: rgba(11,18,32,.92); backdrop-filter: saturate(1.2) blur(6px);
+        border-top: 1px solid var(--border); padding: 10px 12px;
+        display: flex; align-items: center; gap: 12px;
+        transition: transform .3s ease;
+      }
+      #radioPlayerContainer.hidden { transform: translateY(100%); }
+      #radioPlayPauseBtn {
+        font-size: 24px; width: 40px; height: 40px; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .radio-info { flex-grow: 1; display: flex; flex-direction: column; gap: 4px; overflow: visible; }
+      .radio-info .now-playing-label {
+        font-size: 9px; text-transform: uppercase; color: var(--muted);
+        letter-spacing: 0.5px;
+      }
+      #radioStationSelect { display: none; }
+      
+      .radio-select-container { position: relative; width: 100%; }
+      
+      #customRadioSelect {
+        background: var(--bg); border: 1px solid var(--border); color: var(--text);
+        border-radius: 6px; padding: 5px 8px; font-size: 13px; width: 100%;
+        cursor: pointer; user-select: none;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        position: relative; padding-right: 20px;
+      }
+      #customRadioSelect::after {
+        content: '▲'; font-size: 8px; position: absolute; right: 10px; top: 50%;
+        transform: translateY(-50%); color: var(--muted);
+      }
+      
+      #customRadioOptions {
+        position: absolute; bottom: calc(100% + 6px); left: 0; right: 0; z-index: 100;
+        background: rgba(15,23,42,.98); backdrop-filter: blur(8px);
+        border: 1px solid var(--border); border-radius: 12px;
+        box-shadow: var(--shadow); padding: 8px;
+        max-height: 250px; overflow-y: auto;
+        opacity: 0; visibility: hidden; transform: translateY(10px);
+        transition: all .2s ease;
+      }
+      #customRadioOptions.open {
+        opacity: 1; visibility: visible; transform: translateY(0);
+      }
+      
+      .custom-option {
+        display: block; padding: 10px 12px; border-radius: 8px;
+        font-size: 14px; /* AANGEPAST NAAR 14px VOOR BETERE LEESBAARHEID */
+        transition: background .15s ease; cursor: pointer;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        color: var(--text);
+      }
+      .custom-option:hover { background: rgba(255,255,255,.05); }
+      .custom-option.active { background: var(--accent1); color: var(--bg); font-weight: 700; }
+      
+      .radio-volume { display: flex; align-items: center; gap: 8px; }
+      .radio-volume span { font-size: 18px; }
+      #radioVolumeSlider {
+        -webkit-appearance: none; appearance: none;
+        width: 80px; height: 5px; background: rgba(255,255,255,0.1);
+        outline: none; border-radius: 5px;
+      }
+      #radioVolumeSlider::-webkit-slider-thumb {
+        -webkit-appearance: none; appearance: none;
+        width: 15px; height: 15px; background: var(--accent1);
+        cursor: pointer; border-radius: 50%;
+      }
+      #radioVolumeSlider::-moz-range-thumb {
+        width: 15px; height: 15px; background: var(--accent1);
+        cursor: pointer; border-radius: 50%; border: none;
+      }
+      /* --- EINDE RADIO SPELER STIJLEN --- */
+      
+      @media (max-width: 991px) and (orientation: landscape) {
+        body:not(.film-mode-active) header, body:not(.film-mode-active) #subCategoryNav, body:not(.film-mode-active) #radioPlayerContainer { display: none !important; }
+        body:not(.film-mode-active) main { padding: 0; height: 100vh; }
+        .sheet.open { background: #000 !important; width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; z-index: 9999; }
+        .sheet.open .panel { top: 0; left: 0; width: 100vw; height: 100vh; max-width: none; transform: none; border-radius: 0; padding: 0; background: #000; }
+        .sheet.open .handle, .sheet.open .player-list, .sheet.open h3 { display: none; }
+        .sheet.open .video-container { width: 100%; height: 100%; margin-bottom: 0; border-radius: 0; }
+      }
+    </style>
+</head>
+<body class="app-container">
+
+    <div id="approval-overlay" class="hidden">
+      <div id="approval-box">
+          <h2>Erişim Gerekiyor</h2>
+          <p class="instructions">Bu cihazın onaylanması gerekiyor. Program Kimliğinini kopyalayın Forum da Kullandiginiz isim ve Forum üzerinden gönderin. (sinetech.tr KAPALIDIR UYELIK )</p>
+          <div class="id-container">
+            <span class="id-label">Cihaz Kimliğiniz</span>
+            <span id="device-id-display"></span>
+          </div>
+          <div class="actions">
+            <button id="copy-id-btn"><span class="icon">📋</span><span class="text">Kimliği kopyala</span></button>
+            <a id="whatsapp-id-btn" href="#" target="_blank">
+                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"></path></svg>
+            </a>
+          </div>
+      </div>
+    </div>
+
+    <div id="mainApp" class="hidden">
+      <header>
+        <div class="header-top">
+          <div class="brand"><button id="hamburgerBtn" class="hamburger">☰</button></div>
+          <div id="digitalClock" class="digital-clock"></div>
+          <div class="header-actions"><button id="adminMenuBtn" class="hamburger" title="Yönetici Seçenekleri">⋮</button></div>
+        </div>
+        <div id="mainDropdownMenu" class="dropdown-menu">
+          <div class="action-button gold" id="goToFavorites"><span class="icon">⭐</span><span>Favorilere Git</span></div>
+          <div class="dropdown-divider"></div>
+          <div class="action-button danger" id="testPageBtn"><span class="icon">🔧</span><span>Turis'e Ait</span></div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item" id="clearFavorites"><span class="icon">🗑️</span><span>Favorileri temizle</span></div>
+          <div class="dropdown-divider"></div>
+          <a href="https://www.youtube.com/watch?v=FahlRE8G2mM" target="_blank" class="dropdown-item"><span class="icon">🔴</span><span>Youtube Reklamsiz</span></a>
+          <a href="https://play.google.com/store/apps/details?id=org.videolan.vlc" target="_blank" class="dropdown-item"><span class="icon">🦊</span><span>VLC</span></a>
+          <a href="https://drive.google.com/file/d/1BtoFqahQgvpl2l7nj5xIjzvSyRL_RX2d/view?usp=drive_link" target="_blank" class="dropdown-item"><span class="icon">🐺</span><span>Wuffy</span></a>
+          <a href="https://play.google.com/store/apps/details?id=com.kmplayer" target="_blank" class="dropdown-item"><span class="icon">📽️</span><span>KMPlayer</span></a>
+          <a href="https://play.google.com/store/apps/details?id=com.mxtech.videoplayer.ad" target="_blank" class="dropdown-item"><span class="icon">🎬</span><span>MX Player</span></a>
+          <a href="https://drive.google.com/file/d/1K0GesHSvL3d2M8yigNNx1M6ZurdPOFRM/view?usp=drive_link" target="_blank" class="dropdown-item"><span class="icon">🅾️</span><span>OPlayer</span></a>
+        </div>
+        <div id="adminActionsMenu" class="dropdown-menu">
+             <div class="dropdown-item" id="btnAddDevice"><span class="icon">➕</span><span>Cihaz ekle</span></div>
+        </div>
+        <div class="controls">
+          <input id="search" type="search" placeholder="Kanal veya kategorie ara..." autocomplete="off">
+          <button id="btnAdultLock" class="btn" title="18+ kilitleme/kilidi açma"></button>
+        </div>
+        <div id="cats" class="cats"></div>
+      </header>
+      <main>
+        <div id="subCategoryNav" class="cats hidden"></div>
+        <div id="sporVideoSection">
+            <a href="https://turis-tv.github.io/2026-Appcreator/Saray/index.html" target="_blank"><span style="font-size: 24px;">⚽</span><span style="font-weight: 600;">Canlı Maçlar için Tıkla</span></a>
+        </div>
+        <div id="filmVideoSection">
+          <a href="https://turis-tv.github.io/2026-Appcreator/Films/index.html" target="_blank"><span style="font-size: 24px;">🎬</span><span style="font-weight: 600;">Filmler izle - Tikla</span></a>
+        </div>
+        <div id="adultVideoSection">
+          <a href="https://merhmet.github.io/XXX.io/xxx/indexx.html" target="_blank"><span style="font-size: 24px;">🔞</span><span style="font-weight: 600;">18+ Premium Web-Siteleri - Tikla</span></a>
+        </div>
+        <div id="channelGrid"></div>
+      </main>
+      <footer id="mainFooter">Bir kanalı harici een oynatıcıda açmak için kanala dokunun.</footer>
+    </div>
+
+    <div id="chooser" class="sheet" aria-hidden="true">
+      <div class="backdrop" data-close></div>
+      <div class="panel">
+        <div class="handle"></div><h3 id="chooserTitle"></h3><div id="streamList" class="hidden"></div>
+        <div class="video-container" id="videoContainer"></div>
+        <div class="player-list">
+          <a class="player" id="btnVLC"><div class="emo">🦊</div><div class="pname">VLC</div></a>
+          <a class="player" id="btnWuffy"><div class="emo">🐺</div><div class="pname">Wuffy</div></a>
+          <a class="player" id="btnKMPlayer"><div class="emo">📽️</div><div class="pname">KM</div></a>
+          <a class="player" id="btnMX"><div class="emo">🎬</div><div class="pname">MX</div></a>
+          <a class="player" id="btnOPlayer"><div class="emo">🅾️</div><div class="pname">OPlayer</div></a>
+        </div>
+      </div>
+    </div>
+
+    <div id="adultGate" class="modal"><div class="backdrop" data-close></div><div class="box"><h3>🔞 18+ yaş için</h3><p>Bu içeriği görüntülemek için şifreyi girin.</p><div class="inputs"><input type="password" id="pw1" placeholder="Şifre"></div><div class="actions"><button class="btn" data-close>İptal</button><button class="btn" id="btnUnlockAdult" style="background:linear-gradient(135deg,var(--accent1),var(--accent2));border:none;font-weight:600">Kilidi aç</button></div></div></div>
+
+    <div id="turisAitGate" class="modal"><div class="backdrop" data-close></div><div class="box"><h3>🔧 Turis'e Ait</h3><p>Devam etmek için lütfen şifrenizi giriniz.</p><div class="inputs"><input type="password" id="pwTurisAit" placeholder="Şifre"></div><div class="actions"><button class="btn" data-close>İptal</button><button class="btn" id="btnUnlockTurisAit" style="background:linear-gradient(135deg,var(--accent1),var(--accent2));border:none;font-weight:600">Aç</button></div></div></div>
+    <div id="adminToolGate" class="modal"><div class="backdrop" data-close></div><div class="box"><h3>🔐 Yönetici Aracı</h3><p>Cihaz eklemek için şifreyi girin.</p><div class="inputs"><input type="password" id="adminToolPw" placeholder="Yönetici Şifresi"></div><div class="actions"><button class="btn" data-close>İptal etmek</button><button class="btn" id="btnUnlockAdminTool" style="background:linear-gradient(135deg,var(--accent1),var(--accent2));border:none;font-weight:600">Kilidi aç</button></div></div></div>
+    <div id="addDeviceModal" class="modal"><div class="backdrop" data-close></div><div class="box"><h3>➕ Cihaz ekle</h3><p>Voer de ID en een herkenbare naam in.</p><div class="inputs"><input type="text" id="newDeviceId" placeholder="Apparaat ID (bv. turis-xxxxxx)"><input type="text" id="newDeviceName" placeholder="Naam (bv. Mehmet's Telefoon)"></div><div class="actions"><button class="btn" data-close>İptal etmek</button><button class="btn" id="btnConfirmAddDevice" style="background:linear-gradient(135deg,var(--accent1),var(--accent2));border:none;font-weight:600">HTML Ekle en Oluştur</button></div></div></div>
+    <div id="updatedHtmlModal" class="modal"><div class="backdrop" data-close></div><div class="box" style="max-width: 90vw;"><h3>✅ HTML Güncellendit</h3><p>Aşağıdaki kodun tamamını kopyalayın en içeriğinizi değiştirin<code>index.html</code> bestand.</p><textarea id="updatedHtmlContent" readonly></textarea><div class="actions" style="margin-top:12px;"><button class="btn" id="btnSelectAllHtml" style="background:linear-gradient(135deg,var(--accent1),var(--accent2));border:none;font-weight:600">Tümünü Seç</button><button class="btn" data-close>Kapat</button></div></div></div>
+    
+    <!-- START RADIO SPELER -->
+    <div id="radioPlayerContainer" class="hidden">
+        <button id="radioPlayPauseBtn">▶️</button>
+        <div class="radio-info">
+            <span class="now-playing-label">RADYO</span>
+            <div class="radio-select-container">
+                <div id="customRadioSelect"></div>
+                <div id="customRadioOptions"></div>
+                <select id="radioStationSelect"></select>
+            </div>
+        </div>
+        <div class="radio-volume">
+            <span id="radioVolumeIcon">🔊</span>
+            <input type="range" id="radioVolumeSlider" min="0" max="100" value="80">
+        </div>
+        <audio id="audioPlayer" preload="none"></audio>
+    </div>
+    <!-- EINDE RADIO SPELER -->
+
+    <script type="application/json" id="approved-devices-data">
+[
+ {"id": "turis-cps5d3et79","name": "Admin Device 1"},
+  {"id": "turis-14ultw3fv","name": "One plus +"},
+  {"id": "turis-5q1t80v1j","name": "Bilgisayar"},
+  {"id": "turis-cps5d3et79","name": "Admin Device 1"},
+  {"id": "turis-kkzh0rfqi","name": "eren avci"},
+  {"id": "turis-joceg0g8k","name": "Bayram"},
+  {"id": "turis-xy3765sq0","name": "Tab3 Araba"},
+  {"id": "turis-xzpcxmobr","name": "Onur"},
+  {"id": "turis-xzpccmobr","name": "onur"},
+  {"id": "turis-eku2mytel","name": "eski one plus"},
+  {"id": "turis-i49osmspa","name": "Android Box Turis"},
+  {"id": "turis-x0ow302kk","name": "OnePlus;Yedek"},
+
+
+  {"id": "turis-ocskcjxvr","name": "Adnan K Forum Moderator"},
+  {"id": "turis-phxy0r3ox","name": "twiliqht Forum"},
+  {"id": "turis-4cw6zy7fb","name": "mstfgndz Forum"},
+  {"id": "turis-zebix3wva","name": "tosyaagackakan Forum"},
+  {"id": "turis-jk1pefszt","name": "gora2 Forum"},
+
+  {"id": "turis-yrs3o09op","name": "gezen Forum"},
+  {"id": "turis-yim16gbia","name": "Tornaci Forum"},
+  {"id": "turis-0al6h133e","name": "Adnan K Moderator Forum"},
+
+  {"id": "turis-zebix3wva","name": "tosyaagackakan Forum"},
+  {"id": "turis-mrufpmr34","name": "sabri003  Forum"},
+  {"id": "turis-nta4mb4vw","name": "james  Forum"},
+  {"id": "turis-hbcgb9byh","name": "akmerrah  Forum"},
+  {"id": "turis-kzrx6zjh9","name": "ERCANARAS Forum"},
+  {"id": "turis-o30kqqq1z","name": "gsmusti  Forum"},
+  {"id": "turis-yznj335co","name": "BAXI26 Forum"},
+  {"id": "turis-zng9c5031","name": "BIackEagIe 2 Forum"},
+  {"id": "turis-ka71he6xt","name": "ayhan5151  Forum"},
+  {"id": "turis-10fb8qyk5","name": "Mustafa212121  Forum"},
+  {"id": "turis-hebj4m86w","name": "Mustafa212121  Forum"},
+  {"id": "turis-np93hzpb1","name": "Ferdi_07  Forum"},
+
+  {"id": "turis-p4iifjju8","name": "Kanka  Forum"},
+  {"id": "turis-w4oaepb4p","name": "Mehmet türk  Forum"},
+  {"id": "turis-htgq5fx6m","name": "Mehmet türk 2 Forum"},
+
+
+  {"id": "turis-vp7atlk2h","name": "Hasan0101 Forum"},
+  {"id": "turis-zovqe8980","name": "Furkan 68 Forum"},
+  {"id": "turis-tjfh5e3bu","name": "ersin28bursa  Forum"},
+  {"id": "turis-66uzzvebn","name": "onur444 Forum"},
+  {"id": "turis-roxm4m2c6","name": "BleackEagle 1  Forum"},
+  {"id": "turis-genvuay4k","name": "forumcu3  Forum"},
+  {"id": "turis-u8rapvm8k","name": "titkenan  Forum"},
+  {"id": "turis-b5ylkujkj","name": "Snn1963  Forum"},
+
+
+
+  {"id": "turis-wpml7nijl","name": "MaskotX  Forum"},
+  {"id": "turis-yxvfy9mkw","name": "ferhat44  Forum"},
+  {"id": "turis-fvnq9itz9","name": "Bolmeli  Forum"},
+  {"id": "turis-3e9yq9wyi","name": "chicharito  Forum"},
+  {"id": "turis-scb702bim","name": "nortech  Forum"},
+  {"id": "turis-yxvfy9mkw","name": "ferhat44  Forum"},
+  {"id": "turis-sevdi56ft","name": "Aydın59  Forum"},
+  {"id": "turis-5fqe12qq2","name": "evrensel3447  Forum"},
+  {"id": "turis-yxq7ebfbi","name": "seratonin  Forum"},
+  {"id": "turis-524c1qo72","name": "bilo48  Forum"},
+  {"id": "turis-yvlxzlu71","name": "caldion  Forum"},
+  {"id": "turis-xy3eooohr","name": "Selcuk1806  Forum"},
+
+  {"id": "turis-yrs3o09op","name": "  Forum"},
+  {"id": "turis-yrs3o09op","name": "  Forum"},
+  {"id": "turis-yrs3o09op","name": "  Forum"},
+  {"id": "turis-yrs3o09op","name": "  Forum"},
+  {"id": "turis-yrs3o09op","name": "  Forum"},
+  {"id": "turis-yrs3o09op","name": "  Forum"},
+
+
+  {"id": "turis-cvcxkqxjc","name": " IzleGo kodluk "},
+  {"id": "turis-y8gfqmana","name": " kodluk Ali Kibari "},
+  {"id": "turis-wpml7nijl","name": " kodluk MaskotX "},
+  {"id": "turis-4wayrdofj","name": " kodluk MaskotX "},
+  {"id": "turis-6ko4tzecd","name": " kodluk yasarbey21 "},
+  {"id": "turis-sj4nhi2wy","name": " kodluk kemalbn "},
+  {"id": "turis-6ko4tzecd","name": " kodluk yasarbey21 "},
+  {"id": "turis-sj4nhi2wy","name": " kodluk kemalbn "},
+  {"id": "turis-r0h4ru602","name": " kodluk Feneral1907 "},
+  {"id": "turis-e2183ijsi","name": " kodluk ferhat30"},
+  {"id": "turis-tihideq9t","name": " kodluk micyytery"},
+  {"id": "turis-lslol9ozt","name": " kodluk "},
+  {"id": "turis-lslol9ozt","name": " kodluk "},
+
+
+
+
+  {"id": "turis-203eqb6t ","name": "maverick34  Forum SILINDI"},
+
+
+
+
+
+ {"id": "turis-vawg7hzze","name": "Bilgisayar"}
+]
+    </script>
+    
+    <script>
+    (() => {
+        // ===================================================================
+        // ===================  JSON URL CONFIGURATIE (AANGEPAST)  =====================
+        // BELANGRIJK: Vervang deze URLs door de daadwerkelijke paden op Github
+        const JSON_URLS = {
+            ulusal:    "https://raw.githubusercontent.com/Turis-Tv/muzik.json/refs/heads/main/1-Ulusal-Radyo-Azer.txt",
+            haber:     "https://raw.githubusercontent.com/Turis-Tv/muzik.json/refs/heads/main/2-Haberler.txt",
+            spor:      "https://raw.githubusercontent.com/Turis-Tv/muzik.json/refs/heads/main/3-Sporlar.txt",
+            muzik:     "https://raw.githubusercontent.com/Turis-Tv/muzik.json/refs/heads/main/4-Muzikler.txt",
+            belgesel:  "https://raw.githubusercontent.com/Turis-Tv/muzik.json/refs/heads/main/5-Belgesel-Izle.txt",
+            film:      "https://raw.githubusercontent.com/Turis-Tv/muzik.json/refs/heads/main/6-Filmler-Film.txt",
+            dini:      "https://raw.githubusercontent.com/Turis-Tv/muzik.json/refs/heads/main/7-Dini.txt",
+            cocuk:     "https://raw.githubusercontent.com/Turis-Tv/muzik.json/refs/heads/main/8-Cocuk.txt",
+            youtube:   "https://raw.githubusercontent.com/Turis-Tv/muzik.json/refs/heads/main/9-Youtube.txt",
+            adult:     "https://raw.githubusercontent.com/Turis-Tv/muzik.json/refs/heads/main/10-%2B18-Live-Vod-Cam.txt",
+            diger:     "https://raw.githubusercontent.com/Turis-Tv/muzik.json/refs/heads/main/11-Diger.txt",
+            relax:     "https://raw.githubusercontent.com/Turis-Tv/muzik.json/refs/heads/main/12-Relax.txt",
+        };
+        // ===================================================================
+        // ==============  START RADIO SPELER CONFIGURATIE  ================
+        // HIER KUNT U UW EIGEN RADIOZENDERS TOEVOEGEN.
+        // Formaat: { name: "NAAM ZENDER", url: "STREAMING URL" }
+        const radioStations = [
+ 
+          { name: "Arabesk", url: "https://canli.arabeskinmerkezi.com/9180/stream" },
+          { name: "Baba", url: "https://ssldyg.radyotvonline.com/best/babaradyo.stream/playlist.m3u8" },
+          { name: "Best Kina", url: "https://hepsibest.radyotvonline.net/bestkina" },
+          { name: "TRT-Türkü", url: "https://rd-trtturku.medya.trt.com.tr/master.m3u8" },
+          { name: "TRT-Nagme", url: "https://rd-trtnagme.medya.trt.com.tr/master.m3u8" },
+          { name: "TRT-Radyo", url: "https://rd-trtradyo1.medya.trt.com.tr/master.m3u8" },
+          { name: "TRT-fm", url: "https://trt.radyotvonline.net/trt_fm.aac" },
+          { name: "TRT-Muzik", url: "https://tv-trtmuzik.medya.trt.com.tr/master.m3u8" },
+          { name: "TRT-Haber", url: "https://trt.radyotvonline.net/trt_haber.aac" },
+          { name: "Memleketim-fm", url: "https://radio-trtmemleketimfm.medya.trt.com.tr/master.m3u8" },
+          { name: "TRT-Cukurova", url: "https://radio-trtcukurova.medya.trt.com.tr/master.m3u8" },
+          { name: "TRT-Trabzon", url: "https://radio-trttrabzon.medya.trt.com.tr/master.m3u8" },
+          { name: "TRT-Gab", url: "https://radio-trtgap.medya.trt.com.tr/master.m3u8" },
+          { name: "TRT-Antalya", url: "https://radio-trtantalya.medya.trt.com.tr/master.m3u8" },
+          { name: "TRT-Erzurum", url: "https://radio-trterzurum.medya.trt.com.tr/master.m3u8" },
+          { name: "90'LAR", url: "https://moondigitalmaster.radyotvonline.net/90lar/playlist.m3u8" },
+          { name: "ABUZER FM", url: "http://live.radyotvonline.com:9030/;" },
+          { name: "ADANA SÜPER", url: "http://yayin2.yayindakiler.com:4002/;" },
+          { name: "ADIYAMAN ASR", url: "http://yayin2.yayindakiler.com:4072/;" },
+          { name: "AFŞİN FM", url: "https://radyo.arkacadde.org/4646/afsinradyo.mp3" },
+          { name: "ALTIN ŞARKILAR", url: "https://ssl4.radyotvonline.com/radyohome/altinsarkilar.stream_aac/chunklist.m3u8" },
+          { name: "ANKARA HAVALARI", url: "https://ssl4.radyotvonline.com/radyohome/ankarahavalari.stream_aac/chunklist.m3u8" },
+          { name: "ARABESK", url: "https://anadolu.liderhost.com.tr:10949/;" },
+          { name: "ARABESK BİZ", url: "https://yayin.arabeskfm.biz:8042/stream" },
+          { name: "ARABESKLAND", url: "https://moondigitaledge.radyotvonline.net/arabeskland/playlist.m3u8" },
+          { name: "BEST FM", url: "https://bestfm.turkhosted.com/;stream.mp3" },
+          { name: "BRT BAYRAK FM", url: "http://sc.brtk.net:8000/;" },
+          { name: "BRT BAYRAK", url: "http://sc.brtk.net:8004/;" },
+          { name: "BRT BAYRAK KLASİK", url: "http://sc.brtk.net:8006/;" },
+          { name: "BRT BAYRAK RADYOSU", url: "http://sc.brtk.net:8002/;" },
+          { name: "BRT BAYRAK TÜRK", url: "http://sc.brtk.net:8010/;" },
+          { name: "BURSA RADYO S", url: "https://icecast.netmedya.net/radyos" },
+          { name: "BURSADA BUGÜN", url: "https://radyo.bursadabugun.com/stream" },
+          { name: "ÇORLU TEMPO FM", url: "https://stream2.rtvtakip.com:7016/;stream.mp3" },
+          { name: "DAMARTÜRK", url: "https://live.radyositesihazir.com:10997/;" },
+          { name: "DEM RADYO", url: "https://yayin.radyodem.com:8000/stream/;stream.mp3" },
+          { name: "DİJİTAL RADYO", url: "https://anadolu.liderhost.com.tr:10961/;" },  
+          { name: "DİNAMO FM", url: "https://channels.dinamo.fm/legacy-mp3" },  
+          { name: "DİYARBAKIR DOĞAN 21 FM", url: "http://yayin1.yayindakiler.com:3024/;" },  
+          { name: "DOST FM Hatay", url: "http://yayin.netyayin.net:1515/;" },  
+          { name: "EFSANE 4'LÜ", url: "https://moondigitalmaster.radyotvonline.net/efsane4lu/playlist.m3u8" },  
+          { name: "EGE HAVALARI", url: "https://moondigitalmaster.radyotvonline.net/egehavalari/playlist.m3u8" },  
+          { name: "EKİN RADYO", url: "http://yayin.turkhosted.com:6006/;" },  
+ 
+	  { name: "ERZURUM RADYO RITM", url: "http://radyo.yayin.com.tr:8091/;" },
+	  { name: "FM 23", url: "http://radyo.yayin.com.tr:8280/;" },
+	  { name: "GAZİANTEP RADYO KİLİM", url: "http://yayin.netyayin.net:2727/;" },
+	  { name: "GENÇ RADYO Konya", url: "http://yayin.turkhosted.com:6030/;" },
+	  { name: "GİMSA RADYO", url: "http://yayin.canliyayin.org:9482/;" },
+	  { name: "HAMSİ FM", url: "https://anadolu.liderhost.com.tr:10992/;" },
+	  { name: "HOME KLASİK", url: "https://ssl4.radyotvonline.com/radyohome/klasikhome.stream_aac/chunklist.m3u8" },
+	  { name: "İTÜ RADYOSU JAZZ - BLUES", url: "http://160.75.86.29:8088/stream/3/" },
+	  { name: "İTÜ RADYOSU KLASİK", url: "http://160.75.86.29:8088/stream/5/" },
+	  { name: "İTÜ RADYOSU ROCK", url: "http://160.75.86.29:8088/stream/1/" },
+	  { name: "İMPARATOR FM", url: "http://yayin.yayindakiler.com:4042/;" },
+	  { name: "JOYTÜRK FM", url: "https://17773.live.streamtheworld.com/JOY_TURKAAC.aac" },
+	  { name: "JOY TURK ROCK", url: "https://17733.live.streamtheworld.com/JOYTURK_ROCK128AAC.aac" },
+	  { name: "KAFA RADYO", url: "https://moondigitalmaster.radyotvonline.net/kafaradyo/playlist.m3u8" },
+	  { name: "KARADENİZ FM", url: "https://moondigitalmaster.radyotvonline.net/karadenizfm/playlist.m3u8" },
+	  { name: "KRAL FM", url: "http://kralwmp.radyotvonline.com/;" },
+	  { name: "KRAL POP RADYO", url: "https://ssldyg2.radyotvonline.com/smil/smil:kralpop.smil/chunklist.m3u8" },
+	  { name: "KRAL POP FM", url: "http://kralpopwmp.radyotvonline.com/;" },
+	  { name: "KURAN MEAL RADYO", url: "https://ssl4.radyotvonline.com/radyohome/kuranmeal.stream_aac/chunklist.m3u8" },
+	  { name: "KÜPE FM", url: "https://icecast.netmedya.net/kupefm" },
+	  { name: "MAZİDEN BİR DEMET", url: "https://moondigitalmaster.radyotvonline.net/mazidenbirdemet/playlist.m3u8" },
+	  { name: "MELENKOLİK HOME", url: "https://moondigitalmaster.radyotvonline.net/melankolikhome/playlist.m3u8" },
+	  { name: "MÜZEYYEN", url: "https://moondigitaledge.radyotvonline.net/muzeyyen/playlist.m3u8" },
+	  { name: "NTV RADYO", url: "https://ssldyg2.radyotvonline.com/smil/smil:ntvradyo.smil/chunklist.m3u8" },
+	  { name: "OZBURUN FM", url: "http://stream.laut.fm/ozburunfm/;stream.mp3" },
+	  { name: "ÖMÜR RADYO", url: "http://anadolu.liderhost.com.tr/9002/stream" },
+	  { name: "PAL DOĞA", url: "https://ssl4.radyotvonline.com/radyohome/paldogahome.stream_aac/chunks.m3u8" },
+	  { name: "PAL FM", url: "https://moondigitalmaster.radyotvonline.net/palfm/playlist.m3u8" },
+	  { name: "PAL NOSTALJİ", url: "https://moondigitalmaster.radyotvonline.net/palnostalji/playlist.m3u8" },
+	  { name: "PAL STATION", url: "http://shoutcast.radyogrup.com:1020/;" },
+	  { name: "PLAY FM", url: "http://live.playfm.com.tr:9050/;stream/1" },
+	  { name: "POP HOME", url: "https://ssl4.radyotvonline.com/radyohome/pophome.stream_aac/chunklist.m3u8" },
+	  { name: "POPÜLER FM", url: "https://anadolu.liderhost.com.tr:10919/;" },
+	  { name: "POWER DANCE", url: "https://listen.powerapp.com.tr/powerdance/abr/powerdance/128/chunks.m3u8" },
+	  { name: "POWER DEEP", url: "https://listen.powerapp.com.tr/powerdeep/abr/powerdeep/128/chunks.m3u8" },
+	  { name: "POWER FM", url: "https://listen.powerapp.com.tr/powerfm/abr/powerfm/128/chunks.m3u8" },
+	  { name: "POWER GOLD", url: "https://listen.powerapp.com.tr/powergold/abr/powergold/128/chunks.m3u8" },
+	  { name: "POWER GREECE", url: "https://listen.powerapp.com.tr/powergreece/abr/powergreece/128/chunks.m3u8" },
+	  { name: "POWER LOVE", url: "https://listen.powerapp.com.tr/powerlove/abr/powerlove/128/chunks.m3u8" },
+	  { name: "POWER PLUS", url: "https://listen.powerapp.com.tr/powerplus/abr/powerplus/128/chunks.m3u8" },
+	  { name: "POWER POP", url: "https://listen.powerapp.com.tr/powerpop/abr/powerpop/128/chunks.m3u8" },
+	  { name: "POWER SMOOTH JAZZ", url: "https://listen.powerapp.com.tr/powersmoothjazz/abr/powersmoothjazz/128/chunks.m3u8" },
+	  { name: "POWERTÜRK AKUSTİK", url: "https://listen.powerapp.com.tr/powerturkakustik/abr/powerturkakustik/128/chunks.m3u8" },
+	  { name: "POWERTÜRK FM", url: "https://listen.powerapp.com.tr/powerturk/abr/powerturk/128/chunks.m3u8" },
+	  { name: "POWERTÜRK TAPTAZE", url: "https://listen.powerapp.com.tr/powerturktaptaze/abr/powerturktaptaze/128/chunks.m3u8" },
+	  { name: "RADİO 5", url: "https://radiotrc.80.yayin.com.tr/stream" },
+	  { name: "RADYO 2000 FM Osmaniye", url: "https://sslyayin.netyayin.net:10915/;" },
+	  { name: "RADYO AFET", url: "https://anadolu.liderhost.com.tr:10889/;" },
+	  { name: "RADYO ARABESK", url: "https://yayin.radyoarabesk.com.tr:8000/stream" },
+	  { name: "RADYO BİZİM FM", url: "https://radyoserver60.okeylisans.com:14000/9212/;" },
+	  { name: "RADYO EKSEN", url: "https://ssldyg.radyotvonline.com/pozitif/smil:eksen.smil/chunklist.m3u8" },
+	  { name: "RADYO ENERJİ", url: "https://trkvz-radyolar.ercdn.net/radyoenergy/chunklist.m3u8" },
+	  { name: "RADYO FENERBAHÇE", url: "https://ssl4.radyotvonline.com/radyohome/radyofenerbahcehome.stream_aac/chunklist.m3u8" },
+	  { name: "RADYO İZMİR", url: "https://usa4.fastcast4u.com/proxy/radyoizmirfm?mp=/mp3stream128" },
+	  { name: "RADYO KENT", url: "https://radyo1.radyo-dinle.tc:7060/;" },
+	  { name: "RADYO MUSİKİ", url: "http://dijimedya.radyotvonline.net/radyomusiki" },
+	  { name: "RADYO OTOMOBİL", url: "http://srv2.streaming-ingenierie.fr:8160/;" },
+	  { name: "RADYO SAHİL", url: "https://radyo1.radyo-dinle.tc/8216/;" },
+	  { name: "RADYO SEYMEN", url: "https://yayin.radyoseymen.com.tr:1070/stream" },
+	  { name: "RADYO SPOR", url: "https://ssl4.radyotvonline.com/radyohome/radyosporhome.stream_aac/chunklist.m3u8" },
+	  { name: "RADYO TRAFİK", url: "https://ssl4.radyotvonline.com/radyohome/radyotrafikhome.stream_aac/chunklist.m3u8" },
+	  { name: "RADYO VATAN KIBRIS", url: "http://95.0.173.195:9002/vatan" },
+	  { name: "RADYO VATAN NİHAVENT", url: "http://95.0.173.195:9001/nihavent" },
+	  { name: "RADYO VATAN TÜRKÜ", url: "http://95.0.173.195:9000/turku" },
+	  { name: "RADYO VOKAL", url: "https://moondigitalmaster.radyotvonline.net/radyovokal/playlist.m3u8" },
+	  { name: "RADYO VOYAGE", url: "https://ssldyg.radyotvonline.com/pozitif/smil:voyage.smil/chunklist.m3u8" },
+	  { name: "RADYO YAREN", url: "http://radyoyaren.radyotvyayini.com:8042/;" },
+	  { name: "RELAX HOME", url: "https://moondigitalmaster.radyotvonline.net/relaxhome/playlist.m3u8" },
+	  { name: "SLOW HOME", url: "https://moondigitalmaster.radyotvonline.net/slowhome/playlist.m3u8" },
+	  { name: "SLOW KARADENİZ FM", url: "https://ssl162.ozelip.com/asistan/stream/fd02a93f231cba7593e027682f8fcad5" },
+	  { name: "SLOWTÜRK FM", url: "https://radyo.duhnet.tv/slowturk" },
+	  { name: "TATVAN RADYO 13", url: "http://yayin1.yayindakiler.com:3050/;" },
+	  { name: "TEZENE", url: "https://moondigitaledge.radyotvonline.net/tezene/playlist.m3u8" },
+	  { name: "TÜRKÜ RADYO", url: "http://radyo.turkuradyo.net:4591/;" },
+	  { name: "TÜRKÜLERLE TÜRKİYE", url: "https://moondigitalmaster.radyotvonline.net/turkulerleturkiye/playlist.m3u8" },
+	  { name: "WORLD HİTS", url: "https://moondigitaledge.radyotvonline.net/worldhits/playlist.m3u8" },
+	  { name: "YUNUS FM", url: "http://95.173.162.184:7350/;" },
+          { name: "Power Türk", url: "https://listen.powerapp.com.tr/powerturk/mpeg/icecast.audio" },
+          { name: "Slow Türk", url: "https://radyo.duhnet.tv/slowturk" },
+
+
+
+
+        ];
+        // ===================================================================
+        // =============  RAAK NIKS MEER AAN ONDER DEZE LIJN  ==============
+        // ===================================================================
+
+        const DEFAULT_ADULT_PASSWORD = "Turis-1";
+        const ADMIN_TOOL_PASSWORD = "Turis-Vault"; 
+        const TURIS_AIT_PASSWORD = "Turis-Vault";
+        const categoryDefinitions = { 
+            "ulusal":{title:"Ulusal",icon:"🏅"}, "haber":{title:"Haber",icon:"📡"}, "spor":{title:"Spor",icon:"⚽"},
+            "muzik":{title:"Muzik",icon:"🎵"}, "belgesel":{title:"Belgesel",icon:"🐘"},
+            "film":{title:"Film",icon:"🎬"}, "dini":{title:"Dini",icon:"🕌"}, "cocuk":{title:"Cocuk",icon:"👶"},
+            "relax":{title:"Relax",icon:"🧘"}, "youtube":{title:"YouTube",icon:"📽️",type:"youtube"}, "adult":{title:"18+",icon:"🔞",adult:true},
+            "diger":{title:"Diğer",icon:"📝"}, "__favorites__":{title:"Favorieten",icon:"⭐",items:[]} 
+        };
+        
+        const mainAppEl = document.getElementById('mainApp');
+        const catsEl=document.getElementById("cats"),channelGridEl=document.getElementById("channelGrid"),searchEl=document.getElementById("search"),chooser=document.getElementById("chooser"),chooserTitle=document.getElementById("chooserTitle"),streamListEl=document.getElementById("streamList"),videoContainer=document.getElementById("videoContainer");
+        const subCategoryNavEl = document.getElementById("subCategoryNav"), sporVideoSection = document.getElementById("sporVideoSection"), filmVideoSection = document.getElementById("filmVideoSection"), adultVideoSection = document.getElementById("adultVideoSection");
+        let adultUnlocked=false,currentHls=null,youtubePlayer=null,favorites=JSON.parse(localStorage.getItem('iptvFavorites_v3')||'[]'),currentChannel=null,state={currentCat:"ulusal",currentSubCat:null},pendingAdultCategory=null;
+        
+        // Radio speler elementen
+        const radioPlayerContainer = document.getElementById('radioPlayerContainer');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const radioPlayPauseBtn = document.getElementById('radioPlayPauseBtn');
+        const radioStationSelect = document.getElementById('radioStationSelect');
+        const radioVolumeSlider = document.getElementById('radioVolumeSlider');
+        const radioVolumeIcon = document.getElementById('radioVolumeIcon');
+        const customRadioSelect = document.getElementById('customRadioSelect');
+        const customRadioOptions = document.getElementById('customRadioOptions');
+
+        let allChannels = {};
+
+        // --- START LAATST BEKEKEN FUNCTIES ---
+        function getLastViewed() { const item = localStorage.getItem('lastViewedItem'); return item ? JSON.parse(item) : null; }
+        function setLastViewed(item, categoryKey) {
+            if (!item || !item.name) return;
+            localStorage.setItem('lastViewedItem', JSON.stringify({ name: item.name, category: categoryKey }));
+            document.querySelectorAll('.card.is-playing').forEach(c => c.classList.remove('is-playing'));
+            const newCard = document.querySelector(`.card[data-channel-name="${CSS.escape(item.name)}"]`);
+            if (newCard) newCard.classList.add('is-playing');
+        }
+        function scrollToLastViewed() {
+            const lastViewed = getLastViewed();
+            if (!lastViewed || (lastViewed.category !== state.currentCat)) return;
+            
+            setTimeout(() => {
+                const activeCard = document.querySelector('.is-playing');
+                if (activeCard) {
+                    activeCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 150);
+        }
+        // --- EINDE LAATST BEKEKEN FUNCTIES ---
+        
+        function getDeviceID(){let id=localStorage.getItem("turisDeviceID");return id||(id="turis-"+Math.random().toString(36).substr(2,9),localStorage.setItem("turisDeviceID",id)),id}
+        function checkDeviceApproval(){
+            const deviceId = getDeviceID();
+            const approvedList = JSON.parse(document.getElementById("approved-devices-data").textContent);
+            const isApproved = approvedList.some(device => device.id === deviceId);
+            if(isApproved){ mainAppEl.classList.remove("hidden"); radioPlayerContainer.classList.remove("hidden"); loadAllDataAndInit(); } else {
+                const approvalOverlay = document.getElementById("approval-overlay");
+                document.getElementById("device-id-display").textContent = deviceId;
+                const copyBtn = document.getElementById("copy-id-btn"), copyBtnText = copyBtn.querySelector(".text"), copyBtnIcon = copyBtn.querySelector(".icon");
+                const deviceIdDisplay = document.getElementById("device-id-display"), whatsappBtn = document.getElementById("whatsapp-id-btn");
+                const whatsappMsg = `Isim ....., Ve kimliğim Turis TV: ${deviceId}`;
+                whatsappBtn.href = `https://wa.me/32486790423?text=${encodeURIComponent(whatsappMsg)}`;
+                copyBtn.addEventListener("click",()=>{navigator.clipboard.writeText(deviceId).then(()=>{copyBtnText.textContent="Gekopieerd!";copyBtnIcon.textContent="✅";deviceIdDisplay.classList.add("copied");setTimeout(()=>{copyBtnText.textContent="Kopieer ID";copyBtnIcon.textContent="📋";deviceIdDisplay.classList.remove("copied")},2000)})});
+                approvalOverlay.classList.remove("hidden");
+                setTimeout(()=>approvalOverlay.classList.add("visible"),10);
+            }
+        }
+        
+        function loadAllDataAndInit() {
+            catsEl.innerHTML = '<div class="chip">Data laden...</div>';
+            const fetchPromises = Object.entries(JSON_URLS).map(([key, url]) => fetch(url).then(response => { if (!response.ok) throw new Error(`Failed to load ${key}`); return response.json(); }).then(data => ({ category: key, data: data })).catch(error => { console.error(`Error loading ${key}.json:`, error); return { category: key, data: [] }; }));
+            Promise.all(fetchPromises).then(results => { let dataByCategories = {}; results.forEach(res => { if (res.data && res.data.length > 0) { dataByCategories[res.category] = res.data; }}); allChannels = processAndGroupData(dataByCategories); initApp(allChannels); }).catch(err => { console.error('Initialisatie mislukt na meervoudige fetches:', err); catsEl.innerHTML = ''; channelGridEl.innerHTML = `<div style="padding:20px;color:var(--danger-red);font-size:14px; grid-column: 1 / -1;">Kon kanalenlijst niet laden. (Controleer Github URLs)</div>`; });
+        }
+
+        // --- START RADIO SPELER FUNCTIES ---
+        function initRadioPlayer() {
+            radioStations.forEach((station, index) => {
+                const option = document.createElement('option');
+                option.value = station.url;
+                option.textContent = station.name;
+                radioStationSelect.appendChild(option);
+                
+                const customOption = document.createElement('div');
+                customOption.classList.add('custom-option');
+                customOption.textContent = station.name;
+                customOption.dataset.value = station.url;
+                
+                if (index === 0) {
+                    customRadioSelect.textContent = station.name;
+                    customOption.classList.add('active');
+                }
+                
+                customOption.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    customRadioSelect.textContent = station.name;
+                    radioStationSelect.value = station.url;
+
+                    customRadioOptions.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('active'));
+                    customOption.classList.add('active');
+
+                    if (station.url) {
+                        audioPlayer.src = station.url;
+                        audioPlayer.play();
+                    } else {
+                        audioPlayer.pause();
+                        audioPlayer.src = "";
+                    }
+                    
+                    customRadioOptions.classList.remove('open');
+                });
+                
+                customRadioOptions.appendChild(customOption);
+            });
+
+            radioPlayPauseBtn.addEventListener('click', () => { if (audioPlayer.paused) { if (audioPlayer.src) audioPlayer.play(); } else { audioPlayer.pause(); } });
+            radioVolumeSlider.addEventListener('input', (e) => { const volume = e.target.value / 100; audioPlayer.volume = volume; radioVolumeIcon.textContent = (volume === 0) ? '🔇' : '🔊'; });
+            audioPlayer.onplay = () => { radioPlayPauseBtn.textContent = '⏸️'; };
+            audioPlayer.onpause = () => { radioPlayPauseBtn.textContent = '▶️'; };
+            audioPlayer.volume = radioVolumeSlider.value / 100;
+
+            customRadioSelect.addEventListener('click', (e) => {
+                e.stopPropagation();
+                customRadioOptions.classList.toggle('open');
+            });
+        }
+        // --- EINDE RADIO SPELER FUNCTIES ---
+
+        function initApp(channels){
+            initRadioPlayer(); 
+
+            const firstRealStationUrl = radioStations.length > 1 ? radioStations[1].url : null;
+            if (firstRealStationUrl) {
+                radioStationSelect.value = firstRealStationUrl;
+                customRadioSelect.textContent = radioStations[1].name;
+                customRadioOptions.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('active'));
+                const activeOption = customRadioOptions.querySelector(`[data-value="${firstRealStationUrl}"]`);
+                if(activeOption) activeOption.classList.add('active');
+                
+                audioPlayer.src = firstRealStationUrl;
+                audioPlayer.play().catch(e => console.warn("Autoplay is geblokkeerd door de browser. Gebruiker moet handmatig starten."));
+            }
+
+            renderCats(channels); renderContent(channels); updateClock(); setInterval(updateClock,1000);
+            searchEl.oninput=()=>renderContent(channels);
+            document.getElementById("btnAdultLock").onclick=()=>{adultUnlocked=!adultUnlocked;document.getElementById("btnAdultLock").textContent=adultUnlocked?"":"";if(!adultUnlocked&&channels[state.currentCat]?.adult){state.currentCat="ulusal";renderCats(channels)}renderContent(channels)};
+            document.querySelectorAll("[data-close]").forEach(el=>{el.addEventListener("click",()=>el.closest(".modal, .sheet").classList.remove("open"))});
+            chooser.addEventListener("click",e=>{if(e.target.hasAttribute("data-close"))closeChooser()});
+            document.getElementById("btnUnlockAdult").addEventListener("click",()=>{const gate=document.getElementById("adultGate");if(document.getElementById("pw1").value===DEFAULT_ADULT_PASSWORD){adultUnlocked=true;document.getElementById("pw1").value="";document.getElementById("btnAdultLock").textContent="";gate.classList.remove("open");if(pendingAdultCategory){state.currentCat=pendingAdultCategory;state.currentSubCat=null;pendingAdultCategory=null;renderCats(channels)}renderContent(channels)}});
+            document.getElementById("goToFavorites").onclick=()=>{state.currentCat="__favorites__";renderCats(channels);renderContent(channels);document.getElementById("mainDropdownMenu").classList.remove("open")};
+            document.getElementById("clearFavorites").onclick=()=>{if(favorites.length>0&&confirm("Weet je zeker dat je al je favorieten wilt verwijderen?")){favorites=[];localStorage.setItem("iptvFavorites_v3","[]");if(state.currentCat==="__favorites__")state.currentCat="ulusal";renderCats(channels);renderContent(channels)}document.getElementById("mainDropdownMenu").classList.remove("open")};
+            
+            // --- GECORRIGEERDE EN GECOMBINEERDE CLICK HANDLERS ---
+            document.getElementById("hamburgerBtn").onclick = e => {
+                e.stopPropagation();
+                document.getElementById("adminActionsMenu").classList.remove("open");
+                customRadioOptions.classList.remove("open");
+                document.getElementById("mainDropdownMenu").classList.toggle("open");
+            };
+            document.getElementById("adminMenuBtn").onclick = e => {
+                e.stopPropagation();
+                document.getElementById("mainDropdownMenu").classList.remove("open");
+                customRadioOptions.classList.remove("open");
+                document.getElementById("adminActionsMenu").classList.toggle("open");
+            };
+            
+            document.addEventListener('click', () => {
+                document.getElementById("mainDropdownMenu").classList.remove("open");
+                document.getElementById("adminActionsMenu").classList.remove("open");
+                customRadioOptions.classList.remove('open');
+            });
+            // --- EINDE GECORRIGEERDE HANDLERS ---
+
+            document.getElementById('testPageBtn').onclick = () => { document.getElementById('mainDropdownMenu').classList.remove('open'); document.getElementById('turisAitGate').classList.add('open'); document.getElementById('pwTurisAit').focus(); };
+            document.getElementById('btnUnlockTurisAit').onclick = () => { const modal = document.getElementById('turisAitGate'), pw = document.getElementById('pwTurisAit'); if(pw.value.trim() === TURIS_AIT_PASSWORD){pw.value = ''; modal.classList.remove('open'); window.open('https://turis-tv.github.io/private/index.html', '_blank')} else {alert('Fout wachtwoord!');pw.select()}};
+            document.getElementById('btnAddDevice').onclick = () => document.getElementById('adminToolGate').classList.add('open');
+            document.getElementById('btnUnlockAdminTool').onclick = () => { if (document.getElementById('adminToolPw').value === ADMIN_TOOL_PASSWORD) { document.getElementById('adminToolPw').value = ''; document.getElementById('adminToolGate').classList.remove('open'); document.getElementById('addDeviceModal').classList.add('open'); } else { alert('Fout wachtwoord!'); } };
+            document.getElementById('btnConfirmAddDevice').onclick = () => {const id = document.getElementById('newDeviceId').value.trim(), name = document.getElementById('newDeviceName').value.trim();if(!id||!name)return alert('Beide velden zijn verplicht.');const data=JSON.parse(document.getElementById('approved-devices-data').textContent);if(data.some(d=>d.id===id))return alert('Dit ID bestaat al!');data.push({id:id,name:name});document.getElementById('addDeviceModal').classList.remove('open');generateAndShowUpdatedHTML(data)};
+            document.getElementById('btnSelectAllHtml').onclick=()=>document.getElementById('updatedHtmlContent').select();
+            window.addEventListener('orientationchange', () => { setTimeout(() => { scrollToLastViewed(); }, 250); });
+        }
+        
+        function processAndGroupData(dataByCategories) {
+            const cats = JSON.parse(JSON.stringify(categoryDefinitions));
+            for (const key in cats) if (key !== "__favorites__") cats[key].items = [];
+            for (const categoryKey in dataByCategories) {
+                const channelData = dataByCategories[categoryKey];
+                const cat = cats[categoryKey];
+                if (!cat) continue; 
+                channelData.forEach(ch => {
+                    ch.category = categoryKey;
+                    if (ch.type === "link" || cat.type === "youtube") { cat.items.push(ch); return; }
+                    let group = cat.items.find(item => item.name === ch.name && !item.type);
+                    if (!group) { group = { ...ch, streams: [] }; cat.items.push(group); }
+                    const label = `<span class="live-animated">Live</span> ${group.streams.length + 1}`;
+                    group.streams.push({ url: ch.url, label: label });
+                    group.url = group.streams[0].url;
+                });
+            }
+            return cats;
+        }
+
+        function renderContent(channels) { renderChannels(channels); scrollToLastViewed(); }
+        
+        function renderCats(channels){
+            catsEl.innerHTML=""; const favCount=favorites.length;
+            for(const[key,cat]of Object.entries(channels)){
+                if((key==="__favorites__" && favCount===0) || !cat.title) continue;
+                if(key !== "__favorites__" && key !== 'diger' && key !== 'relax' && (!cat.items || cat.items.length===0)) continue;
+                const chip=document.createElement("button");chip.className="chip";
+                const label=key==="__favorites__"?`${cat.icon} ${cat.title} (${favCount})`:`${cat.icon||"📺"} ${cat.title}`;chip.innerHTML=label;
+                if(state.currentCat===key)chip.classList.add("active");
+                chip.onclick=()=>{if(cat.adult&&!adultUnlocked){pendingAdultCategory=key;document.getElementById("adultGate").classList.add("open")}else{state.currentCat=key; state.currentSubCat=null; renderCats(channels);renderContent(channels)}};
+                catsEl.appendChild(chip)
+            }
+        }
+        
+        function renderChannels(channels){
+            sporVideoSection.classList.toggle("show",state.currentCat==="spor");filmVideoSection.classList.toggle("show",state.currentCat==="film");adultVideoSection.classList.toggle("show",state.currentCat==="adult"&&adultUnlocked);
+            renderSubCategories(channels);
+            const catData=channels[state.currentCat];
+            const searchTerm=searchEl.value.trim().toLowerCase();let items=state.currentCat==="__favorites__"?favorites.map(f=>({...f,isFavorite:true})):catData?.items||[];
+            if(state.currentSubCat) items=items.filter(i=>i.subCategory===state.currentSubCat);
+            if(searchTerm)items=items.filter(i=>i.name?.toLowerCase().includes(searchTerm));
+            channelGridEl.innerHTML="";channelGridEl.classList.toggle("is-youtube-grid",catData?.type==="youtube");if(items.length===0){channelGridEl.innerHTML=state.currentCat==="__favorites__"?'<div style="text-align: center; grid-column: 1 / -1; padding-top: 50px; color: var(--muted);">⭐<br>Henüz favori yok.</div>':'<div style="padding:20px;color:var(--muted);font-size:12px; grid-column: 1 / -1;">Hiçbir şey bulunamadı.</div>'}else{items.forEach(item=>channelGridEl.appendChild(createCard(item,catData,channels)))}}
+        
+        function renderSubCategories(channels) { 
+            const cat = channels[state.currentCat]; 
+            let subCats; 
+            if (!cat || !cat.items || state.currentCat === 'spor' || state.currentCat === '__favorites__') { subCategoryNavEl.classList.add("hidden"); state.currentSubCat = null; return; } 
+            const dynamicSubCats = [...new Set(cat.items.map(i => i.subCategory && i.subCategory.trim()).filter(Boolean))];
+            if (state.currentCat === 'youtube') { subCats = ['Muzik', 'Ilahi']; } 
+            else if (state.currentCat === 'ulusal') { subCats = ['TV', 'Radyo', 'Azer', ...dynamicSubCats.filter(sc => !['TV', 'Radyo', 'Azer'].includes(sc))]; }
+            else if (state.currentCat === 'adult') { subCats = ['Live', 'Vod', 'Cam']; }
+            else if (state.currentCat === 'belgesel') { subCats = ['Belg İzle', ...dynamicSubCats.filter(sc => !['Belg İzle'].includes(sc))];}
+            else if (state.currentCat === 'film') { subCats = ['Film', ...dynamicSubCats.filter(sc => !['Film'].includes(sc))]; }
+            else { subCats = dynamicSubCats; } 
+            if (subCats.length === 0 && state.currentCat !== 'belgesel') { subCategoryNavEl.classList.add("hidden"); state.currentSubCat = null; return; } 
+            if (state.currentSubCat === null || !subCats.includes(state.currentSubCat)) { 
+                switch (state.currentCat) { 
+                    case 'ulusal': state.currentSubCat = 'TV'; break; 
+                    case 'youtube': state.currentSubCat = 'Muzik'; break; 
+                    case 'adult': state.currentSubCat = 'LIVE'; break;
+                    case 'belgesel': state.currentSubCat = null; break; 
+                    case 'film': state.currentSubCat = 'Film'; break;
+                    default: state.currentSubCat = subCats[0] || null; break; 
+                } 
+                if (state.currentSubCat && !subCats.includes(state.currentSubCat)) state.currentSubCat = subCats[0] || null; 
+            } 
+            if (subCats.length === 0) { subCategoryNavEl.classList.add("hidden"); return; }
+            subCategoryNavEl.innerHTML = ""; subCategoryNavEl.classList.remove("hidden");
+            subCats.forEach(sc => { const chip = document.createElement("button"); chip.className = "chip special-subcat-chip"; chip.textContent = sc; if (state.currentSubCat === sc) { chip.classList.add("active"); } chip.onclick = () => { state.currentSubCat = sc; renderContent(channels); }; subCategoryNavEl.appendChild(chip); }); 
+        }
+
+        function createCard(item,cat,channels){ 
+            const lastViewed = getLastViewed(); const isFav=favorites.some(f=>f.name===item.name); 
+            const card=item.type==="link"?document.createElement("a"):document.createElement("div"); 
+            card.className="card";card.dataset.channelName=item.name; 
+            if (lastViewed && lastViewed.name === item.name && lastViewed.category === state.currentCat) { card.classList.add('is-playing'); } 
+            if(item.type==="link"){card.href=item.url;card.target="_blank"}else{card.tabIndex=0;card.onclick=()=>openChooser(item,cat,channels)} 
+            if(cat?.type==="youtube")card.classList.add("is-youtube"); if(isFav)card.classList.add("is-favorite"); 
+            const isLocked=cat?.adult&&!adultUnlocked; const thumb=document.createElement("div");thumb.className="thumb"; 
+            if(isLocked)thumb.classList.add("locked"); const img=document.createElement("img"); img.alt=item.name; 
+            const ytId=getYouTubeID(item.url); img.src = ytId ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg` : "https://img.icons8.com/fluency/96/tv.png"; 
+            img.onerror=()=>{img.src="https://img.icons8.com/fluency/96/tv.png"}; 
+            thumb.appendChild(img);card.appendChild(thumb);card.appendChild(createCardInfo(item)); return card 
+        }
+        function createCardInfo(item){const info=document.createElement("div");info.className="info";const title=document.createElement("div");title.className="title";title.textContent=item.name||"Kanaal";info.appendChild(title);return info}
+        
+        function openChooser(item,cat,channels){ 
+            if (!audioPlayer.paused) {
+                audioPlayer.pause();
+            }
+        
+            setLastViewed(item, state.currentCat); if(cat?.adult&&!adultUnlocked){pendingAdultCategory=cat;document.getElementById("adultGate").classList.add("open");return} currentChannel={...item,categoryKey:state.currentCat}; chooserTitle.textContent=item.name; stopVideo(); const card=document.querySelector(`.card[data-channel-name="${CSS.escape(item.name)}"]`); if(card)card.classList.add("is-playing"); if(cat?.type==="youtube"){ document.querySelector(".player-list").style.display="none"; streamListEl.classList.add("hidden"); videoContainer.innerHTML='<div id="youtube-player"></div><button class="favorite-btn" id="favoriteBtn">⭐</button><button class="close-player-btn" data-close>✕</button>'; const ytId=getYouTubeID(item.url); if(ytId) { createYoutubePlayer(ytId,channels); const favBtn=document.getElementById("favoriteBtn"); favBtn.onclick=() => toggleFavorite(channels); favBtn.classList.toggle("is-favorite",favorites.some(f=>f.name===currentChannel.name)); } } else { document.querySelector(".player-list").style.display="flex"; streamListEl.innerHTML=""; if(item.streams&&item.streams.length>1){ streamListEl.classList.remove("hidden"); item.streams.forEach(stream=>{ const choice=document.createElement("button");choice.className="stream-choice";choice.innerHTML=stream.label; choice.onclick=()=>{streamListEl.querySelectorAll(".stream-choice").forEach(c=>c.classList.remove("active"));choice.classList.add("active");loadStream(stream.url, channels)}; streamListEl.appendChild(choice) }); streamListEl.querySelector(".stream-choice").click() } else { streamListEl.classList.add("hidden"); loadStream(item.url, channels); } } chooser.classList.add("open"); 
+        }
+
+        function closeChooser(){stopVideo();chooser.classList.remove("open")}
+        function stopVideo(){if(currentHls){currentHls.destroy();currentHls=null}if(youtubePlayer){youtubePlayer.destroy();youtubePlayer=null}videoContainer.innerHTML=""}
+        function loadStream(url, channels){ stopVideo(); videoContainer.innerHTML='<video id="hlsVideo" controls autoplay playsinline></video><button class="favorite-btn" id="favoriteBtn">⭐</button><button class="close-player-btn" data-close>✕</button>'; const video=document.getElementById("hlsVideo"); const favBtn=document.getElementById("favoriteBtn"); favBtn.onclick=() => toggleFavorite(channels); favBtn.classList.toggle("is-favorite",favorites.some(f=>f.name===currentChannel.name)); video.addEventListener("error",()=>{const errorHtml='<div class="video-error"><span>Bu kanal Diger.</span><p style="font-size:11px; margin: 8px 0;">Harici bir oynatıcıyla deneyin:</p><div class="suggestion-list"><button class="suggestion-btn" id="suggestVLC">🦊 VLC Player</button><button class="suggestion-btn" id="suggestWuffy">🐺 Wuffy Player</button></div></div><button class="close-player-btn" data-close>✕</button>';videoContainer.innerHTML=errorHtml;document.getElementById("suggestVLC").onclick=()=>document.getElementById("btnVLC").click();document.getElementById("suggestWuffy").onclick=()=>document.getElementById("btnWuffy").click()}); if(url.endsWith(".m3u8")&&Hls.isSupported()){currentHls=new Hls();currentHls.loadSource(url);currentHls.attachMedia(video)}else{video.src=url} video.play().catch(()=>{});updateExternalPlayerLinks(url) }
+        function toggleFavorite(channels){ if(!currentChannel)return; const favIndex=favorites.findIndex(f=>f.name===currentChannel.name); if(favIndex>-1){ favorites.splice(favIndex,1); } else { const favItem = { name: currentChannel.name, url: currentChannel.url, logo: currentChannel.logo, category: currentChannel.categoryKey, subCategory: currentChannel.subCategory, type: channels[currentChannel.categoryKey]?.type === 'youtube' ? 'youtube' : currentChannel.type }; favorites.push(favItem); } localStorage.setItem("iptvFavorites_v3",JSON.stringify(favorites)); document.getElementById("favoriteBtn")?.classList.toggle("is-favorite",favIndex===-1); document.querySelector(`.card[data-channel-name="${CSS.escape(currentChannel.name)}"]`)?.classList.toggle("is-favorite",favIndex===-1); renderCats(channels); if(state.currentCat==="__favorites__")renderContent(channels) }
+        function updateExternalPlayerLinks(url){const build=(pkg,store)=>`intent://${url.substring(url.indexOf("://")+3)}#Intent;package=${pkg};scheme=${url.substring(0,url.indexOf("://"))};type=video/*;S.title=TurisTv;S.browser_fallback_url=${encodeURIComponent(store)};end`;document.getElementById("btnVLC").href=build("org.videolan.vlc","https://play.google.com/store/apps/details?id=org.videolan.vlc");document.getElementById("btnWuffy").href=build("co.wuffy.player","https://drive.google.com/file/d/1BtoFqahQgvpl2l7nj5xIjzvSyRL_RX2d/view?usp=drive_link");document.getElementById("btnKMPlayer").href=build("com.kmplayer","https://play.google.com/store/apps/details?id=com.kmplayer");document.getElementById("btnMX").href=build("com.mxtech.videoplayer.ad","https://play.google.com/store/apps/details?id=com.mxtech.videoplayer.ad");document.getElementById("btnOPlayer").href=build("com.olimsoft.android.oplayer.pro","https://drive.google.com/file/d/1K0GesHSvL3d2M8yigNNx1M6ZurdPOFRM/view?usp=drive_link")}
+        function getYouTubeID(url){if(!url) return null; const regex=/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;const match=url.match(regex);return(match&&match[2].length===11)?match[2]:null}
+        function onPlayerReady(event) { const videoContainerEl = document.getElementById('videoContainer'); if (videoContainerEl && videoContainerEl.requestFullscreen) { videoContainerEl.requestFullscreen().catch(err => { console.warn(`Fullscreen request failed: ${err.message}`); }); } }
+        function createYoutubePlayer(id,channels){youtubePlayer=new YT.Player("youtube-player",{height:"100%",width:"100%",videoId:id,playerVars:{autoplay:1,controls:1,playsinline:1},events:{'onReady': onPlayerReady, 'onStateChange':(e)=>onPlayerStateChange(e,channels)}})}
+        function onPlayerStateChange(event,channels){if(event.data==YT.PlayerState.ENDED)playNextYouTubeVideo(channels)}
+        function playNextYouTubeVideo(channels) { 
+            const cat=channels[state.currentCat]; if(!cat || !currentChannel) return; 
+            let items = (state.currentCat === "__favorites__") ? favorites : cat.items;
+            if(state.currentSubCat && state.currentCat !== "__favorites__") items=items.filter(i=>i.subCategory===state.currentSubCat); 
+            const currentIndex=items.findIndex(i=>i.name===currentChannel.name); if(currentIndex===-1)return; 
+            let nextIndex=currentIndex+1; if(nextIndex>=items.length)nextIndex=0; 
+            const nextItem=items[nextIndex]; const nextId = getYouTubeID(nextItem.url); 
+            if (nextId) { openChooser(nextItem, channels[nextItem.category] || {type: 'youtube'}, channels); } 
+        }
+        function updateClock(){const d=new Date(),t=n=>String(n).padStart(2,"0");document.getElementById("digitalClock").textContent=`${t(d.getHours())}:${t(d.getMinutes())}:${t(d.getSeconds())}`}
+        function generateAndShowUpdatedHTML(data){const doc=document.implementation.createHTMLDocument("");doc.documentElement.innerHTML=document.documentElement.outerHTML;const scriptTag=doc.getElementById("approved-devices-data");scriptTag.textContent="\n"+JSON.stringify(data,null,2)+"\n    ";const html="<!doctype html>\n"+doc.documentElement.outerHTML;document.getElementById("updatedHtmlContent").value=html;document.getElementById("updatedHtmlModal").classList.add("open")}
+
+        checkDeviceApproval();
+
+    })();
+    </script>
+</body>
+</html>
