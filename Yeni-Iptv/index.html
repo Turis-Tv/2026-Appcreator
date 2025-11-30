@@ -351,9 +351,9 @@
     <script type="application/json" id="approved-devices-data">
 [
 
- {"id": "turis-jmykjmea0","name": "Iptv Yedek"},
- {"id": "turis-jmykjmeaO","name": "Iptv Yedek"},
- {"id": "turis-jmykjmeao","name": "Iptv Yedek"},
+ {"id": "turis-jmykjmeaO","name": "Yedek Iptv"},
+ {"id": "turis-jmykjmea0","name": "Yedek Iptv"},
+ {"id": "turis-jmykjmeao","name": "Yedek Iptv"},
  {"id": "turis-cps5d3et79","name": "Admin Device 1"},
   {"id": "turis-14ultw3fv","name": "One plus +"},
   {"id": "turis-5q1t80v1j","name": "Bilgisayar"},
@@ -506,7 +506,7 @@
                     const deviceIdDisplay = document.getElementById("device-id-display"), whatsappBtn = document.getElementById("whatsapp-id-btn");
                     const whatsappMsg = `Isim ....., Ve kimliğim Turis TV: ${deviceId}`;
                     whatsappBtn.href = `https://wa.me/32486790423?text=${encodeURIComponent(whatsappMsg)}`;
-                    copyBtn.addEventListener("click",()=>{navigator.clipboard.writeText(deviceId).then(()=>{copyBtnText.textContent="Gekopieerd!";copyBtnIcon.textContent="✅";deviceIdDisplay.classList.add("copied");setTimeout(()=>{copyBtnText.textContent="Kopieer ID";copyBtnIcon.textContent="📋";deviceIdDisplay.classList.remove("copied")},2000)})});
+                    copyBtn.addEventListener("click",()=>{navigator.clipboard.writeText(deviceId).then(()=>{copyBtnText.textContent="Kopyalandi!";copyBtnIcon.textContent="✅";deviceIdDisplay.classList.add("copied");setTimeout(()=>{copyBtnText.textContent="Kopyala ID";copyBtnIcon.textContent="📋";deviceIdDisplay.classList.remove("copied")},2000)})});
                     approvalOverlay.classList.remove("hidden");
                     setTimeout(()=>approvalOverlay.classList.add("visible"),10);
                 }
@@ -774,4 +774,3 @@
 </body>
 
 </html>
-
