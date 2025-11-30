@@ -4,39 +4,45 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <title>IPTV Player · Turis Tv</title>
-    <meta name="theme-color" content="#0b1220">
+    <meta name="theme-color" content="#050505">
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
     <style>
       :root{
-        /* COMPACT MIDNIGHT BLUE THEMA */
-        --bg:#0b1220; 
-        --bg2:#161f33; 
-        --card:rgba(20,30,50,.85);
-        --text:#e5e7eb;
-        --muted:#9ca3af; 
-        --border:rgba(255,255,255,.08); 
+        /* --- MODERN DARK CINEMA GOLD THEMA --- */
+        /* Geen blauw meer, maar diep donkergrijs/zwart voor rust aan de ogen */
+        --bg: #050505; 
+        --bg2: #121212; 
+        --card: #1e1e1e; /* Matte donkere kaart */
         
-        /* ACCENTEN */
-        --accent1:#0ea5e9; /* Sky Blue */
-        --accent2:#3b82f6; /* Royal Blue */
-        --gold:#fbbf24;    /* Goud voor selectie */
+        --text: #e0e0e0; /* Zacht wit, niet verblindend */
+        --muted: #888888; 
+        --border: rgba(255, 255, 255, 0.08); 
         
-        --shadow:0 10px 30px rgba(0,0,0,.35);
+        /* ACCENTEN: Luxe Goud & Amber (Warm en Modern) */
+        --accent1: #FFB300; /* Helder Goud */
+        --accent2: #FF6F00; /* Diep Amber/Oranje */
+        --gold: #FFD700;    /* Puur Goud voor selectie */
+        
+        --shadow: 0 10px 30px rgba(0,0,0, 0.7);
+        
+        /* Functionele kleuren (aangepast om blauw te vermijden) */
         --whatsapp-green: #25D366; 
-        --admin-blue: #3b82f6; 
+        --admin-blue: #8b5cf6; /* Veranderd naar Paars */
         --danger-red: #ef4444;
         --success-green: #10b981;
         --accent-red: #f43f5e;
         --accent-red-dark: #be123c;
       }
+
       *{box-sizing:border-box}
       html,body{height:100%}
       body{
-        margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
+        margin:0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         color:var(--text); -webkit-tap-highlight-color: transparent; display: flex;
         flex-direction: column; overflow: hidden;
-        background: radial-gradient(1200px 800px at 100% -10%, rgba(14, 165, 233, .15), transparent 55%),
+        /* Nieuwe achtergrond: Subtiele warme gloed bovenin, verder diep donker */
+        background: radial-gradient(circle at 50% -20%, rgba(255, 179, 0, 0.08), transparent 40%),
                     linear-gradient(180deg, var(--bg), var(--bg2));
         transition: background .5s ease-out;
       }
@@ -45,219 +51,230 @@
       .hidden{display:none !important}
       
       /* APPROVAL */
-      #approval-overlay { position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+      #approval-overlay { position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
       #approval-overlay.visible { opacity: 1; pointer-events: auto; }
-      #approval-box { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 24px; text-align: center; width: 100%; max-width: 340px; box-shadow: var(--shadow); transform: scale(0.95); transition: transform 0.3s; }
+      #approval-box { background: var(--bg2); border: 1px solid var(--border); border-radius: 24px; padding: 30px; text-align: center; width: 100%; max-width: 360px; box-shadow: var(--shadow); transform: scale(0.95); transition: transform 0.3s; }
       #approval-overlay.visible #approval-box { transform: scale(1); }
-      #approval-box h2 { font-size: 22px; margin-top: 0; margin-bottom: 8px; color: var(--accent1); }
-      #approval-box .instructions { color: var(--muted); margin-bottom: 24px; font-size: 14px; line-height: 1.5; }
-      .id-container { background: var(--bg); border-radius: 10px; padding: 16px; margin-bottom: 24px; border: 1px solid var(--border); }
-      .id-container .id-label { font-size: 11px; text-transform: uppercase; color: var(--muted); letter-spacing: 1px; margin-bottom: 8px; display: block; }
-      #device-id-display { font-family: monospace; font-size: 18px; color: var(--gold); word-break: break-all; transition: color 0.3s ease; }
+      #approval-box h2 { font-size: 24px; margin-top: 0; margin-bottom: 10px; color: var(--accent1); font-weight: 300; letter-spacing: 1px; }
+      #approval-box .instructions { color: var(--muted); margin-bottom: 24px; font-size: 14px; line-height: 1.6; }
+      .id-container { background: #000; border-radius: 12px; padding: 16px; margin-bottom: 24px; border: 1px solid var(--border); }
+      .id-container .id-label { font-size: 10px; text-transform: uppercase; color: var(--muted); letter-spacing: 2px; margin-bottom: 8px; display: block; }
+      #device-id-display { font-family: monospace; font-size: 20px; color: var(--gold); word-break: break-all; text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
       #device-id-display.copied { color: var(--success-green) !important; }
       #approval-box .actions { display: flex; flex-direction: column; gap: 12px; }
-      #copy-id-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, var(--accent1), var(--accent2)); border-radius: 10px; color: #fff; padding: 14px; font-weight: 700; font-size: 16px; transition: all .2s; }
+      #copy-id-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, var(--accent1), var(--accent2)); border-radius: 12px; color: #000; padding: 14px; font-weight: 700; font-size: 16px; transition: all .2s; box-shadow: 0 4px 15px rgba(255, 179, 0, 0.3); }
       #copy-id-btn:active { transform: scale(0.95); }
-      #whatsapp-id-btn { display: flex; align-items: center; justify-content: center; background: var(--whatsapp-green); border-radius: 50%; width: 60px; height: 60px; color: white; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4); transition: transform .2s; margin: 10px auto 0; }
+      #whatsapp-id-btn { display: flex; align-items: center; justify-content: center; background: var(--whatsapp-green); border-radius: 50%; width: 60px; height: 60px; color: white; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2); transition: transform .2s; margin: 10px auto 0; }
       
       #mainApp{display:flex;flex-direction:column;height:100vh}
       
       /* Header */
-      header{ position:sticky;top:0;z-index:20;background:rgba(11, 18, 32, 0.95); backdrop-filter:saturate(1.2) blur(6px);border-bottom:1px solid var(--border);padding:8px 10px 6px;flex-shrink:0; display: flex; flex-direction: column;}
+      header{ 
+          position:sticky; top:0; z-index:20;
+          background: rgba(18, 18, 18, 0.95); /* Donkergrijs/Zwart */
+          backdrop-filter: saturate(1.2) blur(10px);
+          border-bottom: 1px solid var(--border);
+          padding: 10px; flex-shrink:0; display: flex; flex-direction: column;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      }
       
-      .header-top{display:flex;align-items:center;justify-content:space-between}
-      .digital-clock{font-family:'Courier New',Courier,monospace;font-size:18px;font-weight:700;color:var(--accent1);letter-spacing:2px;text-shadow:0 0 5px rgba(34,211,238,.5)}
-      .hamburger{ background:rgba(22, 31, 51, 0.85);border:1px solid var(--border);border-radius:9px; padding:8px;cursor:pointer;font-size:16px;display:flex;align-items:center; justify-content:center;width:32px;height:32px }
-      .dropdown-menu{ position:absolute;top:48px;background:rgba(15,23,42,.98);backdrop-filter:blur(8px); border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow); padding:8px;min-width:200px;max-width:280px;opacity:0;visibility:hidden; transform:translateY(-10px);transition:all .2s ease;z-index:1000; max-height:70vh;overflow-y:auto }
+      .header-top{display:flex;align-items:center;justify-content:space-between; margin-bottom: 8px;}
+      .digital-clock{
+          font-family: 'Courier New', monospace; font-size:18px; font-weight:700;
+          color: var(--accent1); /* Goud */
+          letter-spacing:2px;
+          text-shadow: 0 0 8px rgba(255, 179, 0, 0.4); /* Gouden gloed */
+      }
+      .hamburger{ background: var(--bg2); border:1px solid var(--border); border-radius:10px; padding:8px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; width:36px; height:36px; color: var(--text); transition: 0.2s; }
+      .hamburger:active { background: var(--accent1); color: #000; }
+
+      .dropdown-menu{ position:absolute; top:55px; background: #1a1a1a; border:1px solid var(--border); border-radius:16px; box-shadow: var(--shadow); padding:8px; min-width:220px; opacity:0; visibility:hidden; transform:translateY(-10px); transition:all .25s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index:1000; max-height:70vh; overflow-y:auto }
       #mainDropdownMenu{left:10px}
       #adminActionsMenu{right:10px;left:auto;min-width:180px}
       .dropdown-menu.open{opacity:1;visibility:visible;transform:translateY(0)}
-      .dropdown-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:13px;transition:background .15s ease;cursor:pointer}
-      .dropdown-item:hover{background:rgba(255,255,255,.05)}
+      .dropdown-item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;font-size:14px;transition:background .15s ease;cursor:pointer; color: var(--text); font-weight: 500;}
+      .dropdown-item:hover{background: rgba(255, 179, 0, 0.1); color: var(--accent1);}
       .dropdown-divider{height:1px;background:var(--border);margin:6px 0}
-      .action-button{ display:flex;align-items:center;gap:10px;padding:10px 12px; background:linear-gradient(135deg,var(--accent1),var(--accent2));color:#fff; border-radius:8px;font-size:13px;font-weight:600;transition:all .15s ease;cursor:pointer }
-      .action-button.gold{background:linear-gradient(135deg,var(--gold),#f59e0b); color: #000;}
-      .action-button.danger{ background:linear-gradient(135deg,var(--danger-red),#dc2626); color:#fff; }
+      
+      .action-button{ display:flex;align-items:center;gap:10px;padding:12px; background:linear-gradient(135deg,var(--accent1),var(--accent2));color:#000; border-radius:10px;font-size:14px;font-weight:700;transition:all .15s ease;cursor:pointer; box-shadow: 0 4px 10px rgba(255, 179, 0, 0.2); }
+      .action-button.gold{background:linear-gradient(135deg,#FDB931,#9f7928); color: #000;}
+      .action-button.danger{ background:linear-gradient(135deg,var(--danger-red),#991b1b); color:#fff; }
 
-      .controls{display:flex;gap:6px;margin-top:6px}
-      input[type=search],input[type=text],input[type=password]{flex:1;background:rgba(22, 31, 51, 0.85);border:1px solid var(--border);border-radius:9px;padding:8px 10px;color:var(--text);outline:none;font-size:12px}
-      .btn{background:rgba(22, 31, 51, 0.85);border:1px solid var(--border);border-radius:9px;padding:7px 9px;font-size:12px;cursor:pointer}
+      .controls{display:flex;gap:8px;}
+      input[type=search],input[type=text],input[type=password]{
+          flex:1; background: #000; border:1px solid var(--border); border-radius:10px;
+          padding:10px 12px; color:var(--text); outline:none; font-size:13px;
+          transition: border-color 0.3s;
+      }
+      input:focus { border-color: var(--accent1); }
       
-      .cats{display:flex;gap:6px;overflow:auto;padding-top:6px}
+      .btn{background: var(--bg2); border:1px solid var(--border); border-radius:10px; padding:8px 12px; font-size:12px; cursor:pointer; color: var(--text);}
+      
+      .cats{display:flex;gap:8px;overflow:auto;padding-top:8px; padding-bottom: 4px;}
       .cats::-webkit-scrollbar{display:none}
-      .chip{ border:1px solid var(--border);background:rgba(22, 31, 51, 0.85);color:var(--text); padding:6px 9px;border-radius:999px;white-space:nowrap;font-size:11.5px; opacity:.97;cursor:pointer }
-      .chip.active{background:linear-gradient(135deg,var(--accent1),var(--accent2));color:#000;border-color:transparent;font-weight:700}
+      .chip{ 
+          border:1px solid var(--border); background: var(--bg2); color: var(--muted);
+          padding: 8px 14px; border-radius: 20px; white-space:nowrap; font-size:12px; 
+          cursor:pointer; transition: all 0.3s; font-weight: 500;
+      }
+      .chip:hover { color: var(--text); border-color: var(--muted); }
+      .chip.active{
+          background: linear-gradient(135deg, var(--accent1), var(--accent2));
+          color: #000; border-color: transparent; font-weight:700;
+          box-shadow: 0 2px 10px rgba(255, 179, 0, 0.3);
+      }
       
-      main{padding:12px 10px 0;flex-grow:1;overflow-y:auto}
-      #channelGrid{display:grid;grid-template-columns:repeat(auto-fill, minmax(96px, 1fr));gap:8px;padding-bottom:70px}
-      #channelGrid.is-youtube-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+      main{padding:16px 12px 0; flex-grow:1; overflow-y:auto}
+      #channelGrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:12px; padding-bottom:80px}
+      #channelGrid.is-youtube-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
       
-      .card{ position:relative;border-radius:10px;overflow:hidden;background:var(--card); border:1px solid var(--border);box-shadow:0 3px 10px rgba(0,0,0,.2); width:100%;transition:all .2s ease }
-      .card:active{transform:scale(.985)}
-      
+      .card{ 
+          position:relative; border-radius:12px; overflow:hidden; background: var(--card);
+          border:1px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
+          width:100%; transition:all .2s ease;
+      }
+      .card:active{transform:scale(.97)}
       .card.is-playing { 
-          transform: scale(1.05); 
+          transform: scale(1.03); 
           border: 2px solid var(--gold);
-          box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+          box-shadow: 0 0 20px rgba(255, 215, 0, 0.25);
           z-index: 2;
       }
       
-      .card.is-favorite::after{ content:"⭐"; position:absolute; top:3px; right:3px; font-size:11px; z-index:2; filter:drop-shadow(0 2px 4px rgba(0,0,0,.5)); }
+      .card.is-favorite::after{ content:"⭐"; position:absolute; top:5px; right:5px; font-size:12px; z-index:2; filter:drop-shadow(0 2px 4px rgba(0,0,0,.8)); }
       
-      .thumb{position:relative;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:radial-gradient(400px 220px at 20% 0%, rgba(34,211,238,.12), transparent 50%), radial-gradient(400px 220px at 80% 100%, rgba(139,92,246,.12), transparent 50%), #0f172a}
-      .thumb img{max-width:75%;max-height:75%;object-fit:contain;filter:drop-shadow(0 3px 10px rgba(0,0,0,.28))}
-      .locked::after{content:"🔒 18+ vergrendeld";position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;font-weight:800;letter-spacing:.2px;font-size:11px}
-      .info{padding:6px 7px 8px}
-      .title{font-weight:800;font-size:11.5px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.4em}
+      /* Thumbnails zonder blauw, maar neutraal donker */
+      .thumb{
+          position:relative; aspect-ratio:4/3; display:flex; align-items:center; justify-content:center;
+          background: radial-gradient(circle, #2a2a2a 0%, #000000 100%); /* Neutraal donker */
+          padding: 10px;
+      }
+      .thumb img{max-width:85%; max-height:85%; object-fit:contain; filter:drop-shadow(0 5px 15px rgba(0,0,0,.5))}
+      .locked::after{content:"🔒"; position:absolute; inset:0; background:rgba(0,0,0,.8); display:flex; align-items:center; justify-content:center; font-size:24px}
       
-      .card.is-youtube { aspect-ratio: 16 / 9; }
-      .card.is-youtube .thumb { aspect-ratio: unset; position: absolute; inset: 0; background: #000; }
-      .card.is-youtube .thumb img { width: 100%; height: 100%; max-width: 100%; max-height: 100%; object-fit: cover; filter: none; }
-      .card.is-youtube .info { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.85), transparent); padding: 12px 8px 8px; z-index: 3; }
-      .card.is-youtube .title { color: #fff; -webkit-line-clamp: 1; min-height: auto; font-size: 13px; }
+      .info{padding:10px; background: var(--card);}
+      .title{font-weight:600; font-size:12px; line-height:1.4; color: #dedede; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:2.8em}
+      .card:hover .title { color: var(--accent1); }
+      
+      .card.is-youtube { aspect-ratio: 16 / 9; border: none; background: #000; }
+      .card.is-youtube .thumb { aspect-ratio: unset; position: absolute; inset: 0; background: #000; padding: 0; }
+      .card.is-youtube .thumb img { width: 100%; height: 100%; object-fit: cover; filter: none; opacity: 0.8; transition: opacity 0.3s;}
+      .card.is-youtube:hover .thumb img { opacity: 1; }
+      .card.is-youtube .info { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.95), transparent); padding: 15px 10px 10px; z-index: 3; }
+      .card.is-youtube .title { color: #fff; -webkit-line-clamp: 1; min-height: auto; font-size: 13px; font-weight: 500; text-shadow: 0 1px 2px black; }
       .card.is-youtube::before { display: none; }
       
-      #subCategoryNav { padding: 0 0 8px 0; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
-      .special-subcat-chip { background: rgba(244, 63, 94, 0.15); border-color: var(--accent-red); color: var(--accent-red); font-weight: 600; }
-      .special-subcat-chip.active { background: linear-gradient(135deg, var(--accent-red), var(--accent-red-dark)); color: #fff; border-color: transparent; font-weight: 700; box-shadow: 0 0 10px rgba(244, 63, 94, 0.5); }
+      #subCategoryNav { padding: 0 0 8px 0; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
       
-      #adultVideoSection, #filmVideoSection, #sporVideoSection { display: none; padding: 10px; margin-bottom: 12px; border-radius: 10px; flex-shrink: 0; }
+      /* --- SUBCATEGORIE AANPASSING (Geen wit meer!) --- */
+      .special-subcat-chip { 
+          background: rgba(255, 255, 255, 0.05); 
+          border-color: var(--border); 
+          color: var(--muted); 
+          font-weight: 500; 
+      }
+      
+      .special-subcat-chip.active { 
+          /* Hier de verandering: Goud verloop i.p.v. Wit */
+          background: linear-gradient(135deg, var(--accent1), var(--accent2));
+          color: #000; /* Zwart tekst leest goed op goud */
+          border-color: transparent; 
+          font-weight: 700; 
+          box-shadow: 0 2px 15px rgba(255, 179, 0, 0.35); /* Gouden gloed */
+      }
+
+      #adultVideoSection, #filmVideoSection, #sporVideoSection { display: none; padding: 1px; margin-bottom: 15px; border-radius: 12px; flex-shrink: 0; background: linear-gradient(45deg, #1a1a1a, #252525); border: 1px solid var(--border); }
       #adultVideoSection.show, #filmVideoSection.show, #sporVideoSection.show { display: block; }
-      #adultVideoSection { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger-red); }
-      #filmVideoSection { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success-green); }
-      #sporVideoSection { background: rgba(59, 130, 246, 0.1); border: 1px solid var(--admin-blue); }
-      #adultVideoSection a, #filmVideoSection a, #sporVideoSection a { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 8px; text-decoration: none; color: var(--text); transition: all 0.3s; }
-      #adultVideoSection a:hover, #filmVideoSection a:hover, #sporVideoSection a:hover { transform: translateX(5px); }
       
-      .sheet{position:fixed;inset:0;z-index:30;opacity:0;pointer-events:none;transition:opacity .2s ease}
+      /* Sectie kleuren subtieler gemaakt */
+      #adultVideoSection { border-left: 4px solid var(--danger-red); }
+      #filmVideoSection { border-left: 4px solid var(--success-green); }
+      #sporVideoSection { border-left: 4px solid var(--admin-blue); }
+
+      #adultVideoSection a, #filmVideoSection a, #sporVideoSection a { display: flex; align-items: center; gap: 15px; padding: 15px; border-radius: 8px; text-decoration: none; color: var(--text); transition: all 0.3s; }
+      
+      .sheet{position:fixed;inset:0;z-index:30;opacity:0;pointer-events:none;transition:opacity .3s ease}
       .sheet.open{opacity:1;pointer-events:auto}
-      .sheet .backdrop{position:absolute;inset:0;background: #000;} 
+      .sheet .backdrop{position:absolute;inset:0;background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);} 
       
       .panel{ 
-          position:absolute;left:50%;top:50%;transform:translate(-50%, calc(-50% + 100vh)); 
-          width:calc(100% - 32px);max-width:500px;background:rgba(15,23,42,.98); 
-          border-radius:14px;border:1px solid var(--border);padding:10px 12px 12px; 
-          transition:transform .22s ease, width .22s ease, height .22s ease;
-          box-shadow:0 16px 40px rgba(0,0,0,.45);
-          display: flex; flex-direction: column; max-height: 80vh;
+          position:absolute;left:50%;top:50%;transform:translate(-50%, calc(-50% + 50px)) scale(0.95); 
+          width:calc(100% - 32px); max-width:500px; background: #18181b; 
+          border-radius:20px; border:1px solid var(--border); padding:20px; 
+          transition:all .3s cubic-bezier(0.19, 1, 0.22, 1);
+          box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+          display: flex; flex-direction: column; max-height: 85vh;
       }
-      .sheet.open .panel{transform:translate(-50%,-50%)}
-      .handle{width:40px;height:4px;border-radius:999px;margin:0 auto 6px;background:rgba(255,255,255,.18);flex-shrink: 0;}
+      .sheet.open .panel{transform:translate(-50%,-50%) scale(1)}
+      .handle{width:50px; height:5px; border-radius:99px; margin:0 auto 15px; background: #333; flex-shrink: 0;}
       
-      /* EXTRA DUIDELIJKE KANAAL NAAM IN KEUZEMENU */
       #chooserTitle {
-          margin: 6px 0 12px;
-          font-size: 20px; /* Groter */
-          font-weight: 900; /* Dikgedrukt */
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          color: var(--gold); /* Goudkleurig */
-          text-align: center;
-          text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-          border-bottom: 1px solid var(--border);
-          padding-bottom: 10px;
+          margin: 0 0 20px;
+          font-size: 22px; font-weight: 300; text-transform: uppercase;
+          letter-spacing: 2px; color: var(--accent1); text-align: center;
+          border-bottom: 1px solid var(--border); padding-bottom: 15px;
           flex-shrink: 0;
       }
 
-      #multiStreamList {
-          overflow-y: auto; 
-          flex-shrink: 1;
-          margin-bottom: 8px;
-          scrollbar-width: none;
-          -ms-overflow-style: none;
-      }
+      #multiStreamList { overflow-y: auto; flex-shrink: 1; margin-bottom: 10px; scrollbar-width: none; -ms-overflow-style: none; }
       #multiStreamList::-webkit-scrollbar { display: none; }
 
       .multi-stream-btn {
           display: flex; width: 100%; align-items: center; justify-content: space-between;
-          background: #1e293b; border: 1px solid var(--border); padding: 12px 15px;
-          margin-bottom: 8px; border-radius: 8px; color: white; font-weight: 600; font-size: 14px;
+          background: #27272a; border: 1px solid transparent; padding: 16px 20px;
+          margin-bottom: 10px; border-radius: 12px; color: #e5e5e5; font-weight: 500; font-size: 15px;
           text-align: left; transition: all 0.2s; flex-shrink: 0;
       }
-      .multi-stream-btn:active { transform: scale(0.98); background: var(--accent1); color: #000; }
-      .multi-stream-btn span:last-child { opacity: 0.6; font-size: 12px; }
+      .multi-stream-btn:hover { background: #333; }
+      .multi-stream-btn:active { transform: scale(0.98); }
+      .multi-stream-btn span:last-child { opacity: 0.5; font-size: 12px; }
 
       .multi-stream-btn.active-stream {
           border: 1px solid var(--gold);
-          background: linear-gradient(90deg, rgba(59, 130, 246, 0.3), rgba(251, 191, 36, 0.1));
+          background: linear-gradient(90deg, rgba(255, 179, 0, 0.1), transparent);
           color: var(--gold);
       }
-      .multi-stream-btn.active-stream span:first-child::before {
-          content: "▶ ";
-          color: var(--gold);
-      }
+      .multi-stream-btn.active-stream span:first-child::before { content: "● "; color: var(--gold); margin-right: 5px; }
 
-      .live-animated{font-weight:700;animation:color-change 4s linear infinite}
-      @keyframes color-change{0%{color:#ef4444}25%{color:#f97316}50%{color:#22c55e}75%{color:#3b82f6}100%{color:#ef4444}}
-      .video-container{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:10px;overflow:hidden;margin-bottom:10px; flex-shrink: 0;}
+      .live-animated{font-weight:700; color: var(--accent-red);}
+      
+      .video-container{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden;margin-bottom:15px; flex-shrink: 0; box-shadow: 0 0 20px rgba(0,0,0,0.5);}
       .video-container video,.video-container iframe, .video-container #youtube-player {position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain}
-      .close-player-btn{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.5);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:11px;cursor:pointer;z-index:5}
-      .favorite-btn{ position:absolute; top:8px; left:8px; background:rgba(15,15,15,.75); border:2px solid rgba(255,255,255,.2); border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-size:16px; cursor:pointer; z-index:5; transition:all .3s ease; box-shadow:0 3px 8px rgba(0,0,0,.5); }
-      .favorite-btn.is-favorite{ color: #0b1220; background:linear-gradient(135deg, #fbbf24, #f59e0b); border-color:#fbbf24; filter:none; box-shadow:0 0 15px rgba(251,191,36,.6); }
+      .close-player-btn{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.7);border:none;border-radius:50%; width:30px; height:30px; display:flex;align-items:center;justify-content:center; font-size:14px; cursor:pointer; z-index:5; color:white;}
+      .favorite-btn{ position:absolute; top:10px; left:10px; background:rgba(0,0,0,.7); border:none; border-radius:50%; width:38px; height:38px; display:flex; align-items:center; justify-content:center; font-size:18px; cursor:pointer; z-index:5; transition:all .3s ease; color: #fff; }
+      .favorite-btn.is-favorite{ color: #000; background: var(--gold); box-shadow: 0 0 10px var(--gold); }
       
       footer{display: none !important;}
-      .modal{position:fixed;inset:0;z-index:35;opacity:0;pointer-events:none;transition:opacity .2s ease;-webkit-overflow-scrolling:touch}
-      .modal.open{opacity:1;pointer-events:auto}
-      .modal .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.6)}
-      .modal .box{ position:absolute;left:14px;right:14px;top:50%;transform:translateY(-50%); background:#0f172a;border:1px solid var(--border);border-radius:12px; padding:12px;box-shadow:var(--shadow);max-width:400px;margin-left:auto;margin-right:auto; max-height:90vh;overflow-y:auto }
-      .modal .box h3{margin:0 0 6px;font-size:15px}
-      .modal .box p{font-size:12px;color:var(--muted);margin:0 0 8px}
-      .modal .box .inputs{margin:12px 0;display:flex;flex-direction:column;gap:8px}
-      .modal .box .actions{display:flex;gap:6px}
-      #updatedHtmlContent { width: 100%; height: 40vh; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: monospace; font-size: 11px; border-radius: 8px; margin-top: 8px; }
       
-      /* --- OPLOSSING: Landscape (Liggende) Modus & Menu --- */
+      /* Modals */
+      .modal{position:fixed;inset:0;z-index:35;opacity:0;pointer-events:none;transition:opacity .2s ease}
+      .modal.open{opacity:1;pointer-events:auto}
+      .modal .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.8); backdrop-filter: blur(3px);}
+      .modal .box{ 
+          position:absolute;left:20px;right:20px;top:50%;transform:translateY(-50%); 
+          background: #18181b; border:1px solid var(--border); border-radius:20px; padding:24px;
+          box-shadow: var(--shadow); max-width:420px; margin:0 auto; 
+      }
+      .modal .box h3{margin:0 0 10px;font-size:18px; color: var(--text); font-weight: 600;}
+      .modal .box p{font-size:13px;color:var(--muted);margin:0 0 20px; line-height: 1.5;}
+      .modal .box .inputs{margin:0 0 20px; display:flex; flex-direction:column; gap:12px}
+      .modal .box .actions{display:flex; gap:10px; justify-content: flex-end;}
+      .modal .box .actions .btn { background: #333; color: white; padding: 10px 20px; border-radius: 8px; }
+      
+      #updatedHtmlContent { width: 100%; height: 40vh; background: #000; border: 1px solid var(--border); color: var(--success-green); font-family: monospace; font-size: 11px; border-radius: 8px; margin-top: 15px; padding: 10px; }
+      
+      /* LANDSCAPE FIXES */
       @media (max-height: 500px) and (orientation: landscape) {
-          
-          /* Verberg de DIKKE elementen */
           .digital-clock { display: none !important; }
           .controls { display: none !important; }
-          
-          /* Maak de header super compact */
-          header {
-              padding: 2px 10px !important;
-              flex-direction: row !important;
-              align-items: center !important;
-          }
-          
-          .header-top {
-              width: auto !important;
-              margin-right: 10px;
-          }
-          
-          /* Categorieen MOETEN zichtbaar zijn */
-          .cats {
-              display: flex !important;
-              padding-top: 0 !important;
-              margin-top: 0 !important;
-              flex: 1; 
-          }
-          
-          /* Grid krijgt maximale ruimte */
+          header { padding: 4px 10px !important; flex-direction: row !important; align-items: center !important; }
+          .header-top { width: auto !important; margin-right: 15px; margin-bottom: 0 !important;}
+          .cats { display: flex !important; padding-top: 0 !important; margin-top: 0 !important; flex: 1; padding-bottom: 0 !important;}
           main { padding-top: 5px !important; }
-
-          /* --- MENU AANPASSINGEN VOOR LANDSCAPE --- */
-          .dropdown-menu {
-              max-height: 80vh;
-              overflow-y: auto;
-              padding: 4px; /* Minder padding in de container */
-          }
-          
-          .dropdown-item, .action-button {
-              padding: 4px 8px !important; /* Knoppen veel kleiner maken */
-              font-size: 11px !important;  /* Tekst kleiner */
-              min-height: 30px;            /* Hoogte beperken */
-          }
-          
-          .dropdown-divider { margin: 3px 0; } /* Lijntjes dichter bij elkaar */
-          
-          .dropdown-item .icon, .action-button .icon {
-              font-size: 14px !important; /* Icoon kleiner */
-          }
-      }
-
-      @media (orientation: portrait) {
-          /* Normale portrait modus */
+          .dropdown-menu { max-height: 80vh; overflow-y: auto; padding: 4px; }
+          .dropdown-item, .action-button { padding: 6px 10px !important; font-size: 11px !important; min-height: 30px; }
+          .dropdown-divider { margin: 3px 0; } 
+          .dropdown-item .icon, .action-button .icon { font-size: 14px !important; }
       }
     </style>
 </head>
@@ -295,13 +312,11 @@
           <div class="dropdown-divider"></div>
           <a href="https://www.youtube.com/watch?v=FahlRE8G2mM" target="_blank" class="dropdown-item"><span class="icon">🔴</span><span>Youtube Reklamsiz</span></a>
           <a href="https://play.google.com/store/apps/details?id=com.brouken.player" target="_blank" class="dropdown-item"><span class="icon">▶️</span><span>Just Player</span></a>
-          <a href="https://play.google.com/store/apps/details?id=org.videolan.vlc" target="_blank" class="dropdown-item"><span class="icon">🦊</span><span>VLC</span></a>
-          <a href="https://drive.google.com/file/d/1BtoFqahQgvpl2l7nj5xIjzvSyRL_RX2d/view?usp=drive_link" target="_blank" class="dropdown-item"><span class="icon">🐺</span><span>Wuffy</span></a>
-          <a href="https://play.google.com/store/apps/details?id=com.kmplayer" target="_blank" class="dropdown-item"><span class="icon">📽️</span><span>KMPlayer</span></a>
-          <a href="https://play.google.com/store/apps/details?id=com.mxtech.videoplayer.ad" target="_blank" class="dropdown-item"><span class="icon">🎬</span><span>MX Player</span></a>
-          <a href="https://drive.google.com/file/d/1K0GesHSvL3d2M8yigNNx1M6ZurdPOFRM/view?usp=drive_link" target="_blank" class="dropdown-item"><span class="icon">🅾️</span><span>OPlayer</span></a>
+
+
+
+
           <div class="dropdown-divider"></div>
- 
         </div>
         <div id="adminActionsMenu" class="dropdown-menu">
              <div class="dropdown-item" id="btnAddDevice"><span class="icon">➕</span><span>Cihaz ekle</span></div>
@@ -342,11 +357,11 @@
       </div>
     </div>
 
-    <div id="adultGate" class="modal"><div class="backdrop" data-close></div><div class="box"><h3>🔞 18+ yaş için</h3><p>Bu içeriği görüntülemek için şifreyi girin.</p><div class="inputs"><input type="password" id="pw1" placeholder="Şifre"></div><div class="actions"><button class="btn" data-close>İptal</button><button class="btn" id="btnUnlockAdult" style="background:linear-gradient(135deg,var(--accent1),var(--accent2));border:none;font-weight:600">Kilidi aç</button></div></div></div>
-    <div id="turisAitGate" class="modal"><div class="backdrop" data-close></div><div class="box"><h3>🔧 Turis'e Ait</h3><p>Devam etmek için lütfen şifrenizi giriniz.</p><div class="inputs"><input type="password" id="pwTurisAit" placeholder="Şifre"></div><div class="actions"><button class="btn" data-close>İptal</button><button class="btn" id="btnUnlockTurisAit" style="background:linear-gradient(135deg,var(--accent1),var(--accent2));border:none;font-weight:600">Aç</button></div></div></div>
-    <div id="adminToolGate" class="modal"><div class="backdrop" data-close></div><div class="box"><h3>🔐 Yönetici Aracı</h3><p>Cihaz eklemek için şifreyi girin.</p><div class="inputs"><input type="password" id="adminToolPw" placeholder="Yönetici Şifresi"></div><div class="actions"><button class="btn" data-close>İptal etmek</button><button class="btn" id="btnUnlockAdminTool" style="background:linear-gradient(135deg,var(--accent1),var(--accent2));border:none;font-weight:600">Kilidi aç</button></div></div></div>
-    <div id="addDeviceModal" class="modal"><div class="backdrop" data-close></div><div class="box"><h3>➕ Cihaz ekle</h3><p>Voer de ID en een herkenbare naam in.</p><div class="inputs"><input type="text" id="newDeviceId" placeholder="Apparaat ID (bv. turis-xxxxxx)"><input type="text" id="newDeviceName" placeholder="Naam (bv. Mehmet's Telefoon)"></div><div class="actions"><button class="btn" data-close>İptal etmek</button><button class="btn" id="btnConfirmAddDevice" style="background:linear-gradient(135deg,var(--accent1),var(--accent2));border:none;font-weight:600">HTML Ekle en Oluştur</button></div></div></div>
-    <div id="updatedHtmlModal" class="modal"><div class="backdrop" data-close></div><div class="box" style="max-width: 90vw;"><h3>✅ HTML Güncellendit</h3><p>Aşağıdaki kodun tamamını kopyalayın en içeriğinizi değiştirin<code>index.html</code> bestand.</p><textarea id="updatedHtmlContent" readonly></textarea><div class="actions" style="margin-top:12px;"><button class="btn" id="btnSelectAllHtml" style="background:linear-gradient(135deg,var(--accent1),var(--accent2));border:none;font-weight:600">Tümünü Seç</button><button class="btn" data-close>Kapat</button></div></div></div>
+    <div id="adultGate" class="modal"><div class="backdrop" data-close></div><div class="box"><h3>🔞 18+ yaş için</h3><p>Bu içeriği görüntülemek için şifreyi girin.</p><div class="inputs"><input type="password" id="pw1" placeholder="Şifre"></div><div class="actions"><button class="btn" data-close>İptal</button><button class="btn" id="btnUnlockAdult" style="background:linear-gradient(135deg,var(--accent1),var(--accent2));border:none;font-weight:600; color:#000;">Kilidi aç</button></div></div></div>
+    <div id="turisAitGate" class="modal"><div class="backdrop" data-close></div><div class="box"><h3>🔧 Turis'e Ait</h3><p>Devam etmek için lütfen şifrenizi giriniz.</p><div class="inputs"><input type="password" id="pwTurisAit" placeholder="Şifre"></div><div class="actions"><button class="btn" data-close>İptal</button><button class="btn" id="btnUnlockTurisAit" style="background:linear-gradient(135deg,var(--accent1),var(--accent2));border:none;font-weight:600; color:#000;">Aç</button></div></div></div>
+    <div id="adminToolGate" class="modal"><div class="backdrop" data-close></div><div class="box"><h3>🔐 Yönetici Aracı</h3><p>Cihaz eklemek için şifreyi girin.</p><div class="inputs"><input type="password" id="adminToolPw" placeholder="Yönetici Şifresi"></div><div class="actions"><button class="btn" data-close>İptal etmek</button><button class="btn" id="btnUnlockAdminTool" style="background:linear-gradient(135deg,var(--accent1),var(--accent2));border:none;font-weight:600; color:#000;">Kilidi aç</button></div></div></div>
+    <div id="addDeviceModal" class="modal"><div class="backdrop" data-close></div><div class="box"><h3>➕ Cihaz ekle</h3><p>Voer de ID en een herkenbare naam in.</p><div class="inputs"><input type="text" id="newDeviceId" placeholder="Apparaat ID (bv. turis-xxxxxx)"><input type="text" id="newDeviceName" placeholder="Naam (bv. Mehmet's Telefoon)"></div><div class="actions"><button class="btn" data-close>İptal etmek</button><button class="btn" id="btnConfirmAddDevice" style="background:linear-gradient(135deg,var(--accent1),var(--accent2));border:none;font-weight:600; color:#000;">HTML Ekle en Oluştur</button></div></div></div>
+    <div id="updatedHtmlModal" class="modal"><div class="backdrop" data-close></div><div class="box" style="max-width: 90vw;"><h3>✅ HTML Güncellendit</h3><p>Aşağıdaki kodun tamamını kopyalayın en içeriğinizi değiştirin<code>index.html</code> bestand.</p><textarea id="updatedHtmlContent" readonly></textarea><div class="actions" style="margin-top:12px;"><button class="btn" id="btnSelectAllHtml" style="background:linear-gradient(135deg,var(--accent1),var(--accent2));border:none;font-weight:600; color:#000;">Tümünü Seç</button><button class="btn" data-close>Kapat</button></div></div></div>
 
     <script type="application/json" id="approved-devices-data">
 [
@@ -517,7 +532,6 @@
                 mainAppEl.classList.remove("hidden"); // Forceer openen bij fout
             }
         }
-
         // --- DATA LADEN ---
         function loadAllDataAndInit() {
             catsEl.innerHTML = '<div class="chip">Data laden...</div>';
@@ -579,7 +593,6 @@
                     renderContent(channels)
                 }
             });
-            
             document.getElementById("goToFavorites").onclick=()=>{state.currentCat="__favorites__";renderCats(channels);renderContent(channels);document.getElementById("mainDropdownMenu").classList.remove("open")};
             document.getElementById("clearFavorites").onclick=()=>{if(favorites.length>0&&confirm("Weet je zeker dat je al je favorieten wilt verwijderen?")){favorites=[];localStorage.setItem("iptvFavorites_v3","[]");if(state.currentCat==="__favorites__")state.currentCat="ulusal";renderCats(channels);renderContent(channels)}document.getElementById("mainDropdownMenu").classList.remove("open")};
             
@@ -636,7 +649,6 @@
                 catsEl.appendChild(chip)
             }
         }
-        
         function renderChannels(channels){
             sporVideoSection.classList.toggle("show",state.currentCat==="spor");filmVideoSection.classList.toggle("show",state.currentCat==="film");adultVideoSection.classList.toggle("show",state.currentCat==="adult"&&adultUnlocked);
             renderSubCategories(channels);
@@ -687,7 +699,6 @@
             img.onerror=()=>{img.src="https://img.icons8.com/fluency/96/tv.png"}; 
             thumb.appendChild(img);card.appendChild(thumb);card.appendChild(createCardInfo(item)); return card 
         }
-        
         function createCardInfo(item){const info=document.createElement("div");info.className="info";const title=document.createElement("div");title.className="title";title.textContent=item.name||"Kanaal";info.appendChild(title);return info}
         function isYoutubeUrl(url) { return url.includes('youtube.com') || url.includes('youtu.be'); }
 
@@ -716,7 +727,7 @@
                 const btn = document.createElement('button');
                 btn.className = 'multi-stream-btn';
                 if(lastViewedUrl === stream.url) { btn.classList.add('active-stream'); }
-                btn.innerHTML = `<span>🎥 ${stream.label.replace(/<[^>]*>?/gm, '')}</span> <span>▶</span>`;
+                btn.innerHTML = `<span>🎥 ${stream.label.replace(/<[^>]*>?/gm, '')}</span> <span></span>`;
                 btn.onclick = (e) => {
                     const allBtns = listContainer.querySelectorAll('.multi-stream-btn');
                     allBtns.forEach(b => b.classList.remove('active-stream'));
@@ -735,7 +746,6 @@
             const title = document.getElementById('chooserTitle');
             title.textContent = item.name;
             document.getElementById('multiStreamList').style.display = 'none';
-            
             if(cat?.type==="youtube"){ 
                 setLastViewed(item, state.currentCat, item.url); 
                 document.getElementById('videoContainer').style.display = 'block';
@@ -751,7 +761,6 @@
             document.getElementById('videoContainer').innerHTML="";
             document.getElementById('chooser').classList.remove("open")
         }
-
         function getYouTubeID(url){if(!url) return null; const regex=/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;const match=url.match(regex);return(match&&match[2].length===11)?match[2]:null}
         function onPlayerReady(event) { const videoContainerEl = document.getElementById('videoContainer'); if (videoContainerEl && videoContainerEl.requestFullscreen) { videoContainerEl.requestFullscreen().catch(err => { console.warn(`Fullscreen request failed: ${err.message}`); }); } }
         function createYoutubePlayer(id,channels){youtubePlayer=new YT.Player("youtube-player",{height:"100%",width:"100%",videoId:id,playerVars:{autoplay:1,controls:1,playsinline:1},events:{'onReady': onPlayerReady, 'onStateChange':(e)=>onPlayerStateChange(e,channels)}})}
@@ -766,7 +775,8 @@
             if (nextId) { openChooser(nextItem, channels[nextItem.category] || {type: 'youtube'}, channels); } 
         }
         function updateClock(){const d=new Date(),t=n=>String(n).padStart(2,"0");document.getElementById("digitalClock").textContent=`${t(d.getHours())}:${t(d.getMinutes())}:${t(d.getSeconds())}`}
-        function generateAndShowUpdatedHTML(data){const doc=document.implementation.createHTMLDocument("");doc.documentElement.innerHTML=document.documentElement.outerHTML;const scriptTag=doc.getElementById("approved-devices-data");scriptTag.textContent="\n"+JSON.stringify(data,null,2)+"\n    ";const html="<!doctype html>\n"+doc.documentElement.outerHTML;document.getElementById("updatedHtmlContent").value=html;document.getElementById("updatedHtmlModal").classList.add("open")}
+        function generateAndShowUpdatedHTML(data)
+        {const doc=document.implementation.createHTMLDocument("");doc.documentElement.innerHTML=document.documentElement.outerHTML;const scriptTag=doc.getElementById("approved-devices-data");scriptTag.textContent="\n"+JSON.stringify(data,null,2)+"\n    ";const html="<!doctype html>\n"+doc.documentElement.outerHTML;document.getElementById("updatedHtmlContent").value=html;document.getElementById("updatedHtmlModal").classList.add("open")}
         
         // START
         checkDeviceApproval();
@@ -776,4 +786,3 @@
 </body>
 
 </html>
-
