@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <title>Kemal Sunal & Series TV</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+    <!-- Externe bronnen -->
+    <link href="https://fonts.googleapis.com/css?family=Fjalla+One|Pirata+One" rel="stylesheet">
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.css'>
+    <style>
+        /* ----- BASIS ----- */
+        html, body {
+            height: 100%; margin: 0; padding: 0;
+            background-color: #000000 !important;
+            font-family: "Fjalla One", sans-serif;
+            overflow: hidden; 
+            user-select: none;
+        }
+
+        /* ----- ACHTERGROND ----- */
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body {
+            color: #fff;
+            background: linear-gradient(-45deg, #1a0505, #4a0505, #2e0e36, #102a36) !important;
+            background-size: 400% 400% !important;
+            animation: gradient-animation 20s ease infinite !important;
+        }
+
+        /* ----- LAYOUT ----- */
+        .main-container { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
+        .video-area { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; background: #000; }
+        .video-wrapper { width: 100%; max-width: 1200px; aspect-ratio: 16 / 9; position: relative; z-index: 1; box-shadow: 0 0 50px rgba(0,0,0,0.9); }
+        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; }
+
+        /* ----- SIDEBAR (PC: RECHTS, MOBIEL: POPUP) ----- */
+        .sidebar { width: 360px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-left: 1px solid rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; z-index: 10; }
+        .sidebar-tabs { display: flex; flex-wrap: wrap; padding: 10px; gap: 5px; background: rgba(255, 255, 255, 0.02); }
+        .tab-btn { flex: 1 1 45%; padding: 12px 5px; text-align: center; cursor: pointer; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #ccc; border-radius: 6px; font-family: "Fjalla One", sans-serif; font-size: 0.9rem; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; }
+        .tab-btn:hover { background: rgba(255, 255, 255, 0.15); color: #fff; border-color: rgba(255, 255, 255, 0.3); }
+        .tab-btn.active { background: rgba(211, 47, 47, 0.7); color: #fff; border-color: #D32F2F; box-shadow: 0 0 15px rgba(211, 47, 47, 0.4); }
+        .sidebar-content { flex: 1; overflow-y: auto; padding: 10px; scrollbar-width: thin; scrollbar-color: #D32F2F #111; }
+        .sidebar-content::-webkit-scrollbar { width: 6px; }
+        .sidebar-content::-webkit-scrollbar-track { background: #111; }
+        .sidebar-content::-webkit-scrollbar-thumb { background: #D32F2F; border-radius: 3px; }
+        .video-list { display: none; list-style: none; padding: 0; margin: 0; }
+        .video-list.active-list { display: block; }
+        .video-list li { padding: 14px; margin-bottom: 8px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; cursor: pointer; transition: 0.3s; font-size: 1rem; display: flex; justify-content: space-between; align-items: center; }
+        .video-list li:hover { background: rgba(255, 255, 255, 0.1); transform: translateX(5px); }
+        .video-list li.active-video { background: linear-gradient(90deg, rgba(211, 47, 47, 0.8), rgba(211, 47, 47, 0.4)); border: 1px solid #D32F2F; color: white; }
+        .direct-icon { color: #FFD700; font-size: 1.1rem; }
+        
+        @keyframes pulse-animation { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+
+        /* ----- MOBIEL KNOPONTWERP ----- */
+        .mobile-trigger {
+            display: none; position: fixed; z-index: 100; cursor: pointer;
+            justify-content: center; align-items: center; color: white;
+            width: 60px; height: 60px; border-radius: 18px;
+            transition: all 0.3s ease, opacity 0.5s ease;
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.5);
+        }
+        .mobile-trigger:hover { transform: scale(1.05); }
+        .mobile-trigger:active { transform: scale(0.98); }
+        .ui-fade-out { opacity: 0; pointer-events: none; transform: scale(0.9); }
+        
+        .mobile-trigger i {
+            font-size: 2.2rem;
+            animation: pulse-animation 3s infinite ease-in-out;
+        }
+        
+        /* Lijst knop (Links Boven) */
+        #btn-open-list {
+            top: 20px; left: 20px;
+            background: linear-gradient(145deg, rgba(220, 60, 60, 0.75), rgba(180, 40, 40, 0.8));
+            border: 1px solid rgba(230, 80, 80, 0.6);
+        }
+
+        /* Categorie knop (Rechts Boven) */
+        #btn-open-cats {
+            top: 20px; right: 20px;
+            background: linear-gradient(145deg, rgba(60, 60, 60, 0.7), rgba(35, 35, 35, 0.75));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* ----- CUSTOM DROPDOWN (onaangetast) ----- */
+        .mobile-category-selector { display: none; padding: 10px 20px 20px 20px; position: relative; }
+        .mobile-category-selector label { font-size: 1.1rem; color: #aaa; margin-bottom: 10px; display: block; text-transform: uppercase; letter-spacing: 1px; }
+        .custom-select-trigger { width: 100%; padding: 14px; font-family: "Fjalla One", sans-serif; font-size: 1.1rem; color: #fff; background-color: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .custom-select-trigger::after { content: '\f2f9'; font-family: 'Material-Design-Iconic-Font'; font-size: 1.5rem; transition: transform 0.3s ease; }
+        .custom-select-container.open .custom-select-trigger::after { transform: rotate(180deg); }
+        .custom-select-options { position: absolute; top: 100%; left: 20px; right: 20px; z-index: 210; list-style: none; padding: 0; margin-top: 5px; background: rgba(25, 25, 25, 0.9); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); max-height: 0; overflow-y: auto; transition: max-height 0.3s ease, padding 0.3s ease; scrollbar-width: thin; scrollbar-color: #D32F2F #222; }
+        .custom-select-options::-webkit-scrollbar { width: 5px; }
+        .custom-select-options::-webkit-scrollbar-track { background: #222; }
+        .custom-select-options::-webkit-scrollbar-thumb { background: #D32F2F; border-radius: 3px; }
+        .custom-select-container.open .custom-select-options { max-height: calc(100vh - 250px); padding: 5px; }
+        .custom-select-options li { padding: 12px 15px; color: #ccc; font-size: 1rem; cursor: pointer; border-radius: 6px; transition: background 0.2s ease; }
+        .custom-select-options li:hover { background-color: rgba(255, 255, 255, 0.1); color: #fff; }
+        .custom-select-options li.selected { background-color: rgba(211, 47, 47, 0.4); color: #fff; }
+
+        /* ----- RESPONSIVE (onaangetast) ----- */
+        @media (max-width: 1024px) {
+            .main-container { flex-direction: column; }
+            .sidebar { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s; background: rgba(10, 10, 10, 0.96); }
+            .sidebar.show-mobile { opacity: 1; pointer-events: auto; }
+            .video-area { height: 100vh; width: 100vw; }
+            .video-wrapper { width: 100%; max-width: none; height: 100vh; box-shadow: none; }
+            .mobile-trigger { display: flex; }
+            .mobile-close { display: block; text-align: right; padding: 15px; font-size: 2rem; color: #888; cursor: pointer; }
+            .sidebar-tabs { display: none; }
+            .sidebar.mode-category .mobile-category-selector { display: block; }
+            .sidebar.mode-category .sidebar-content { display: none; }
+            .sidebar.mode-list .mobile-category-selector { display: none; }
+            .sidebar.mode-list .sidebar-content { display: block; margin-top: 0; }
+        }
+        @media (min-width: 1025px) { .mobile-close, .mobile-category-selector { display: none; } }
+    </style>
+</head>
+<body>
+
+    <!-- AANGEPAST: BEIDE KNOPPEN HEBBEN NU HETZELFDE ICOON -->
+    <div id="btn-open-list" class="mobile-trigger"><i class="zmdi zmdi-apps"></i></div>
+    <div id="btn-open-cats" class="mobile-trigger"><i class="zmdi zmdi-apps"></i></div>
+
+    <div class="main-container">
+        <div class="video-area">
+            <div class="ui-overlay"></div>
+            <div class="video-wrapper">
+                <iframe class="video-frame" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            </div>
+        </div>
+
+        <div class="sidebar" id="main-sidebar">
+            <div class="mobile-close" onclick="closeMobileMenu()">×</div>
+            <div class="mobile-category-selector">
+                <label>Kies een categorie</label>
+                <div class="custom-select-container">
+                    <div class="custom-select-trigger">Kemal Sunal</div>
+                    <ul class="custom-select-options">
+                        <li data-value="list-klassiek" class="selected">Kemal Sunal</li>
+                        <li data-value="list-drama">Teşkilat</li>
+                        <li data-value="list-ertugrul">Diriliş Ertuğrul</li>
+                        <li data-value="list-osman">Kuruluş Osman</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="sidebar-content">
+                <ul id="list-klassiek" class="video-list active-list">
+                    <li class="active-video" data-url="https://www.yout-ube.com/embed/-ZogVBKVsx8">Öğretmen</li>
+                    <li data-url="https://www.yout-ube.com/embed/CrWFANbYJXU">Korkusuz Korkak</li>
+                    <li data-url="https://www.yout-ube.com/embed/2UrB54MgZuQ">Sakar Şakir</li>
+                    <li data-url="https://www.yout-ube.com/embed/-25lN6CGI1I">Korkusuz Korkak (Alt)</li>
+                    <li data-url="https://www.yout-ube.com/watch?v=2n3SwDw2E0s" data-direct-link="true"><span>Yüz Numaralı Adam</span> <i class="zmdi zmdi-open-in-new direct-icon"></i></li>
+                    <li data-url="https://www.yout-ube.com/embed/stOXnCPxOws">Kibar Feyzo</li>
+                    <li data-url="https://www.yout-ube.com/embed/gPbAredRRqw">Yedi Bela Hüsnü</li>
+                    <li data-url="https://www.yout-ube.com/watch?v=BozQ9YUUBkQ" data-direct-link="true"><span>İnek Şaban</span> <i class="zmdi zmdi-open-in-new direct-icon"></i></li>
+                    <li data-url="https://www.yout-ube.com/embed/bOu4OJaA1Wc">En Büyük Şaban</li>
+                    <li data-url="https://www.yout-ube.com/embed/xs9XUjHvZsM">Çöpçüler Kralı</li>
+                    <li data-url="https://www.yout-ube.com/embed/5EgickneU90">Kılıbık</li>
+                    <li data-url="https://www.yout-ube.com/embed/LVw3Q3vqobg">Tokatçı</li>
+                    <li data-url="https://www.yout-ube.com/embed/6xVREEH66iw">Üç Kağıtçı</li>
+                    <li data-url="https://www.yout-ube.com/embed/QNDG1va2smg">Bekçiler Kralı</li>
+                </ul>
+                <ul id="list-drama" class="video-list">
+                    <li data-url="https://www.yout-ube.com/embed/783_OJX_1fA">Teşkilat 1</li>
+                    <li data-url="https://www.yout-ube.com/embed/Q5CUmF_-_ik">Teşkilat 2</li>
+                    <li data-url="https://www.yout-ube.com/embed/EDlVagqTyPg">Teşkilat 3</li>
+                    <li data-url="https://www.yout-ube.com/embed/iUm3O4pWCuI">Teşkilat 4</li>
+                    <li data-url="https://www.yout-ube.com/embed/pKci6DAdcr4">Teşkilat 5</li>
+                    <li data-url="https://www.yout-ube.com/embed/8XoiCcKZUm8">Teşkilat 6</li>
+                    <li data-url="https://www.yout-ube.com/embed/92UsM2MfwVc">Teşkilat 7</li>
+                    <li data-url="https://www.yout-ube.com/embed/Ty3NlxNk6kg">Teşkilat 8</li>
+                    <li data-url="https://www.yout-ube.com/embed/4gdY4fdPPNo">Teşkilat 9</li>
+                    <li data-url="https://www.yout-ube.com/embed/gRhFgGcE90M">Teşkilat 10</li>
+                    <li data-url="https://www.yout-ube.com/embed/ByD4RkEav0s">Teşkilat 11</li>
+                    <li data-url="https://www.yout-ube.com/embed/R-zwHqwCcA4">Teşkilat 12</li>
+                    <li data-url="https://www.yout-ube.com/embed/VE5D-5VpyIc">Teşkilat 13</li>
+                    <li data-url="https://www.yout-ube.com/embed/yx-o49VsGwI">Teşkilat 14</li>
+                    <li data-url="https://www.yout-ube.com/embed/qV6ly0Z2_eo">Teşkilat 15</li>
+                    <li data-url="https://www.yout-ube.com/embed/g-j5NzGZtFo">Teşkilat 16</li>
+                    <li data-url="https://www.yout-ube.com/embed/_gFF2WxgYMo">Teşkilat 17</li>
+                    <li data-url="https://www.yout-ube.com/embed/XPd8qjXKlWI">Teşkilat 18</li>
+                    <li data-url="https://www.yout-ube.com/embed/AoUrIbmxVsQ">Teşkilat 19</li>
+                    <li data-url="https://www.yout-ube.com/embed/SAbGJW8GoE4">Teşkilat 20</li>
+                    <li data-url="https://www.yout-ube.com/embed/ht0WYkW0dNk">Teşkilat 21</li>
+
+                </ul>
+                <ul id="list-ertugrul" class="video-list">
+                    <li data-url="https://www.yout-ube.com/embed/3yjO6yfHLcU">Diriliş Ertuğrul 1</li>
+                    <li data-url="https://www.yout-ube.com/embed/aHj-PkwU4ps">Diriliş Ertuğrul 2</li>
+                </ul>
+                <ul id="list-osman" class="video-list">
+                    <li data-url="https://www.yout-ube.com/embed/O1">Kuruluş Osman - Afl 1</li>
+                    <li data-url="https://www.yout-ube.com/embed/O2">Kuruluş Osman - Afl 2</li>
+                </ul>
+            </div>
+            <div class="sidebar-tabs">
+                <button class="tab-btn active" data-target="list-klassiek">Kemal Sunal</button>
+                <button class="tab-btn" data-target="list-drama">Turis</button>
+                <button class="tab-btn" data-target="list-ertugrul">Diriliş Ertuğrul</button>
+                <button class="tab-btn" data-target="list-osman">Kuruluş Osman</button>
+            </div>
+        </div>
+    </div>
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+    <script>
+        var uiTimer;
+        function resetUITimer() { $('.mobile-trigger').removeClass('ui-fade-out'); clearTimeout(uiTimer); if (!$('#main-sidebar').hasClass('show-mobile')) { uiTimer = setTimeout(function() { $('.mobile-trigger').addClass('ui-fade-out'); }, 3000); } }
+        function openMobileCats() { $('#main-sidebar').removeClass('mode-list').addClass('mode-category show-mobile'); clearTimeout(uiTimer); }
+        function openMobileList() { $('#main-sidebar').removeClass('mode-category').addClass('mode-list show-mobile'); clearTimeout(uiTimer); }
+        function closeMobileMenu() { $('#main-sidebar').removeClass('show-mobile'); $('.custom-select-container').removeClass('open'); resetUITimer(); }
+        window.closeMobileMenu = closeMobileMenu;
+
+        $(document).ready(function() {
+            function switchCategory(target) { $('.tab-btn').removeClass('active'); $('.tab-btn[data-target="' + target + '"]').addClass('active'); $('.video-list').removeClass('active-list'); $('#' + target).addClass('active-list'); }
+            
+            $('.ui-overlay').on('click', resetUITimer);
+            $(document).on('click', function(e) { if ($('#main-sidebar').hasClass('show-mobile') && $(e.target).closest('#main-sidebar').length === 0) { closeMobileMenu(); } });
+            $('#main-sidebar, .mobile-trigger').on('click', function(e) { e.stopPropagation(); });
+            $('#btn-open-cats').click(openMobileCats);
+            $('#btn-open-list').click(openMobileList);
+
+            $('.tab-btn').click(function() {
+                var target = $(this).data('target');
+                switchCategory(target);
+                $('.custom-select-trigger').text($(this).text());
+                $('.custom-select-options li').removeClass('selected');
+                $('.custom-select-options li[data-value="' + target + '"]').addClass('selected');
+            });
+            $('.video-list li').click(function(e) {
+                e.stopPropagation(); var $this = $(this);
+                if ($this.data('direct-link')) { window.open($this.data('url'), '_blank'); if ($(window).width() <= 1024) closeMobileMenu(); return; }
+                $('.video-frame').attr('src', $this.data('url') + '?autoplay=1&rel=0&showinfo=0');
+                $('.video-list li').removeClass('active-video'); $this.addClass('active-video');
+                if ($(window).width() <= 1024) closeMobileMenu();
+            });
+            $('.custom-select-trigger').on('click', function(e) { e.stopPropagation(); $('.custom-select-container').toggleClass('open'); });
+            $('.custom-select-options li').on('click', function(e) {
+                e.stopPropagation(); var $this = $(this);
+                $('.custom-select-trigger').text($this.text());
+                $('.custom-select-options li').removeClass('selected'); $this.addClass('selected');
+                $('.custom-select-container').removeClass('open');
+                switchCategory($this.data('value'));
+                openMobileList();
+            });
+
+            var first = $('#list-klassiek li').first();
+            if (first.length && !first.data('direct-link')) { $('.video-frame').attr('src', first.data('url') + '?autoplay=0&rel=0&showinfo=0'); }
+            resetUITimer();
+        });
+    </script>
+</body>
+</html>
