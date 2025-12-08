@@ -168,7 +168,7 @@ html, body {
     background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
     padding: 20px;
     display: flex;
-    gap: 10px;
+    gap: 15px;
     align-items: center;
     justify-content: center;
     z-index: 1001;
@@ -342,10 +342,35 @@ html, body {
         font-size: 14px;
     }
     
+    /* MOBİL BUTON KÜÇÜLTME */
     .control-btn {
-        width: 50px;
+        width: 48px; 
+        height: 48px;
+        font-size: 18px;
+    }
+
+    .video-controls {
+        padding: 10px; /* Kontrol çubuğu dolgusunu azalt */
+        gap: 10px; /* Butonlar arasındaki boşluğu azalt */
+    }
+    
+    /* Play/Pause ve Ses Kontrolü (Overlay) */
+    .video-controls-overlay {
         height: 50px;
-        font-size: 20px;
+        padding: 0 15px;
+    }
+    
+    .volume-control {
+        margin-left: 10px;
+        gap: 5px;
+    }
+    
+    .volume-control span {
+        font-size: 16px;
+    }
+    
+    .volume-slider {
+        width: 80px;
     }
 }
 
@@ -359,8 +384,8 @@ html, body {
     }
 }
 
-/* TV Box özel stilleri */
-@media (pointer: coarse) {
+/* TV Box özel stilleri (Sadece pointer coarse olan büyük ekranlar için geçerli olmalı, küçük ekranlar yukarıdaki 768px kuralına tabidir) */
+@media (pointer: coarse) and (min-width: 769px) {
     .channel-item {
         min-height: 85px;
     }
@@ -471,7 +496,7 @@ html, body {
             </div>
         </div>
 
-        <!-- Kontroller -->
+        <!-- Kontroller (Alttaki Butonlar) -->
         <div class="video-controls">
             <button class="control-btn" onclick="previousChannel()" title="Önceki Kanal">
                 ⏮
@@ -1721,6 +1746,11 @@ function togglePlayPause() {
 // Ses ayarla
 function setVolume(value) {
     videoPlayer.volume = value;
+    // Ses kaydırıcısını güncelleyin
+    const volumeSlider = document.querySelector('.volume-slider');
+    if (volumeSlider) {
+        volumeSlider.value = value;
+    }
     showControls();
 }
 
@@ -1893,9 +1923,11 @@ function setupKeyboardNavigation() {
                     break;
                 case 'ArrowUp':
                     videoPlayer.volume = Math.min(1, videoPlayer.volume + 0.1);
+                    setVolume(videoPlayer.volume); // Kaydırıcıyı güncelle
                     break;
                 case 'ArrowDown':
                     videoPlayer.volume = Math.max(0, videoPlayer.volume - 0.1);
+                    setVolume(videoPlayer.volume); // Kaydırıcıyı güncelle
                     break;
             }
         }
@@ -1979,33 +2011,20 @@ window.onload = function() {
         document.querySelector('.channel-item').classList.add('active');
         document.querySelector('.channel-item').focus();
     }
+    
+    // Sayfa yüklendiğinde ses kaydırıcısının başlangıç değerini video oynatıcının sesine eşitle
+    const initialVolume = videoPlayer.volume || 1;
+    setVolume(initialVolume);
 };
 
-// TV Box optimizasyonu
+/*
+// ÖNEMLİ: Aşağıdaki blok TV Box optimizasyonunu zorla uyguluyordu ve mobil telefonlarda butonları çok büyütüyordu.
+// Mobil cihazlar için CSS medya sorgularını kullanmak daha doğru olduğu için bu bloğu yoruma alıyoruz.
 if ('ontouchstart' in window || navigator.userAgent.includes('Android')) {
-    // Touch device için optimizasyon
-    document.querySelectorAll('.control-btn').forEach(btn => {
-        btn.style.minWidth = '70px';
-        btn.style.minHeight = '70px';
-        btn.style.fontSize = '28px';
-    });
-    
-    document.querySelectorAll('.channel-item').forEach(item => {
-        item.style.minHeight = '90px';
-    });
-    
-    // Video kontrollerini büyüt
-    if (videoControlsOverlay) {
-        videoControlsOverlay.style.height = '80px';
-    }
-    
-    // Ses kontrolünü büyüt
-    const volumeSlider = document.querySelector('.volume-slider');
-    if (volumeSlider) {
-        volumeSlider.style.height = '8px';
-        volumeSlider.style.width = '120px';
-    }
+    // Bu blok artık CSS tarafından yönetiliyor veya TV Box için daha spesifik bir medya sorgusuna taşındı.
+    // Mobil telefonlarda küçük buton boyutunu korumak için buradaki zorunlu genişlik ayarlarını kaldırıyoruz.
 }
+*/
 </script>
 </body>
 </html>
