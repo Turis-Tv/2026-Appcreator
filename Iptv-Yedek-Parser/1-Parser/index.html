@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title></title>
+
+<!-- HLS.js -->
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.10/dist/hls.min.js"></script>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    background: #0a0a0a;
+    color: #fff;
+    font-family: 'Arial', sans-serif;
+    overflow: hidden;
+    touch-action: manipulation;
+}
+
+/* Ana container */
+.container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Başlık */
+.header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    padding: 15px 20px;
+    text-align: center;
+    border-bottom: 2px solid #00adb5;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+}
+
+.header h1 {
+    font-size: 24px;
+    color: #00adb5;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    letter-spacing: 1px;
+}
+
+/* Kanal listesi */
+.channel-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    background: #0f0f0f;
+    scrollbar-width: thin;
+    scrollbar-color: #00adb5 #1a1a1a;
+}
+
+.channel-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.channel-list::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    border-radius: 4px;
+}
+
+.channel-list::-webkit-scrollbar-thumb {
+    background: #00adb5;
+    border-radius: 4px;
+}
+
+.channel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.channel-item {
+    background: linear-gradient(145deg, #1e1e1e, #2a2a2a);
+    border-radius: 12px;
+    padding: 18px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.channel-item:hover,
+.channel-item:focus {
+    transform: translateY(-3px);
+    border-color: #00adb5;
+    box-shadow: 0 8px 16px rgba(0, 173, 181, 0.3);
+    outline: none; /* Focus stili için özel ayar */
+}
+
+.channel-item.active {
+    background: linear-gradient(145deg, #00adb5, #0077b6);
+    border-color: #fff;
+    box-shadow: 0 8px 24px rgba(0, 173, 181, 0.5);
+}
+
+.channel-item span {
+    font-size: 16px;
+    font-weight: 600;
+    color: #e0e0e0;
+    display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 0 5px;
+}
+
+.channel-item.active span {
+    color: white;
+    font-weight: 700;
+}
+
+/* Player container */
+.player-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+}
+
+/* Video container */
+.video-wrapper {
+    flex: 1;
+    position: relative;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* HLS.js Video Player */
+#videoPlayer {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    object-fit: contain;
+}
+
+/* Video Controls */
+.video-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+    padding: 20px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+}
+
+/* >>> DÜĞME BOYUTLARI GÜNCELLENDİ (Küçültüldü) <<< */
+.control-btn {
+    background: rgba(0, 173, 181, 0.8);
+    border: none;
+    border-radius: 50%;
+    width: 45px; /* Küçültülmüş boyut */
+    height: 45px; /* Küçültülmüş boyut */
+    color: white;
+    font-size: 20px; /* Küçültülmüş font */
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+/* >>> DÜĞME BOYUTLARI GÜNCELLENDİ SONU <<< */
+
+.control-btn:hover,
+.control-btn:focus {
+    background: #00fff5;
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 255, 245, 0.4);
+    outline: none;
+}
+
+.control-btn:active {
+    transform: scale(0.95);
+}
+
+.channel-name-display {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #00fff5;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 173, 181, 0.3);
+    z-index: 1001;
+}
+
+/* Loading spinner */
+.loading-spinner {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1001;
+}
+
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 5px solid rgba(0, 173, 181, 0.3);
+    border-radius: 50%;
+    border-top-color: #00adb5;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Hata mesajı */
+.error-message {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(220, 53, 69, 0.9);
+    padding: 20px 30px;
+    border-radius: 12px;
+    text-align: center;
+    max-width: 80%;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    z-index: 1002;
+}
+
+/* Kanal seçici (fullscreen) */
+.channel-selector {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 12px;
+    padding: 15px;
+    max-height: 70vh;
+    overflow-y: auto;
+    display: none;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 173, 181, 0.3);
+    min-width: 250px;
+    z-index: 1002;
+}
+
+.channel-selector h3 {
+    color: #00fff5;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 18px;
+}
+
+.selector-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.selector-item {
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.selector-item:hover,
+.selector-item:focus {
+    background: rgba(0, 173, 181, 0.3);
+    transform: translateX(-5px);
+    outline: 2px solid #00fff5;
+}
+
+/* Footer */
+.footer {
+    background: #1a1a1a;
+    padding: 10px;
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+    border-top: 1px solid #333;
+}
+
+/* TV Box remote uyumluluğu için */
+:focus {
+    outline: 3px solid #00adb5;
+    outline-offset: 2px;
+}
+/* Focus stili özel olarak .channel-item'da ayarlandığı için genel focus'u kaldırıyoruz. */
+.channel-item:focus {
+    outline: none; 
+}
+
+/* Animasyonlar */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Responsive tasarım */
+@media (max-width: 768px) {
+    .channel-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+    
+    .channel-item {
+        padding: 15px 10px;
+        min-height: 70px;
+    }
+    
+    .channel-item span {
+        font-size: 14px;
+    }
+    
+    /* >>> Mobil Düğme Boyutu (768px altı) <<< */
+    .control-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 16px;
+    }
+    
+    .video-controls {
+        padding: 10px; /* Kontrol alanını küçült */
+    }
+    
+    .volume-control {
+        margin-left: 10px;
+    }
+    /* >>> Mobil Düğme Boyutu Sonu <<< */
+}
+
+@media (orientation: landscape) {
+    #videoPlayer {
+        object-fit: contain;
+    }
+    
+    .video-controls {
+        padding: 15px;
+    }
+}
+
+/* TV Box özel stilleri (Büyük cihazlarda düğmeler hala büyük kalır) */
+@media (pointer: coarse), (min-width: 1024px) {
+    .channel-item {
+        min-height: 90px;
+    }
+    
+    .control-btn {
+        /* Bu blok, büyük/TV Box cihazlarda düğmeleri tekrar büyütecektir */
+        min-width: 70px;
+        min-height: 70px;
+        font-size: 28px;
+    }
+    
+    .selector-item {
+        padding: 15px;
+        margin: 5px 0;
+    }
+    
+    .volume-slider {
+        width: 150px !important;
+        height: 8px !important;
+    }
+    
+    .volume-slider::-webkit-slider-thumb {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .video-controls-overlay {
+        height: 80px;
+    }
+}
+
+/* Video.js benzeri kontroller için */
+.video-controls-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 1000;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+    pointer-events: auto;
+}
+
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 20px;
+}
+
+.volume-slider {
+    width: 100px;
+    height: 4px;
+    -webkit-appearance: none;
+    background: rgba(255,255,255,0.3);
+    border-radius: 2px;
+    outline: none;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #00adb5;
+    border-radius: 50%;
+    cursor: pointer;
+}
+</style>
+</head>
+<body>
+    <div class="container">
+        <!-- Başlık -->
+        <div class="header">
+         
+        </div>
+
+        <!-- Kanal Listesi -->
+        <div class="channel-list">
+            <div class="channel-grid" id="channelGrid">
+                <!-- Kanallar buraya eklenecek -->
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Turis Tv | HLS.js ile güçlendirilmiştir.</p>
+        </div>
+    </div>
+
+    <!-- Player Container -->
+    <div class="player-container" id="playerContainer">
+        <div class="video-wrapper">
+            <!-- Kanal adı gösterimi -->
+            <div class="channel-name-display" id="channelNameDisplay"></div>
+            
+            <!-- HLS.js Video Player -->
+            <video id="videoPlayer" playsinline webkit-playsinline></video>
+            
+            <!-- Loading -->
+            <div class="loading-spinner" id="loadingSpinner">
+                <div class="spinner"></div>
+            </div>
+            
+            <!-- Hata mesajı -->
+            <div class="error-message" id="errorMessage">
+                <h3>⚠️ Hata Oluştu</h3>
+                <p id="errorText"></p>
+                <button class="control-btn" onclick="closeError()" style="margin-top: 15px; border-radius: 8px; width: auto; padding: 0 20px;">
+                    Tamam
+                </button>
+            </div>
+            
+            <!-- Video Controls Overlay (Play/Pause ve Volume) -->
+            <div class="video-controls-overlay" id="videoControlsOverlay">
+                <button class="control-btn" onclick="togglePlayPause()" title="Play/Pause" id="playPauseBtn" style="background: rgba(0, 173, 181, 0.9);">
+                    ⏸
+                </button>
+                <div class="volume-control">
+                    <span style="color: #00adb5;">🔊</span>
+                    <input type="range" class="volume-slider" min="0" max="1" step="0.1" value="1" 
+                           oninput="setVolume(this.value)" id="volumeSlider" title="Ses">
+                </div>
+            </div>
+        </div>
+
+        <!-- Ek Kontroller (Kanal Değiştirme, Tam Ekran, Kapat) -->
+        <div class="video-controls">
+            <button class="control-btn" onclick="previousChannel()" title="Önceki Kanal">
+                ⏮
+            </button>
+            <button class="control-btn" onclick="toggleFullscreen()" title="Tam Ekran">
+                ⛶
+            </button>
+            <button class="control-btn" onclick="nextChannel()" title="Sonraki Kanal">
+                ⏭
+            </button>
+            <button class="control-btn" onclick="showChannelSelector()" title="Kanal Listesi">
+                📺
+            </button>
+            <button class="control-btn" onclick="closePlayer()" title="Kapat">
+                ✕
+            </button>
+        </div>
+
+        <!-- Kanal seçici -->
+        <div class="channel-selector" id="channelSelector">
+            <h3>KANALLAR</h3>
+            <div class="selector-list" id="selectorList">
+                <!-- Kanal listesi buraya eklenecek -->
+            </div>
+        </div>
+    </div>
+
+<script>
+// TV Box için optimize edilmiş kanal listesi
+const channels = [
+// VASTGESTELDE KANAAL VAN DE GEBRUIKER VOOR DIRECTE M3U8 TEST:
+{ name: "ATV Direct M3U8", url: "https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/atv/atv.m3u8" },
+
+// Oorspronkelijke kanalen
+{ name: "TRT 1", url: "https://www.giniko.com/xml/secure/plist.php?ch=442" },
+{ name: "TRT 1-2", url: "https://www.giniko.com/xml/secure/plist.php?ch=1129" },
+{ name: "TRT 2", url: "https://www.giniko.com/xml/secure/plist.php?ch=1031" },
+{ name: "STAR TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=83" },
+{ name: "STAR-2", url: "https://www.giniko.com/xml/secure/plist.php?ch=1124" },
+{ name: "STAR-3", url: "https://www.giniko.com/xml/secure/plist.php?ch=1421" },
+{ name: "NOW TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=195" },
+{ name: "NOW TV-3", url: "https://www.giniko.com/xml/secure/plist.php?ch=1117" },
+{ name: "TV8", url: "https://www.giniko.com/xml/secure/plist.php?ch=213" },
+{ name: "TV8-2", url: "https://www.giniko.com/xml/secure/plist.php?ch=1126" },
+{ name: "TV8-3", url: "https://www.giniko.com/xml/secure/plist.php?ch=1427" },
+{ name: "TV8 INT", url: "https://www.giniko.com/xml/secure/plist.php?ch=1132" },
+{ name: "ATV", url: "https://www.giniko.com/xml/secure/plist.php?ch=98" },
+{ name: "ATV-2", url: "https://www.giniko.com/xml/secure/plist.php?ch=1125" },
+{ name: "ATV-3", url: "https://www.giniko.com/xml/secure/plist.php?ch=1428" },
+{ name: "ATV EU", url: "https://www.giniko.com/xml/secure/plist.php?ch=699" },
+{ name: "A2 TR", url: "https://www.giniko.com/xml/secure/plist.php?ch=946" },
+{ name: "SHOW TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=96" },
+{ name: "SHOW TV-2", url: "https://www.giniko.com/xml/secure/plist.php?ch=1420" },
+{ name: "SHOW TV-3", url: "https://www.giniko.com/xml/secure/plist.php?ch=1127" },
+{ name: "SHOW TÜRK", url: "https://www.giniko.com/xml/secure/plist.php?ch=391" },
+{ name: "KANAL D", url: "https://www.giniko.com/xml/secure/plist.php?ch=1116" },
+{ name: "KANAL D-2", url: "https://www.giniko.com/xml/secure/plist.php?ch=1138" },
+{ name: "EURO D", url: "https://www.giniko.com/xml/secure/plist.php?ch=164" },
+{ name: "EURO D-2", url: "https://www.giniko.com/xml/secure/plist.php?ch=1128" },
+{ name: "360 TV", url: "http://www.giniko.com/xml/secure/plist.php?ch=693" },
+{ name: "TGRT EU", url: "http://www.giniko.com/xml/secure/plist.php?ch=696" },
+{ name: "EURO STAR", url: "https://www.giniko.com/xml/secure/plist.php?ch=680" },
+{ name: "TEVE2", url: "https://www.giniko.com/xml/secure/plist.php?ch=173" },
+{ name: "BEYAZ TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=346" },
+{ name: "KANAL 7", url: "https://www.giniko.com/xml/secure/plist.php?ch=199" },
+{ name: "KANAL 7-2", url: "https://www.giniko.com/xml/secure/plist.php?ch=1429" },
+{ name: "CNN TÜRK", url: "https://www.giniko.com/xml/secure/plist.php?ch=97" },
+{ name: "NR1 TÜRK", url: "https://www.giniko.com/xml/secure/plist.php?ch=172" },
+{ name: "POWER HD", url: "https://www.giniko.com/xml/secure/plist.php?ch=165" },
+{ name: "KRAL POP", url: "https://www.giniko.com/xml/secure/plist.php?ch=84" },
+{ name: "HABER TÜRK", url: "http://www.giniko.com/xml/secure/plist.php?ch=694" },
+{ name: "TGRT BELGESEL", url: "https://www.giniko.com/xml/secure/plist.php?ch=698" },
+{ name: "TGRT HABER", url: "https://www.giniko.com/xml/secure/plist.php?ch=697" },
+{ name: "KENTRON", url: "https://www.giniko.com/xml/secure/plist.php?ch=690" },
+{ name: "AFYON TÜRK", url: "https://www.giniko.com/xml/secure/plist.php?ch=689" },
+{ name: "TRT DIYANET", url: "https://www.giniko.com/xml/secure/plist.php?ch=688" },
+{ name: "TRT BELGESEL", url: "https://www.giniko.com/xml/secure/plist.php?ch=687" },
+{ name: "TRT KURDI", url: "https://www.giniko.com/xml/secure/plist.php?ch=686" },
+{ name: "TRT AVAZ", url: "https://www.giniko.com/xml/secure/plist.php?ch=685" },
+{ name: "TRT ARAPÇA", url: "https://www.giniko.com/xml/secure/plist.php?ch=684" },
+{ name: "TRT WORLD", url: "https://www.giniko.com/xml/secure/plist.php?ch=460" },
+{ name: "FLASH TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1334" },
+{ name: "TV100", url: "https://ginikoturkish.com/xml/secure/plist.php?ch=738" },
+{ name: "YEŞILÇAM3", url: "https://www.giniko.com/xml/secure/plist.php?ch=1216" },
+{ name: "YEŞILÇAM2", url: "https://www.giniko.com/xml/secure/plist.php?ch=1215" },
+{ name: "YEŞILÇAM1", url: "https://www.giniko.com/xml/secure/plist.php?ch=207" },
+{ name: "SINEVIZYON3", url: "https://www.giniko.com/xml/secure/plist.php?ch=1219" },
+{ name: "SINEVIZYON2", url: "https://www.giniko.com/xml/secure/plist.php?ch=1218" },
+{ name: "SINEVIZYON1", url: "https://www.giniko.com/xml/secure/plist.php?ch=1217" },
+{ name: "FBTV", url: "https://www.giniko.com/xml/secure/plist.php?ch=210" },
+{ name: "CBS SPORT", url: "https://www.giniko.com/xml/secure/plist.php?ch=1159" },
+{ name: "IDMAN TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1160" },
+{ name: "BEINSPORT HABER", url: "https://www.giniko.com/xml/secure/plist.php?ch=944" },
+{ name: "ASPOR", url: "https://www.giniko.com/xml/secure/plist.php?ch=1139" },
+{ name: "ASPOR2", url: "https://www.giniko.com/xml/secure/plist.php?ch=390" },
+{ name: "TV8BUCUK", url: "https://www.giniko.com/xml/secure/plist.php?ch=759" },
+{ name: "TRT SPOR3", url: "https://www.giniko.com/xml/secure/plist.php?ch=1161" },
+{ name: "TRT SPOR2", url: "https://www.giniko.com/xml/secure/plist.php?ch=1036" },
+{ name: "TRT SPOR", url: "https://www.giniko.com/xml/secure/plist.php?ch=1131" },
+{ name: "TRT SPOR-1", url: "https://www.giniko.com/xml/secure/plist.php?ch=1431" },
+{ name: "TRT SPOR-2", url: "https://www.giniko.com/xml/secure/plist.php?ch=194" },
+{ name: "TIVIBU SPOR", url: "https://www.giniko.com/xml/secure/plist.php?ch=943" },
+{ name: "YOL TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=529" },
+{ name: "MAVI KARADENIZ", url: "https://www.giniko.com/xml/secure/plist.php?ch=959" },
+{ name: "TRT TÜRK", url: "https://www.giniko.com/xml/secure/plist.php?ch=51" },
+{ name: "TRT HABER", url: "https://www.giniko.com/xml/secure/plist.php?ch=196" },
+{ name: "BENGÜ TÜRK", url: "https://www.giniko.com/xml/secure/plist.php?ch=230" },
+{ name: "ULUSAL KANAL", url: "https://www.giniko.com/xml/secure/plist.php?ch=231" },
+{ name: "24", url: "https://www.giniko.com/xml/secure/plist.php?ch=913" },
+{ name: "A HABER", url: "https://www.giniko.com/xml/secure/plist.php?ch=1134" },
+{ name: "HABER GLOBAL", url: "https://www.giniko.com/xml/secure/plist.php?ch=1094" },
+{ name: "KIBRIS KRT", url: "https://www.giniko.com/xml/secure/plist.php?ch=1112" },
+{ name: "TELE1", url: "https://www.giniko.com/xml/secure/plist.php?ch=947" },
+{ name: "SÖZCÜ TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=392" },
+{ name: "HALK TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=228" },
+{ name: "CNN TÜRK", url: "https://www.giniko.com/xml/secure/plist.php?ch=1136" },
+{ name: "NTV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1133" },
+{ name: "NTV2", url: "https://www.giniko.com/xml/secure/plist.php?ch=131" },
+{ name: "TV 100", url: "https://www.giniko.com/xml/secure/plist.php?ch=1005" },
+{ name: "FLASH TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1334" },
+{ name: "TRT1 EU", url: "https://www.giniko.com/xml/secure/plist.php?ch=1129" },
+{ name: "SAT7 TÜRK", url: "https://www.giniko.com/xml/secure/plist.php?ch=1419" },
+{ name: "TRT ARAPÇA", url: "https://www.giniko.com/xml/secure/plist.php?ch=684" },
+{ name: "TRT AVAZ", url: "https://www.giniko.com/xml/secure/plist.php?ch=685" },
+{ name: "TRT KURDI", url: "https://www.giniko.com/xml/secure/plist.php?ch=686" },
+{ name: "TRT BELGESEL", url: "https://www.giniko.com/xml/secure/plist.php?ch=687" },
+{ name: "DIYANET TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=688" },
+{ name: "TGRT EU", url: "https://www.giniko.com/xml/secure/plist.php?ch=696" },
+{ name: "MINIKA ÇOCUK", url: "https://www.giniko.com/xml/secure/plist.php?ch=404" },
+{ name: "MINIKA GO", url: "https://www.giniko.com/xml/secure/plist.php?ch=405" },
+{ name: "4 TURK", url: "https://www.giniko.com/xml/secure/plist.php?ch=938" },
+{ name: "TIVIBU SPOR", url: "https://www.giniko.com/xml/secure/plist.php?ch=943" },
+{ name: "BEIN SPOR HABER", url: "https://www.giniko.com/xml/secure/plist.php?ch=944" },
+{ name: "CBC SPORT", url: "https://www.giniko.com/xml/secure/plist.php?ch=1159" },
+{ name: "IDMAN TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1160" },
+{ name: "TATLISES TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=945" },
+{ name: "TELE 1", url: "https://www.giniko.com/xml/secure/plist.php?ch=947" },
+{ name: "KRT KULTUR", url: "https://www.giniko.com/xml/secure/plist.php?ch=1112" },
+{ name: "KIBRIS TV2020", url: "https://www.giniko.com/xml/secure/plist.php?ch=1113" },
+{ name: "KIBRIS KANAL SIM", url: "https://www.giniko.com/xml/secure/plist.php?ch=1114" },
+{ name: "KIBRIS GENÇ TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1115" },
+{ name: "BEYAZ TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1130" },
+{ name: "TRT SPOR", url: "https://www.giniko.com/xml/secure/plist.php?ch=1131" },
+{ name: "NTV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1133" },
+{ name: "A HABER", url: "https://www.giniko.com/xml/secure/plist.php?ch=1134" },
+{ name: "HALK TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1135" },
+{ name: "CNN TÜRK", url: "https://www.giniko.com/xml/secure/plist.php?ch=1136" },
+{ name: "HABER TÜRK", url: "https://www.giniko.com/xml/secure/plist.php?ch=1137" },
+{ name: "A SPOR", url: "https://www.giniko.com/xml/secure/plist.php?ch=1139" },
+{ name: "KIBRIS BRT3", url: "https://www.giniko.com/xml/secure/plist.php?ch=1149" },
+{ name: "KIBRIS TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1150" },
+{ name: "KIBRIS ADA", url: "https://www.giniko.com/xml/secure/plist.php?ch=1151" },
+{ name: "KIBRIS KANAL T", url: "https://www.giniko.com/xml/secure/plist.php?ch=1152" },
+{ name: "IRAN INT", url: "https://www.giniko.com/xml/secure/plist.php?ch=1148" },
+{ name: "NBC", url: "https://www.giniko.com/xml/secure/plist.php?ch=450" },
+{ name: "EURO NEWS", url: "https://www.giniko.com/xml/secure/plist.php?ch=675" },
+{ name: "FOX5", url: "https://www.giniko.com/xml/secure/plist.php?ch=449" },
+{ name: "ABC", url: "https://www.giniko.com/xml/secure/plist.php?ch=451" },
+{ name: "CBS", url: "https://www.giniko.com/xml/secure/plist.php?ch=452" },
+{ name: "ZARINTV", url: "https://www.giniko.com/xml/secure/plist.php?ch=455" },
+{ name: "TENTV", url: "https://www.giniko.com/xml/secure/plist.php?ch=479" },
+{ name: "KSASPORT1", url: "https://www.giniko.com/xml/secure/plist.php?ch=481" },
+{ name: "KURDSAT", url: "https://www.giniko.com/xml/secure/plist.php?ch=104" },
+{ name: "BBC ONE", url: "https://www.giniko.com/xml/secure/plist.php?ch=189" },
+{ name: "BBC TWO", url: "https://www.giniko.com/xml/secure/plist.php?ch=190" },
+{ name: "BBC THREE", url: "https://www.giniko.com/xml/secure/plist.php?ch=191" },
+{ name: "AL JAZEERA", url: "https://www.giniko.com/xml/secure/plist.php?ch=2" },
+{ name: "SAUDI TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=3" },
+{ name: "2 MONDE", url: "https://www.giniko.com/xml/secure/plist.php?ch=4" },
+{ name: "YEMEN TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=5" },
+{ name: "TELE CONGO", url: "https://www.giniko.com/xml/secure/plist.php?ch=6" },
+{ name: "ORTM TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=7" },
+{ name: "QATAR TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=11" },
+{ name: "FASHION TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=15" },
+{ name: "TV GAINT", url: "https://www.giniko.com/xml/secure/plist.php?ch=18" },
+{ name: "RTS1", url: "https://www.giniko.com/xml/secure/plist.php?ch=20" },
+{ name: "3ABN", url: "https://www.giniko.com/xml/secure/plist.php?ch=23" },
+{ name: "CNN INT", url: "https://www.giniko.com/xml/secure/plist.php?ch=26" },
+{ name: "BBC NEWS", url: "https://www.giniko.com/xml/secure/plist.php?ch=27" },
+{ name: "RUSTAVI2", url: "https://www.giniko.com/xml/secure/plist.php?ch=42" },
+{ name: "BVN TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=43" },
+{ name: "ICC+", url: "https://www.giniko.com/xml/secure/plist.php?ch=48" },
+{ name: "WORD NETWORK", url: "https://www.giniko.com/xml/secure/plist.php?ch=58" },
+{ name: "KAZAKH TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=61" },
+{ name: "RTP I", url: "https://www.giniko.com/xml/secure/plist.php?ch=63" },
+{ name: "TVC NEWS", url: "https://www.giniko.com/xml/secure/plist.php?ch=68" },
+{ name: "AZ TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=79" },
+{ name: "ABU DHABI", url: "https://www.giniko.com/xml/secure/plist.php?ch=80" },
+{ name: "VOX AFRICA", url: "https://www.giniko.com/xml/secure/plist.php?ch=81" },
+{ name: "1ST TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=87" },
+{ name: "FRANCE 24", url: "https://www.giniko.com/xml/secure/plist.php?ch=94" },
+{ name: "MIAMI TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=95" },
+{ name: "ADJARA TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=100" },
+{ name: "DAY STAR", url: "https://www.giniko.com/xml/secure/plist.php?ch=109" },
+{ name: "ANGEL TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=114" },
+{ name: "SYRIA TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=145" },
+{ name: "GDS TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=157" },
+{ name: "SHARYAH TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=183" },
+{ name: "OMAN TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=184" },
+{ name: "LIBYA AL WATAN", url: "https://www.giniko.com/xml/secure/plist.php?ch=185" },
+{ name: "JORDAN TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=186" },
+{ name: "SUDAN TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=187" },
+{ name: "SOUTH SUDAN", url: "https://www.giniko.com/xml/secure/plist.php?ch=188" },
+{ name: "BBC THREE", url: "https://www.giniko.com/xml/secure/plist.php?ch=1680" },
+{ name: "TFM", url: "https://www.giniko.com/xml/secure/plist.php?ch=192" },
+{ name: "VIETNAM NET", url: "https://www.giniko.com/xml/secure/plist.php?ch=197" },
+{ name: "BBC PERSIAN", url: "https://www.giniko.com/xml/secure/plist.php?ch=205" },
+{ name: "BBC WORLD", url: "https://www.giniko.com/xml/secure/plist.php?ch=216" },
+{ name: "BLOOMBERG EU", url: "https://www.giniko.com/xml/secure/plist.php?ch=217" },
+{ name: "Obieqtivi TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=226" },
+{ name: "PMC TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=229" },
+{ name: "AHLULBAYT", url: "https://www.giniko.com/xml/secure/plist.php?ch=233" },
+{ name: "TV25", url: "https://www.giniko.com/xml/secure/plist.php?ch=234" },
+{ name: "IMPACT", url: "https://www.giniko.com/xml/secure/plist.php?ch=236" },
+{ name: "DUNYA TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=246" },
+{ name: "MARAO TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=255" },
+{ name: "MANOTO", url: "https://www.giniko.com/xml/secure/plist.php?ch=260" },
+{ name: "PARS TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=262" },
+{ name: "IRAN TV NWRK", url: "https://www.giniko.com/xml/secure/plist.php?ch=263" },
+{ name: "IRINN", url: "https://www.giniko.com/xml/secure/plist.php?ch=264" },
+{ name: "ARMENIA TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=266" },
+{ name: "ROYAL TIME", url: "https://www.giniko.com/xml/secure/plist.php?ch=267" },
+{ name: "JAMEJAM2", url: "https://www.giniko.com/xml/secure/plist.php?ch=268" },
+{ name: "ABU DHABI SPORT1", url: "https://www.giniko.com/xml/secure/plist.php?ch=269" },
+{ name: "DUBAI TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=270" },
+{ name: "SKY NEWS ARABIA", url: "https://www.giniko.com/xml/secure/plist.php?ch=271" },
+{ name: "TOLO NEWS", url: "https://www.giniko.com/xml/secure/plist.php?ch=272" },
+{ name: "COMEDY CHANNEL", url: "https://www.giniko.com/xml/secure/plist.php?ch=276" },
+{ name: "WATAN E MAA", url: "https://www.giniko.com/xml/secure/plist.php?ch=277" },
+{ name: "LEMAR TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=281" },
+{ name: "BIBLE EXPLORATIONS", url: "https://www.giniko.com/xml/secure/plist.php?ch=287" },
+{ name: "BEGUM TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=288" },
+{ name: "SMILE OF A CHILD", url: "https://www.giniko.com/xml/secure/plist.php?ch=289" },
+{ name: "SALAAM TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=292" },
+{ name: "TBN TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=301" },
+{ name: "SOMALI NAT", url: "https://www.giniko.com/xml/secure/plist.php?ch=305" },
+{ name: "ALKARMA TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=306" },
+{ name: "1TV AFGAN", url: "https://www.giniko.com/xml/secure/plist.php?ch=307" },
+{ name: "ARIANA TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=309" },
+{ name: "ATN NEWS", url: "https://www.giniko.com/xml/secure/plist.php?ch=310" },
+{ name: "IFILMS FARSI", url: "https://www.giniko.com/xml/secure/plist.php?ch=313" },
+{ name: "SAUDI SUNNAH", url: "https://www.giniko.com/xml/secure/plist.php?ch=326" },
+{ name: "AL QURAN AL KAREEM", url: "https://www.giniko.com/xml/secure/plist.php?ch=327" },
+{ name: "TV2 ALGERIA", url: "https://www.giniko.com/xml/secure/plist.php?ch=328" },
+{ name: "SBN", url: "https://www.giniko.com/xml/secure/plist.php?ch=331" },
+{ name: "ENLACE TV LATINO", url: "https://www.giniko.com/xml/secure/plist.php?ch=333" },
+{ name: "BEYAZ TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=348" },
+{ name: "ZHWANDOON TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=339" },
+{ name: "MAAH TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=350" },
+{ name: "BRAVO FARSI", url: "https://www.giniko.com/xml/secure/plist.php?ch=351" },
+{ name: "FAZA TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=366" },
+{ name: "EWTN CATHOLIC", url: "https://www.giniko.com/xml/secure/plist.php?ch=370" },
+{ name: "IRIB 1", url: "https://www.giniko.com/xml/secure/plist.php?ch=372" },
+{ name: "IRIB 2", url: "https://www.giniko.com/xml/secure/plist.php?ch=373" },
+{ name: "IRIB 3", url: "https://www.giniko.com/xml/secure/plist.php?ch=374" },
+{ name: "IRIB 4", url: "https://www.giniko.com/xml/secure/plist.php?ch=375" },
+{ name: "IRIB 5", url: "https://www.giniko.com/xml/secure/plist.php?ch=376" },
+{ name: "SHAMSHAD TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=379" },
+{ name: "IRIB NASIM", url: "https://www.giniko.com/xml/secure/plist.php?ch=380" },
+{ name: "IRIB AMOOZESH", url: "https://www.giniko.com/xml/secure/plist.php?ch=381" },
+{ name: "IRIB OFOGH", url: "https://www.giniko.com/xml/secure/plist.php?ch=382" },
+{ name: "AL MAGHRIBIA", url: "https://www.giniko.com/xml/secure/plist.php?ch=386" },
+{ name: "RTA SPORTS", url: "https://www.giniko.com/xml/secure/plist.php?ch=387" },
+{ name: "RTA MILI ", url: "https://www.giniko.com/xml/secure/plist.php?ch=388" },
+{ name: "SYRIA DRAMA", url: "https://www.giniko.com/xml/secure/plist.php?ch=389" },
+{ name: "1 HD", url: "https://www.giniko.com/xml/secure/plist.php?ch=393" },
+{ name: "IRIB MOSTANAD", url: "https://www.giniko.com/xml/secure/plist.php?ch=397" },
+{ name: "IRIB POOJA", url: "https://www.giniko.com/xml/secure/plist.php?ch=398" },
+{ name: "IRIB SALAMAT", url: "https://www.giniko.com/xml/secure/plist.php?ch=399" },
+{ name: "UNIVERSAL SOMALI", url: "https://www.giniko.com/xml/secure/plist.php?ch=400" },
+{ name: "CBC AZ", url: "https://www.giniko.com/xml/secure/plist.php?ch=406" },
+{ name: "STERK TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=412" },
+{ name: "NOOR TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=414" },
+{ name: "AREZO TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=440" },
+{ name: "PEACH TREE", url: "https://www.giniko.com/xml/secure/plist.php?ch=454" },
+{ name: "ZARIN TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=455" },
+{ name: "PAJAM JAWAN", url: "https://www.giniko.com/xml/secure/plist.php?ch=456" },
+{ name: "SOMALI LAND", url: "https://www.giniko.com/xml/secure/plist.php?ch=462" },
+{ name: "AL RASHEED", url: "https://www.giniko.com/xml/secure/plist.php?ch=478" },
+{ name: "AFLAM TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=480" },
+{ name: "EL MEHWAR", url: "https://www.giniko.com/xml/secure/plist.php?ch=486" },
+{ name: "NEGAH TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=487" },
+{ name: "ON DRAMA", url: "https://www.giniko.com/xml/secure/plist.php?ch=488" },
+{ name: "EL FADJER", url: "https://www.giniko.com/xml/secure/plist.php?ch=489" },
+{ name: "2M MONDE", url: "https://www.giniko.com/xml/secure/plist.php?ch=490" },
+{ name: "GRAND CINEMA", url: "https://www.giniko.com/xml/secure/plist.php?ch=493" },
+{ name: "SHOGHAKAT", url: "https://www.giniko.com/xml/secure/plist.php?ch=494" },
+{ name: "NOR HAJESTAN", url: "https://www.giniko.com/xml/secure/plist.php?ch=495" },
+{ name: "KALEMEH TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=497" },
+{ name: "TV6 ALGERIA", url: "https://www.giniko.com/xml/secure/plist.php?ch=500" },
+{ name: "5 HD", url: "https://www.giniko.com/xml/secure/plist.php?ch=501" },
+{ name: "DMC DRAMA", url: "https://www.giniko.com/xml/secure/plist.php?ch=504" },
+{ name: "PERSIANA SERIES", url: "https://www.giniko.com/xml/secure/plist.php?ch=506" },
+{ name: "AL HAYAH", url: "https://www.giniko.com/xml/secure/plist.php?ch=507" },
+{ name: "CARTHAGE PLUS", url: "https://www.giniko.com/xml/secure/plist.php?ch=508" },
+{ name: "AL IRAQIYA", url: "https://www.giniko.com/xml/secure/plist.php?ch=514" },
+{ name: "HUM PASHTO 1", url: "https://www.giniko.com/xml/secure/plist.php?ch=515" },
+{ name: "AL IRAQIYA SPORT", url: "https://www.giniko.com/xml/secure/plist.php?ch=516" },
+{ name: "TAMAZIGHT TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=517" },
+{ name: "AFGAN PROCAST", url: "https://www.giniko.com/xml/secure/plist.php?ch=518" },
+{ name: "PERSIANA SPORT", url: "https://www.giniko.com/xml/secure/plist.php?ch=519" },
+{ name: "ZEE ALWAN", url: "https://www.giniko.com/xml/secure/plist.php?ch=520" },
+{ name: "TV4 ALGERIA", url: "https://www.giniko.com/xml/secure/plist.php?ch=521" },
+{ name: "OMID E IRAN", url: "https://www.giniko.com/xml/secure/plist.php?ch=522" },
+{ name: "AMGA TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=524" },
+{ name: "ON E", url: "https://www.giniko.com/xml/secure/plist.php?ch=525" },
+{ name: "PNC DRAMA", url: "https://www.giniko.com/xml/secure/plist.php?ch=526" },
+{ name: "TV1 ALGERIA", url: "https://www.giniko.com/xml/secure/plist.php?ch=521" },
+{ name: "CADDE TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=529" },
+{ name: "TV3 ALGERIA", url: "https://www.giniko.com/xml/secure/plist.php?ch=530" },
+{ name: "4 HD", url: "https://www.giniko.com/xml/secure/plist.php?ch=531" },
+{ name: "ZEE PLUS (MBC)", url: "https://www.giniko.com/xml/secure/plist.php?ch=533" },
+{ name: "PERSIANA INRANIAN", url: "https://www.giniko.com/xml/secure/plist.php?ch=534" },
+{ name: "HAY TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=535" },
+{ name: "ECHOROUK  NEWS", url: "https://www.giniko.com/xml/secure/plist.php?ch=537" },
+{ name: "ZEE AFLAM", url: "https://www.giniko.com/xml/secure/plist.php?ch=551" },
+{ name: "DRAMA", url: "https://www.giniko.com/xml/secure/plist.php?ch=552" },
+{ name: "VBS TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=562" },
+{ name: "HANNIBAL TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=590" },
+{ name: "KAVKASIA TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=601" },
+{ name: "TV PIRVELI", url: "https://www.giniko.com/xml/secure/plist.php?ch=602" },
+{ name: "SILK UNIVERSAL", url: "https://www.giniko.com/xml/secure/plist.php?ch=603" },
+{ name: "KUWAIT TV1", url: "https://www.giniko.com/xml/secure/plist.php?ch=604" },
+{ name: "AL SUMERIA", url: "https://www.giniko.com/xml/secure/plist.php?ch=612" },
+{ name: "AMU TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=637" },
+{ name: "SBC TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=639" },
+{ name: "TOLO TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=647" },
+{ name: "TAMADON", url: "https://www.giniko.com/xml/secure/plist.php?ch=649" },
+{ name: "MCHANNEL2", url: "https://www.giniko.com/xml/secure/plist.php?ch=650" },
+{ name: "MCHANNEL3", url: "https://www.giniko.com/xml/secure/plist.php?ch=651" },
+{ name: "LE SURE NWRK", url: "https://www.giniko.com/xml/secure/plist.php?ch=657" },
+{ name: "MCHANNELA", url: "https://www.giniko.com/xml/secure/plist.php?ch=659" },
+{ name: "MCHANNELM", url: "https://www.giniko.com/xml/secure/plist.php?ch=661" },
+{ name: "EURO NEWS", url: "https://www.giniko.com/xml/secure/plist.php?ch=675" },
+{ name: "RADIO FARDA", url: "https://www.giniko.com/xml/secure/plist.php?ch=676" },
+{ name: "ATV AZAD", url: "https://www.giniko.com/xml/secure/plist.php?ch=701" },
+{ name: "SAMA TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=734" },
+{ name: "TELE LIBAN", url: "https://www.giniko.com/xml/secure/plist.php?ch=737" },
+{ name: "AL NAHAR", url: "https://www.giniko.com/xml/secure/plist.php?ch=738" },
+{ name: "CBC DRAMA", url: "https://www.giniko.com/xml/secure/plist.php?ch=739" },
+{ name: "PERSIANA", url: "https://www.giniko.com/xml/secure/plist.php?ch=740" },
+{ name: "AL KAHERA", url: "https://www.giniko.com/xml/secure/plist.php?ch=741" },
+{ name: "TUNISNA TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=742" },
+{ name: "JAVANAN TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=743" },
+{ name: "OTV LEBANON", url: "https://www.giniko.com/xml/secure/plist.php?ch=744" },
+{ name: "AL HAYAH SERIES", url: "https://www.giniko.com/xml/secure/plist.php?ch=747" },
+{ name: "AL JADEED", url: "https://www.giniko.com/xml/secure/plist.php?ch=748" },
+{ name: "MTV LEBANON", url: "https://www.giniko.com/xml/secure/plist.php?ch=749" },
+{ name: "AL NAHAR DRAMA", url: "https://www.giniko.com/xml/secure/plist.php?ch=750" },
+{ name: "SHANT SERIAL", url: "https://www.giniko.com/xml/secure/plist.php?ch=753" },
+{ name: "CNBC", url: "https://www.giniko.com/xml/secure/plist.php?ch=754" },
+{ name: "ARTN SHART", url: "https://www.giniko.com/xml/secure/plist.php?ch=755" },
+{ name: "KURD MAX", url: "https://www.giniko.com/xml/secure/plist.php?ch=761" },
+{ name: "BOLLYWOOD", url: "https://www.giniko.com/xml/secure/plist.php?ch=763" },
+{ name: "KSA SPORT 2", url: "https://www.giniko.com/xml/secure/plist.php?ch=765" },
+{ name: "IRIB OMID", url: "https://www.giniko.com/xml/secure/plist.php?ch=766" },
+{ name: "ATTESSIA TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=772" },
+{ name: "AL ARABI TV2", url: "https://www.giniko.com/xml/secure/plist.php?ch=773" },
+{ name: "DMC", url: "https://www.giniko.com/xml/secure/plist.php?ch=774" },
+{ name: "PAN ARMENIAN", url: "https://www.giniko.com/xml/secure/plist.php?ch=776" },
+{ name: "KHATEREH TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=779" },
+{ name: "USA ARMENIA TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=781" },
+{ name: "KANAL JADID", url: "https://www.giniko.com/xml/secure/plist.php?ch=783" },
+{ name: "BI KANAL", url: "https://www.giniko.com/xml/secure/plist.php?ch=748" },
+{ name: "IRIB VARZESH", url: "https://www.giniko.com/xml/secure/plist.php?ch=785" },
+{ name: "VARZISH", url: "https://www.giniko.com/xml/secure/plist.php?ch=786" },
+{ name: "5 TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=787" },
+{ name: "ARMENIA PREMIUM", url: "https://www.giniko.com/xml/secure/plist.php?ch=788" },
+{ name: "H2 TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=789" },
+{ name: "PERSIAN FILM", url: "https://www.giniko.com/xml/secure/plist.php?ch=790" },
+{ name: "FX 1", url: "https://www.giniko.com/xml/secure/plist.php?ch=791" },
+{ name: "MTC", url: "https://www.giniko.com/xml/secure/plist.php?ch=841" },
+{ name: "ARB TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=844" },
+{ name: "HOD HOD TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=845" },
+{ name: "SIMAYE AZADIN TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=846" },
+{ name: "FX 2", url: "https://www.giniko.com/xml/secure/plist.php?ch=847" },
+{ name: "NOUR TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=855" },
+{ name: "4U TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=864" },
+{ name: "LBC INT", url: "https://www.giniko.com/xml/secure/plist.php?ch=865" },
+{ name: "IRIB NAMAYESH", url: "https://www.giniko.com/xml/secure/plist.php?ch=866" },
+{ name: "ON TIME SPORT 2", url: "https://www.giniko.com/xml/secure/plist.php?ch=867" },
+{ name: "AL RABIAA", url: "https://www.giniko.com/xml/secure/plist.php?ch=868" },
+{ name: "SYRIA SATELLITE", url: "https://www.giniko.com/xml/secure/plist.php?ch=870" },
+{ name: "TELE MAROC", url: "https://www.giniko.com/xml/secure/plist.php?ch=871" },
+{ name: "PALESTINE TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=872" },
+{ name: "LBC 2 INT", url: "https://www.giniko.com/xml/secure/plist.php?ch=873" },
+{ name: "DUBAI ONE", url: "https://www.giniko.com/xml/secure/plist.php?ch=874" },
+{ name: "AL SHARQIA", url: "https://www.giniko.com/xml/secure/plist.php?ch=875" },
+{ name: "ARABICA TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=876" },
+{ name: "ALKAAS ONE", url: "https://www.giniko.com/xml/secure/plist.php?ch=877" },
+{ name: "NESSMA TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=880" },
+{ name: "IRIB TAMASHA", url: "https://www.giniko.com/xml/secure/plist.php?ch=883" },
+{ name: "ROTANA LBC", url: "https://www.giniko.com/xml/secure/plist.php?ch=887" },
+{ name: "ENNAHAR TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=888" },
+{ name: "IRIB 3", url: "https://www.giniko.com/xml/secure/plist.php?ch=900" },
+{ name: "ROYA TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=907" },
+{ name: "FUNOON ATV KUWAIT", url: "https://www.giniko.com/xml/secure/plist.php?ch=910" },
+{ name: "ARTI TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=912" },
+{ name: "24", url: "https://www.giniko.com/xml/secure/plist.php?ch=913" },
+{ name: "SYRIA TV2", url: "https://www.giniko.com/xml/secure/plist.php?ch=918" },
+{ name: "OXIR TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=919" },
+{ name: "ALRAI TV KUWAIT", url: "https://www.giniko.com/xml/secure/plist.php?ch=920" },
+{ name: "VIE TODAY", url: "https://www.giniko.com/xml/secure/plist.php?ch=921" },
+{ name: "SAIGON TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=922" },
+{ name: "VS TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=923" },
+{ name: "ON FILM", url: "https://www.giniko.com/xml/secure/plist.php?ch=924" },
+{ name: "ON BIZ", url: "https://www.giniko.com/xml/secure/plist.php?ch=925" },
+{ name: "E CHANNEL", url: "https://www.giniko.com/xml/secure/plist.php?ch=926" },
+{ name: "SCTV", url: "https://www.giniko.com/xml/secure/plist.php?ch=927" },
+{ name: "SCTV PHIM", url: "https://www.giniko.com/xml/secure/plist.php?ch=928" },
+{ name: "SCTV SAN KHAU", url: "https://www.giniko.com/xml/secure/plist.php?ch=929" },
+{ name: "STYLE TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=930" },
+{ name: "ON FOOTBALL", url: "https://www.giniko.com/xml/secure/plist.php?ch=932" },
+{ name: "PAMIR TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=937" },
+{ name: "DATIS TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=939" },
+{ name: "PERSIANA COMEDY", url: "https://www.giniko.com/xml/secure/plist.php?ch=940" },
+{ name: "PERSIANA JR", url: "https://www.giniko.com/xml/secure/plist.php?ch=941" },
+{ name: "DEUTSCHE WELLE", url: "https://www.giniko.com/xml/secure/plist.php?ch=948" },
+{ name: "SAHAR AFGAN", url: "https://www.giniko.com/xml/secure/plist.php?ch=950" },
+{ name: "ROTANA CINEMA", url: "https://www.giniko.com/xml/secure/plist.php?ch=954" },
+{ name: "IRAN E FARDA", url: "https://www.giniko.com/xml/secure/plist.php?ch=968" },
+{ name: "PUBLIC TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=970" },
+{ name: "RTI 1", url: "https://www.giniko.com/xml/secure/plist.php?ch=971" },
+{ name: "CHILD BBC", url: "https://www.giniko.com/xml/secure/plist.php?ch=974" },
+{ name: "SAT7 ARABI", url: "https://www.giniko.com/xml/secure/plist.php?ch=997" },
+{ name: "SAT7 PARS", url: "https://www.giniko.com/xml/secure/plist.php?ch=995" },
+{ name: "SAT7 KIDS", url: "https://www.giniko.com/xml/secure/plist.php?ch=996" },
+{ name: "SAHAR URDU", url: "https://www.giniko.com/xml/secure/plist.php?ch=1010" },
+{ name: "AVA FAMILY", url: "https://www.giniko.com/xml/secure/plist.php?ch=1011" },
+{ name: "AVA SERIES", url: "https://www.giniko.com/xml/secure/plist.php?ch=1012" },
+{ name: "TV8 INT", url: "https://www.giniko.com/xml/secure/plist.php?ch=1045" },
+{ name: "ROTANA DRAMA", url: "https://www.giniko.com/xml/secure/plist.php?ch=1051" },
+{ name: "1TV ARMENIA", url: "https://www.giniko.com/xml/secure/plist.php?ch=1056" },
+{ name: "ON TIME SPORT 1", url: "https://www.giniko.com/xml/secure/plist.php?ch=1058" },
+{ name: "ABU DHABI TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1075" },
+{ name: "ROTANA KHALIJA", url: "https://www.giniko.com/xml/secure/plist.php?ch=1092" },
+{ name: "HABER GLOBAL", url: "https://www.giniko.com/xml/secure/plist.php?ch=1094" },
+{ name: "EL WATANIA 2", url: "https://www.giniko.com/xml/secure/plist.php?ch=1102" },
+{ name: "EL WATANIA 1", url: "https://www.giniko.com/xml/secure/plist.php?ch=1103" },
+{ name: "1TV GANATLEBA", url: "https://www.giniko.com/xml/secure/plist.php?ch=1107" },
+{ name: "ROTANA CINEMA", url: "https://www.giniko.com/xml/secure/plist.php?ch=1108" },
+{ name: "POSI TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1154" },
+{ name: "SUPER RTL", url: "https://www.giniko.com/xml/secure/plist.php?ch=1156" },
+{ name: "AFGAN TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1163" },
+{ name: "ARIANA AFGAN", url: "https://www.giniko.com/xml/secure/plist.php?ch=1164" },
+{ name: "PAJAM E AFGAN", url: "https://www.giniko.com/xml/secure/plist.php?ch=1165" },
+{ name: "VOX UP", url: "https://www.giniko.com/xml/secure/plist.php?ch=1176" },
+{ name: "PBC TAPESH", url: "https://www.giniko.com/xml/secure/plist.php?ch=1177" },
+{ name: "IFILM ENGLISH", url: "https://www.giniko.com/xml/secure/plist.php?ch=1178" },
+{ name: "CHANNEL ONE", url: "https://www.giniko.com/xml/secure/plist.php?ch=1227" },
+{ name: "MBC PERSIA", url: "https://www.giniko.com/xml/secure/plist.php?ch=1235" },
+{ name: "YERKIR MEDIA", url: "https://www.giniko.com/xml/secure/plist.php?ch=1276" },
+{ name: "AABC TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1280" },
+{ name: "GE TIMES", url: "https://www.giniko.com/xml/secure/plist.php?ch=1310" },
+{ name: "LANA TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1321" },
+{ name: "HAY TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1332" },
+{ name: "VCAB7", url: "https://www.giniko.com/xml/secure/plist.php?ch=1333" },
+{ name: "FLASH TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1334" },
+{ name: "AFGAN INT", url: "https://www.giniko.com/xml/secure/plist.php?ch=1136" },
+{ name: "VOA PASHTO", url: "https://www.giniko.com/xml/secure/plist.php?ch=1337" },
+{ name: "BULBUL TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1339" },
+{ name: "AFGAN NOBEL", url: "https://www.giniko.com/xml/secure/plist.php?ch=1340" },
+{ name: "AFGAN NOBEL TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1341" },
+{ name: "BAHAR TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1342" },
+{ name: "IMAN TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1343" },
+{ name: "SADA E HAQ", url: "https://www.giniko.com/xml/secure/plist.php?ch=1345" },
+{ name: "ARIANA TV USA", url: "https://www.giniko.com/xml/secure/plist.php?ch=1346" },
+{ name: "AFGAN THEATRE", url: "https://www.giniko.com/xml/secure/plist.php?ch=1347" },
+{ name: "WAP TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1358" },
+{ name: "1+1", url: "https://www.giniko.com/xml/secure/plist.php?ch=1391" },
+{ name: "AL AOULA MAROC", url: "https://www.giniko.com/xml/secure/plist.php?ch=1407" },
+{ name: "WASAT TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1415" },
+{ name: "IRIB VARZESH", url: "https://www.giniko.com/xml/secure/plist.php?ch=1448" },
+{ name: "VOA FARSI", url: "https://www.giniko.com/xml/secure/plist.php?ch=1449" },
+{ name: "IRAN INT", url: "https://www.giniko.com/xml/secure/plist.php?ch=1450" },
+{ name: "ESPERANZA TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1496" },
+{ name: "MIAMI TV LATINO", url: "https://www.giniko.com/xml/secure/plist.php?ch=1498" },
+{ name: "TBN INSPIRE", url: "https://www.giniko.com/xml/secure/plist.php?ch=1508" },
+{ name: "CINE FILM", url: "https://www.giniko.com/xml/secure/plist.php?ch=1509" },
+{ name: "AL DAFRAH", url: "https://www.giniko.com/xml/secure/plist.php?ch=1514" },
+{ name: "FREEDOM", url: "https://www.giniko.com/xml/secure/plist.php?ch=1515" },
+{ name: "PALITRA NEWS", url: "https://www.giniko.com/xml/secure/plist.php?ch=1516" },
+{ name: "QARTULI TV", url: "https://www.giniko.com/xml/secure/plist.php?ch=1517" },
+{ name: "SKY NEWS", url: "https://www.giniko.com/xml/secure/plist.php?ch=1518" },
+{ name: "GEORGIAN MOVIES", url: "https://www.giniko.com/xml/secure/plist.php?ch=1566" },
+{ name: "ESALE 45", url: "https://www.giniko.com/xml/secure/plist.php?ch=1684" },
+{ name: "1ST TV SPORT", url: "https://www.giniko.com/xml/secure/plist.php?ch=1684" },
+{ name: "IRIB AMOUZESH", url: "https://www.giniko.com/xml/secure/plist.php?ch=1687" },
+
+];
+
+// DOM Elementleri
+const videoPlayer = document.getElementById('videoPlayer');
+const playerContainer = document.getElementById('playerContainer');
+const channelGrid = document.getElementById('channelGrid');
+const selectorList = document.getElementById('selectorList');
+const channelNameDisplay = document.getElementById('channelNameDisplay');
+const loadingSpinner = document.getElementById('loadingSpinner');
+const errorMessage = document.getElementById('errorMessage');
+const errorText = document.getElementById('errorText');
+const channelSelector = document.getElementById('channelSelector');
+const playPauseBtn = document.getElementById('playPauseBtn');
+const videoControlsOverlay = document.getElementById('videoControlsOverlay');
+const volumeSlider = document.getElementById('volumeSlider');
+
+// Global değişkenler
+let currentChannelIndex = 0;
+let isPlaying = false; // Başlangıçta false olmalı
+let hls = null;
+let autoHideControlsTimer = null;
+
+// M3U8 regex
+const m3u8Regex = /https?:\/\/[^\s"'<>]*?\.m3u8(?:\?[^\s"'<>]*)?/i;
+
+// Sayfa yüklendiğinde
+document.addEventListener('DOMContentLoaded', function() {
+    initializeChannels();
+    setupKeyboardNavigation();
+    setupVideoEvents();
+    
+    // Başlangıç sesi
+    videoPlayer.volume = 1;
+    if (volumeSlider) volumeSlider.value = 1;
+});
+
+// Kanalları başlat
+function initializeChannels() {
+    channels.forEach((channel, index) => {
+        // Ana grid için
+        const channelItem = document.createElement('div');
+        channelItem.className = 'channel-item fade-in';
+        channelItem.tabIndex = 0;
+        channelItem.innerHTML = `<span>${channel.name}</span>`;
+        channelItem.addEventListener('click', () => playChannel(index));
+        channelItem.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                playChannel(index);
+                e.preventDefault();
+            }
+        });
+        channelGrid.appendChild(channelItem);
+
+        // Seçici liste için
+        const selectorItem = document.createElement('div');
+        selectorItem.className = 'selector-item';
+        selectorItem.tabIndex = 0;
+        selectorItem.textContent = channel.name;
+        selectorItem.addEventListener('click', () => {
+            playChannel(index);
+            channelSelector.style.display = 'none';
+        });
+        selectorItem.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                playChannel(index);
+                channelSelector.style.display = 'none';
+                e.preventDefault();
+            }
+        });
+        selectorList.appendChild(selectorItem);
+    });
+}
+
+// Video olaylarını kur
+function setupVideoEvents() {
+    videoPlayer.addEventListener('playing', () => {
+        isPlaying = true;
+        updatePlayPauseButton();
+        hideLoading();
+        hideControlsAfterDelay();
+    });
+
+    videoPlayer.addEventListener('pause', () => {
+        isPlaying = false;
+        updatePlayPauseButton();
+        showControls();
+    });
+    
+    videoPlayer.addEventListener('waiting', () => {
+        if (isPlaying) { // Sadece aktif oynatma sırasında beklerse yükleme göster
+             showLoading();
+        }
+    });
+
+    videoPlayer.addEventListener('canplay', () => {
+        hideLoading();
+    });
+
+    videoPlayer.addEventListener('error', (e) => {
+        // Hata kodunu kontrol et
+        const errorDetail = e.target.error ? `(Kod: ${e.target.error.code})` : '';
+        showError(`Video yüklenirken hata oluştu ${errorDetail}.`);
+        hideLoading();
+    });
+
+    // Kontrolleri göster/gizle
+    videoPlayer.addEventListener('click', toggleControls);
+    
+    // Mouse hareketinde/dokunmada kontrolleri göster
+    document.getElementById('playerContainer').addEventListener('mousemove', showControls);
+    document.getElementById('playerContainer').addEventListener('touchmove', showControls);
+    document.getElementById('playerContainer').addEventListener('touchend', showControls);
+}
+
+/**
+ * M3U8 URL'sini getir veya doğrudan kullan
+ */
+async function playChannel(index) {
+    if (index < 0 || index >= channels.length) return;
+    
+    currentChannelIndex = index;
+    const channel = channels[index];
+    
+    // Aktif kanalı güncelle (Hem grid hem de listede)
+    updateActiveChannel();
+    
+    // Player'ı göster
+    playerContainer.style.display = 'flex';
+    channelNameDisplay.textContent = `▶ ${channel.name}`;
+    showLoading();
+    hideError();
+    showControls();
+    
+    try {
+        let finalM3u8Url = channel.url;
+        
+        // Eğer doğrudan M3U8 değilse, gerçek linki al.
+        if (!finalM3u8Url.toLowerCase().includes('.m3u8')) {
+            finalM3u8Url = await fetchM3u8Url(channel.url);
+        }
+
+        if (!finalM3u8Url) {
+            throw new Error('M3U8 akış URL adresi bulunamadı veya sunucu yanıt vermedi.');
+        }
+        
+        await playWithHls(finalM3u8Url);
+        
+    } catch (error) {
+        showError(`Kanal açılamadı. Hata: ${error.message}`);
+        hideLoading();
+    }
+}
+
+// M3U8 URL'sini getir (Yalnızca API endpoint'leri için)
+async function fetchM3u8Url(endpoint) {
+    try {
+        const response = await fetch(endpoint, {
+            cache: 'no-store',
+            mode: 'cors', // CORS Politikasını kullan
+        });
+        
+        if (!response.ok) {
+            // Hata durumunda boş döndür, böylece player hata mesajını gösterir
+            throw new Error(`Kaynak API yanıtı başarısız oldu (HTTP ${response.status})`);
+        }
+        
+        const text = await response.text();
+        const match = text.match(m3u8Regex);
+        
+        if (match) {
+            return match[0];
+        }
+        
+        // XML içinde <url> etiketi arama
+        const urlMatch = text.match(/<url[^>]*>([^<]+\.m3u8[^<]*)<\/url>/i);
+        if (urlMatch && urlMatch[1]) {
+            return urlMatch[1];
+        }
+        
+        return null;
+        
+    } catch (error) {
+        console.error('M3U8 fetch error:', error);
+        return null;
+    }
+}
+
+// HLS.js ile oynat
+function playWithHls(m3u8Url) {
+    return new Promise((resolve, reject) => {
+        if (hls) {
+            hls.destroy();
+            hls = null;
+        }
+        
+        videoPlayer.src = '';
+        videoPlayer.load();
+        
+        if (Hls.isSupported()) {
+            hls = new Hls({
+                lowLatencyMode: true,
+                liveSyncDurationCount: 3,
+            });
+            
+            hls.loadSource(m3u8Url);
+            hls.attachMedia(videoPlayer);
+            
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                videoPlayer.play().then(resolve).catch(e => {
+                    console.warn('HLS Autoplay engellendi:', e);
+                    isPlaying = false;
+                    updatePlayPauseButton();
+                    resolve();
+                });
+            });
+            
+            hls.on(Hls.Events.ERROR, (event, data) => {
+                console.error('HLS error:', data);
+                if (data.fatal) {
+                    // Ciddi bir hata varsa native player'ı dene
+                    tryNativePlayer(m3u8Url).then(resolve).catch(reject);
+                    if (hls) hls.destroy();
+                }
+            });
+        } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+            // Native HLS desteği (Safari/iOS)
+            tryNativePlayer(m3u8Url).then(resolve).catch(reject);
+        } else {
+            reject(new Error('Cihazınız HLS akışını desteklemiyor.'));
+        }
+    });
+}
+
+// Native player'ı dene (HLS.js veya tarayıcı desteği için fallback)
+function tryNativePlayer(m3u8Url) {
+    return new Promise((resolve, reject) => {
+        videoPlayer.src = m3u8Url;
+        videoPlayer.load();
+        
+        videoPlayer.play().then(resolve).catch(e => {
+            reject(new Error('Video otomatik oynatılamadı. Lütfen manuel başlatın.'));
+        });
+    });
+}
+
+// Önceki kanal
+function previousChannel() {
+    let newIndex = currentChannelIndex - 1;
+    if (newIndex < 0) newIndex = channels.length - 1;
+    playChannel(newIndex);
+}
+
+// Sonraki kanal
+function nextChannel() {
+    let newIndex = currentChannelIndex + 1;
+    if (newIndex >= channels.length) newIndex = 0;
+    playChannel(newIndex);
+}
+
+// Play/Pause toggle
+function togglePlayPause() {
+    if (videoPlayer.paused) {
+        videoPlayer.play();
+    } else {
+        videoPlayer.pause();
+    }
+    showControls();
+}
+
+// Ses ayarla
+function setVolume(value) {
+    videoPlayer.volume = parseFloat(value);
+    showControls();
+}
+
+// Tam ekran toggle
+function toggleFullscreen() {
+    const element = document.getElementById('playerContainer');
+
+    if (!document.fullscreenElement) {
+        if (element.requestFullscreen) {
+            element.requestFullscreen();
+        } else if (element.webkitRequestFullscreen) {
+            element.webkitRequestFullscreen();
+        } else if (element.msRequestFullscreen) {
+            element.msRequestFullscreen();
+        }
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+    }
+    showControls();
+}
+
+// Player'ı kapat
+function closePlayer() {
+    if (hls) {
+        hls.destroy();
+        hls = null;
+    }
+    
+    videoPlayer.pause();
+    videoPlayer.src = '';
+    videoPlayer.load();
+    
+    playerContainer.style.display = 'none';
+    channelSelector.style.display = 'none';
+    isPlaying = false;
+    
+    // Kapatırken ana listeye odaklan
+    document.querySelectorAll('.channel-item')[currentChannelIndex]?.focus();
+}
+
+// Kanal seçiciyi göster/gizle
+function showChannelSelector() {
+    channelSelector.style.display = channelSelector.style.display === 'block' ? 'none' : 'block';
+    
+    if (channelSelector.style.display === 'block') {
+        // Seçici açıldığında aktif kanala odaklan
+        const activeSelectorItem = selectorList.children[currentChannelIndex];
+        if (activeSelectorItem) {
+            activeSelectorItem.focus();
+        }
+    }
+    showControls();
+}
+
+// Aktif kanalı güncelle
+function updateActiveChannel() {
+    document.querySelectorAll('.channel-item, .selector-item').forEach((item, index) => {
+        if (index === currentChannelIndex) {
+            item.classList.add('active');
+            // Ana listede scroll et
+            if (item.classList.contains('channel-item')) {
+                item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        } else {
+            item.classList.remove('active');
+        }
+    });
+}
+
+// Loading göster
+function showLoading() {
+    loadingSpinner.style.display = 'block';
+}
+
+// Loading gizle
+function hideLoading() {
+    loadingSpinner.style.display = 'none';
+}
+
+// Hata göster
+function showError(message) {
+    errorText.textContent = message;
+    errorMessage.style.display = 'block';
+}
+
+// Hata gizle
+function hideError() {
+    errorMessage.style.display = 'none';
+}
+
+// Hata kapat
+function closeError() {
+    hideError();
+}
+
+// Play/Pause butonunu güncelle
+function updatePlayPauseButton() {
+    if (playPauseBtn) {
+        playPauseBtn.innerHTML = isPlaying ? '⏸' : '▶';
+    }
+}
+
+// Kontrolleri göster
+function showControls() {
+    if (videoControlsOverlay) {
+        videoControlsOverlay.style.opacity = '1';
+        videoControlsOverlay.style.pointerEvents = 'auto';
+    }
+    
+    // Timer'ı sıfırla
+    if (autoHideControlsTimer) {
+        clearTimeout(autoHideControlsTimer);
+    }
+    
+    // 5 saniye sonra gizle (eğer video oynuyorsa ve hata yoksa)
+    if (!videoPlayer.paused && errorMessage.style.display === 'none') {
+        autoHideControlsTimer = setTimeout(hideControls, 5000);
+    }
+}
+
+// Kontrolleri gizle
+function hideControls() {
+    if (videoControlsOverlay && !videoPlayer.paused) {
+        videoControlsOverlay.style.opacity = '0';
+        videoControlsOverlay.style.pointerEvents = 'none';
+    }
+}
+
+// Kontrolleri toggle et
+function toggleControls() {
+    if (videoControlsOverlay.style.opacity === '0' || 
+        videoControlsOverlay.style.opacity === '') {
+        showControls();
+    } else {
+        hideControls();
+    }
+}
+
+// Klavye navigasyonu (Smart TV ve TV Box odaklı)
+function setupKeyboardNavigation() {
+    document.addEventListener('keydown', (e) => {
+        // Player açıksa
+        if (playerContainer.style.display === 'flex') {
+            showControls(); // Her tuşa basışta kontrolü göster
+            switch (e.key) {
+                case 'Escape':
+                case 'Backspace':
+                case 'Return': // Bazı TV Box'larda geri tuşu
+                    e.preventDefault();
+                    if (channelSelector.style.display === 'block') {
+                         channelSelector.style.display = 'none';
+                    } else if (errorMessage.style.display === 'block') {
+                        closeError();
+                    } else {
+                        closePlayer();
+                    }
+                    break;
+                case 'ArrowLeft':
+                case 'MediaSkipBackward':
+                    if (e.target.tagName !== 'INPUT') previousChannel();
+                    break;
+                case 'ArrowRight':
+                case 'MediaSkipForward':
+                    if (e.target.tagName !== 'INPUT') nextChannel();
+                    break;
+                case 'Enter':
+                case ' ':
+                case 'MediaPlayPause':
+                    if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'DIV') {
+                        togglePlayPause();
+                    }
+                    break;
+                case 'f':
+                case 'F':
+                    toggleFullscreen();
+                    break;
+                case 'c':
+                case 'C':
+                    showChannelSelector();
+                    break;
+                case 'ArrowUp':
+                    if (e.target.tagName === 'INPUT') return;
+                    videoPlayer.volume = Math.min(1, videoPlayer.volume + 0.1);
+                    volumeSlider.value = videoPlayer.volume;
+                    break;
+                case 'ArrowDown':
+                    if (e.target.tagName === 'INPUT') return;
+                    videoPlayer.volume = Math.max(0, videoPlayer.volume - 0.1);
+                    volumeSlider.value = videoPlayer.volume;
+                    break;
+            }
+        }
+        
+        // Ana sayfada (Grid) navigasyon (D-Pad desteği için)
+        if (playerContainer.style.display !== 'flex') {
+            handleGridNavigation(e);
+        }
+    });
+}
+
+function handleGridNavigation(e) {
+    const activeElement = document.activeElement;
+    const channelItems = Array.from(document.querySelectorAll('.channel-item'));
+    
+    if (!channelItems.length) return;
+    
+    let currentIndex = channelItems.indexOf(activeElement);
+    if (currentIndex === -1) {
+        // Eğer hiçbir şeye odaklanmamışsa, ilk elemana odaklan
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            channelItems[0].focus();
+            e.preventDefault();
+            return;
+        }
+        return;
+    }
+    
+    e.preventDefault(); 
+    
+    const gridCols = Math.floor(channelGrid.clientWidth / channelItems[0].offsetWidth);
+    let nextIndex = currentIndex;
+
+    switch (e.key) {
+        case 'ArrowUp':
+            nextIndex = Math.max(0, currentIndex - gridCols);
+            break;
+        case 'ArrowDown':
+            nextIndex = Math.min(channelItems.length - 1, currentIndex + gridCols);
+            break;
+        case 'ArrowLeft':
+            nextIndex = Math.max(0, currentIndex - 1);
+            break;
+        case 'ArrowRight':
+            nextIndex = Math.min(channelItems.length - 1, currentIndex + 1);
+            break;
+        default:
+            return;
+    }
+
+    if (nextIndex !== currentIndex) {
+        channelItems[nextIndex].focus();
+    }
+}
+
+// İlk kanalın aktif ve odaklanmış olmasını sağla
+window.onload = function() {
+    const firstChannelItem = document.querySelector('.channel-item');
+    if (firstChannelItem) {
+        firstChannelItem.classList.add('active');
+        firstChannelItem.focus();
+    }
+};
+
+// TV Box optimizasyonu (Bu blok, büyük TV ekranlarında düğmeleri tekrar büyütecektir.)
+if ('ontouchstart' in window || navigator.userAgent.includes('Android')) {
+    // Touch device için optimizasyon
+    document.querySelectorAll('.control-btn').forEach(btn => {
+        // Bu bölüm, CSS Media Query tarafından yönetileceği için kaldırıldı.
+        // Ancak TV Box'lar için (min-width: 1024px) media query'si yeterli olacaktır.
+    });
+    
+    document.querySelectorAll('.channel-item').forEach(item => {
+        item.style.minHeight = '90px';
+    });
+}
+</script>
+</body>
+</html>
