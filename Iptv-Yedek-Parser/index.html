@@ -156,7 +156,7 @@ html, body {
     width: 100%;
     height: 100%;
     background: #000;
-    object-fit: contain;
+    object-fit: contain; /* STANDAARD AL OP CONTAIN, OM TE ZORGEN DAT NIETS WORDT AFGESNEDEN */
 }
 
 /* Video Controls */
@@ -166,7 +166,8 @@ html, body {
     left: 0;
     right: 0;
     background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
-    padding: 20px;
+    /* AANPASSING HIER: Padding aan de onderkant houdt rekening met de systeem-balk van Android/iOS */
+    padding: 20px 20px calc(15px + env(safe-area-inset-bottom)) 20px;
     display: flex;
     gap: 15px;
     align-items: center;
@@ -350,7 +351,7 @@ html, body {
     }
 
     .video-controls {
-        padding: 10px; /* Kontrol çubuğu dolgusunu azalt */
+        padding: 10px 10px calc(10px + env(safe-area-inset-bottom)) 10px; /* Ook hier de veilige ruimte toevoegen */
         gap: 10px; /* Butonlar arasındaki boşluğu azalt */
     }
     
@@ -358,6 +359,7 @@ html, body {
     .video-controls-overlay {
         height: 50px;
         padding: 0 15px;
+        padding-bottom: env(safe-area-inset-bottom); /* Ook hier de veilige ruimte toevoegen */
     }
     
     .volume-control {
@@ -376,11 +378,14 @@ html, body {
 
 @media (orientation: landscape) {
     #videoPlayer {
-        object-fit: cover;
+        /* AANPASSING HIER: Veranderd van 'cover' naar 'contain' */
+        /* Dit zorgt ervoor dat de hele video in beeld is, inclusief logo's. */
+        object-fit: contain;
     }
     
     .video-controls {
-        padding: 15px;
+         /* Padding voor landscape met veilige ruimte */
+        padding: 15px 15px calc(15px + env(safe-area-inset-bottom)) 15px;
     }
 }
 
@@ -408,11 +413,12 @@ html, body {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 60px;
+    height: calc(60px + env(safe-area-inset-bottom)); /* Hoogte aanpassen voor veilige ruimte */
     background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
     display: flex;
     align-items: center;
     padding: 0 20px;
+    padding-bottom: env(safe-area-inset-bottom); /* Extra padding voor de inhoud */
     z-index: 1000;
 }
 
@@ -1757,12 +1763,12 @@ function setVolume(value) {
 // Tam ekran toggle
 function toggleFullscreen() {
     if (!document.fullscreenElement) {
-        if (videoPlayer.requestFullscreen) {
-            videoPlayer.requestFullscreen();
-        } else if (videoPlayer.webkitRequestFullscreen) {
-            videoPlayer.webkitRequestFullscreen();
-        } else if (videoPlayer.msRequestFullscreen) {
-            videoPlayer.msRequestFullscreen();
+        if (playerContainer.requestFullscreen) { // Use player container for fullscreen
+            playerContainer.requestFullscreen();
+        } else if (playerContainer.webkitRequestFullscreen) {
+            playerContainer.webkitRequestFullscreen();
+        } else if (playerContainer.msRequestFullscreen) {
+            playerContainer.msRequestFullscreen();
         }
     } else {
         if (document.exitFullscreen) {
@@ -1775,6 +1781,7 @@ function toggleFullscreen() {
     }
     showControls();
 }
+
 
 // Player'ı kapat
 function closePlayer() {
@@ -2016,15 +2023,6 @@ window.onload = function() {
     const initialVolume = videoPlayer.volume || 1;
     setVolume(initialVolume);
 };
-
-/*
-// ÖNEMLİ: Aşağıdaki blok TV Box optimizasyonunu zorla uyguluyordu ve mobil telefonlarda butonları çok büyütüyordu.
-// Mobil cihazlar için CSS medya sorgularını kullanmak daha doğru olduğu için bu bloğu yoruma alıyoruz.
-if ('ontouchstart' in window || navigator.userAgent.includes('Android')) {
-    // Bu blok artık CSS tarafından yönetiliyor veya TV Box için daha spesifik bir medya sorgusuna taşındı.
-    // Mobil telefonlarda küçük buton boyutunu korumak için buradaki zorunlu genişlik ayarlarını kaldırıyoruz.
-}
-*/
 </script>
 </body>
 </html>
