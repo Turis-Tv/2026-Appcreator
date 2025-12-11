@@ -209,7 +209,7 @@
             <!-- Web Player (Geen download nodig) -->
             <button class="play-btn-small btn-web" onclick="playVideo()" style="grid-column: 1 / -1;">▶ Web Player</button>
         </div>
-        <p id="webOnlyMsg" style="display:none; color: #aaa; font-size: 11px; text-align: center; margin-top: 10px;">(YouTube/Dailymotion/Movturs werkt alleen in Web Player)</p>
+        <p id="webOnlyMsg" style="display:none; color: #aaa; font-size: 11px; text-align: center; margin-top: 10px;">(YouTube/Dailymotion/Movturs/Drive werkt alleen in Web Player)</p>
         
         <div id="modalInfo" style="font-size: 13px; line-height: 1.6; margin-top: 20px;"></div>
     </div></div>
@@ -271,7 +271,7 @@
         let turkishSeries = [];
         let cizgiFilms = [];
         let youtubeVideos = [];
-        let hintFilms = []; // NIEUWE ARRAY
+        let hintFilms = []; 
 
         // GLOBALE VARS
         let groupedSeries = {}; 
@@ -671,8 +671,13 @@
             
             const url = item.videoUrl.toLowerCase();
             
-            // Nieuwe check voor iframe/web-only players, inclusief de movturs link
-            const isWebsite = url.includes('dailymotion.com') || url.includes('youtube.com') || url.includes('jfvid.com') || url.includes('player.html') || url.includes('movturs.click');
+            // Controleert of het een link is die een iframe vereist (Web Player Only)
+            const isWebsite = url.includes('dailymotion.com') || 
+                              url.includes('youtube.com') || 
+                              url.includes('jfvid.com') || 
+                              url.includes('player.html') || 
+                              url.includes('movturs.click') ||
+                              url.includes('drive.google.com/file'); // <-- NIEUWE CHECK
             
             const btnGrid = document.getElementById('playerButtonsGrid');
             const msg = document.getElementById('webOnlyMsg');
@@ -681,8 +686,8 @@
             if (isWebsite) {
                 buttons.forEach(btn => btn.parentElement.style.display = 'none'); 
                 msg.style.display = 'block';
-                // Update de melding om movturs te noemen
-                msg.innerHTML = '(YouTube/Dailymotion/Movturs werkt alleen in Web Player)';
+                // Update de melding
+                msg.innerHTML = '(YouTube/Dailymotion/Movturs/Drive werkt alleen in Web Player)';
             } else {
                 buttons.forEach(btn => btn.parentElement.style.display = 'flex'); 
                 msg.style.display = 'none';
@@ -713,8 +718,8 @@
             
             let url = currentItem.videoUrl;
 
-            // Prevent external playback for complex web players like movturs
-            if (url.includes('movturs.click') || url.includes('dailymotion.com')) {
+            // Prevent external playback for complex web players like movturs or Google Drive
+            if (url.includes('movturs.click') || url.includes('dailymotion.com') || url.includes('drive.google.com')) {
                  alert("Bu video türü sadece Web Player'da oynatılabilir.");
                  return;
             }
@@ -756,19 +761,29 @@
             
             let finalUrl = currentItem.videoUrl;
 
-            // Web Player Fix: Pixeldrain embed
+            // 1. URL pre-processing
             if (finalUrl.includes('pixeldrain.com') && finalUrl.includes('/api/file/')) {
+                // Converteren van API link naar embed link
                 finalUrl = finalUrl.replace('/api/file/', '/u/');
                 finalUrl += '?embed';
             }
-
-            // --- NIEUWE LOGICA VOOR IFRAME AFSPELEN ---
-            // Gebruik iframe als het een bekende webspeler, een embed link, of de movturs link is.
+            
+            // 2. Google Drive Fix: Convert 'preview' naar 'embed'
+            if (finalUrl.includes('drive.google.com/file/d/')) {
+                const parts = finalUrl.split('/d/');
+                if (parts.length > 1) {
+                    const fileId = parts[1].split('/')[0];
+                    finalUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+                }
+            }
+            
+            // 3. Bepalen of iframe of <video> gebruikt moet worden
             const useIframe = finalUrl.includes('youtube.com/embed') || 
                               finalUrl.includes('/player/') || 
                               finalUrl.includes('jfvid.com') || 
                               finalUrl.includes('pixeldrain.com') ||
-                              finalUrl.includes('movturs.click'); // <-- NIEUWE CHECK
+                              finalUrl.includes('movturs.click') ||
+                              finalUrl.includes('drive.google.com/file'); // <-- GEBRUIK IFRAME VOOR DRIVE
 
             if (useIframe) {
                 videoPlayer.style.display = 'none'; 
