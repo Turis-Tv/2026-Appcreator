@@ -574,7 +574,7 @@
   ],
   "hint": [
     {
-      "title": "Hint Film Voorbeeld 1",
+      "title": "Yerdeki Süper Yıldızlar",
       "year": "2025",
       "poster": "https://www.hdfilmcanavari.net/wp-content/uploads/2025/09/yerdeki-super-yildizlar-2025-125x160.webp",
       "genre": "action",
@@ -582,14 +582,26 @@
       "type": "hint",
       "videoUrl": "https://movturs.click/ops.php?vod=v1xe1d0be9e"
     },
+
     {
-      "title": "Hint Film Voorbeeld 2",
+      "title": "Dabangg 2",
+      "year": "2012",
+      "poster": "https://www.hdfilmcanavari.net/wp-content/uploads/2013/03/dabangg-2-2012-125x160.webp",
+      "genre": "action",
+      "description": "Dabangg 2",
+      "type": "hint",
+      "videoUrl": "https://movturs.click/ops.php?vod=v1x26beb01d"
+    },
+
+    
+    {
+      "title": "Yerdeki Süper Yıldızlar",
       "year": "2025",
-      "poster": "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg",
+      "poster": "https://www.hdfilmcanavari.net/wp-content/uploads/2013/03/dabangg-2-2012-125x160.webp",
       "genre": "action",
       "description": "İntikam hikayesi.",
       "type": "hint",
-      "videoUrl": "https://dcdl50eadec6df95.xyz/player/BpdagJfNspLkTKWCR_7MXgrm"
+      "videoUrl": "https://movturs.click/ops.php?vod=v1x26beb01d"
     }
   ],
   "cizgi": [
@@ -632,4 +644,5 @@
     }
   ]
 }
+
 
