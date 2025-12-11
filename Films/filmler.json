@@ -8,6 +8,19 @@
       "type": "film",
       "videoUrl": "https://vk.com/video_ext.php?oid=776721145&id=456239210&hash=10b3516548f8f1a0"
     },
+
+{
+  "title": "Film met drie links",
+  "year": "2024",
+  "poster": "...",
+  "videoUrl": [
+    "https://server1.com/film.mp4",
+    "https://server2.com/film.mkv",
+    "https://vk.com/video_ext.php?oid=12345"
+  ]
+},
+
+
     {
       "title": "Ask Sadece Bir an",
       "year": "2025",
