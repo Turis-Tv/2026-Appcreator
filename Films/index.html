@@ -116,7 +116,6 @@
             <button class="category-btn" onclick="showCategory('diziler')">📺 DİZİLER</button>
             <button class="category-btn" onclick="showCategory('cizgi')">🎨 ÇİZGİ</button>
             <button class="category-btn" onclick="showCategory('youtube')">▶️ YOUTUBE</button>
-            <!-- FIX: Correct onclick value to 'hint' to match JS logic -->
             <button class="category-btn" onclick="showCategory('hint')">🇮🇳 HINT FILMI</button>
         </div>
         <div class="dropdown" id="dropdown">
@@ -126,7 +125,6 @@
                 <a href="#" class="dropdown-item" onclick="showCategory('diziler'); closeDropdown()">📺 Diziler</a>
                 <a href="#" class="dropdown-item" onclick="showCategory('cizgi'); closeDropdown()">🎨 Çizgi</a>
                 <a href="#" class="dropdown-item" onclick="showCategory('youtube'); closeDropdown()">▶️ YouTube</a>
-                <!-- FIX: Correct onclick value to 'hint' to match JS logic -->
                 <a href="#" class="dropdown-item" onclick="showCategory('hint'); closeDropdown()">🇮🇳 Hint Filmi</a>
                 <a href="#" class="dropdown-item" onclick="filterByGenre('action')">⚔️ Aksiyon</a>
                 <a href="#" class="dropdown-item" onclick="filterByGenre('comedy')">😂 Komedi</a>
@@ -141,8 +139,6 @@
     <div id="dizilerSection" class="content-section"><div class="controls"><button id="backToSeriesBtn" class="category-btn" onclick="showSeriesTitles()" style="display: none; background-color: #555; border-color: #777;">« GERİ DÖN</button><input type="text" class="search-box" placeholder="🔍 Dizi veya bölüm ara..." id="searchSeries"></div><div class="section-title" id="seriesSectionTitle">📺 DİZİLER</div><div class="movies-container"><div class="movies-grid" id="dizilerGrid"></div><div class="pagination" id="dizilerPagination"></div></div></div>
     <div id="cizgiSection" class="content-section"><div class="controls"><input type="text" class="search-box" placeholder="🔍 Çizgi film ara..." id="searchCizgi"></div><div class="section-title">🎨 ÇİZGİ FİLMLER</div><div class="movies-container"><div class="movies-grid" id="cizgiGrid"></div><div class="pagination" id="cizgiPagination"></div></div></div>
     <div id="youtubeSection" class="content-section"><div class="controls"><input type="text" class="search-box" placeholder="🔍 YouTube'da video ara..." id="searchYoutube"></div><div class="section-title">▶️ YOUTUBE</div><div class="movies-container"><div class="movies-grid" id="youtubeGrid"></div><div class="pagination" id="youtubePagination"></div></div></div>
-    
-    <!-- FIX: Added new section for 'Hint' category, following the correct naming pattern -->
     <div id="hintSection" class="content-section"><div class="controls"><input type="text" class="search-box" placeholder="🔍 Hint filmi ara..." id="searchHint"></div><div class="section-title">🇮🇳 HINT FILMLERI</div><div class="movies-container"><div class="movies-grid" id="hintGrid"></div><div class="pagination" id="hintPagination"></div></div></div>
 
     <div class="modal" id="movieModal" onclick="closeModalOnBackground(event)"><div class="modal-content"><button class="close-modal" onclick="closeModal()">×</button><div class="modal-header"><h2 class="modal-title" id="modalTitle"></h2></div>
@@ -153,7 +149,7 @@
         <div style="display:flex; gap:3px;"><button class="play-btn-small btn-km" onclick="playExternal('km')" style="flex:1;">🟣 KM Play</button><a href="market://details?id=com.kmplayer" style="display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.1); width:28px; align-self:stretch; border-radius:8px; text-decoration:none; border:1px solid rgba(255,255,255,0.2); font-size:12px;" title="Download KM" target="_blank">⬇️</a></div>
         <button class="play-btn-small btn-web" onclick="playVideo()" style="grid-column: 1 / -1;">▶ Web Player</button>
     </div>
-    <p id="webOnlyMsg" style="display:none; color: #aaa; font-size: 11px; text-align: center; margin-top: 10px;">(YouTube/Dailymotion werkt alleen in Web Player)</p>
+    <p id="webOnlyMsg" style="display:none; color: #aaa; font-size: 11px; text-align: center; margin-top: 10px;">(Deze link werkt alleen in de Web Player)</p>
     <div id="modalInfo" style="font-size: 13px; line-height: 1.6; margin-top: 20px;"></div></div></div>
     
     <div class="video-modal" id="videoModal"><div class="video-container" id="videoContainer"><div class="video-controls"><button class="fullscreen-btn" onclick="toggleFullscreen()">⛶</button><button class="video-close-btn" onclick="closeVideo()">×</button></div><video id="videoPlayer" class="video-player" controls autoplay style="display: none;"><source src="" type="video/mp4"></video><iframe id="videoIframe" class="video-iframe" style="display: none;" allowfullscreen allow="fullscreen; autoplay"></iframe><div class="video-title" id="videoTitle"></div></div></div>
@@ -161,109 +157,57 @@
     <div class="modal" id="adminModal" onclick="closeAdminModalOnBackground(event)"><div class="modal-content"><button class="close-modal" onclick="closeAdminModal()">×</button><div class="modal-header"><h2 class="modal-title">Admin Panel</h2></div><div class="form-group"><label for="adminType">Type:</label><select id="adminType"><option value="film">Film</option><option value="series">Dizi</option><option value="cizgi">Çizgi Film</option><option value="youtube">YouTube</option><option value="hint">Hint Filmi</option></select></div><div class="form-group"><label for="adminTitle">Naam (Titel):</label><input type="text" id="adminTitle" placeholder="bv. Ayla"></div><div class="form-group"><label for="adminPoster">Image (Poster URL):</label><input type="text" id="adminPoster" placeholder="https://..."></div><div class="form-group"><label for="adminVideoUrl">Link (Video URL):</label><div style="display: flex; gap: 5px; align-items: center;"><input type="text" id="adminVideoUrl" placeholder="Plak YouTube link hier voor poster..." style="flex: 1;"><button type="button" onclick="fetchYoutubeThumbnail()" style="padding: 8px 10px; font-size: 12px; background: #3498db; border: none; color: white; border-radius: 5px; cursor: pointer; white-space: nowrap;">🖼️ Pak Poster</button></div></div><div class="form-group"><label for="adminYear">Jaar:</label><input type="text" id="adminYear" placeholder="bv. 2024"></div><div class="form-group"><label for="adminGenre">Genre:</label><select id="adminGenre"><option value="action">action</option><option value="comedy">comedy</option><option value="drama">drama</option><option value="romance">romance</option></select></div><div class="form-group"><label for="adminEpisodes">(Optioneel) Aflevering info:</label><input type="text" id="adminEpisodes" placeholder="bv. 1. Sezon 5. Bölüm"></div><div class="form-group"><label for="adminDescription">Beschrijving:</label><input type="text" id="adminDescription" placeholder="Korte beschrijving..."></div><button class="play-button" onclick="addItemToQueue()">✅ Voeg los item toe</button></div></div>
 
     <script>
-        // ============================================================================
-        // 👇👇👇👇👇👇👇 PLAK HIER JE GITHUB LINK (DE RAW VERSIE!) 👇👇👇👇👇👇👇
-        // ============================================================================
         const JSON_URL = 'https://raw.githubusercontent.com/Turis-Tv/2026-Appcreator/refs/heads/main/Films/film.json'; 
-        // ============================================================================
         
-        let turkishFilms = [];
-        let turkishSeries = [];
-        let cizgiFilms = [];
-        let youtubeVideos = [];
-        let hintFilms = []; // FIX: Added array for the new category
+        let turkishFilms = [], turkishSeries = [], cizgiFilms = [], youtubeVideos = [], hintFilms = [];
 
-        function highlightCard(id) {
-            document.querySelectorAll('.movie-card.watched').forEach(card => card.classList.remove('watched'));
-            const card = document.querySelector(`.movie-card[data-id="${id}"]`);
-            if (card) card.classList.add('watched');
-        }
-
-        function getYoutubeId(url) {
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
-        }
+        function highlightCard(id) { document.querySelectorAll('.movie-card.watched').forEach(card => card.classList.remove('watched')); const card = document.querySelector(`.movie-card[data-id="${id}"]`); if (card) card.classList.add('watched'); }
+        function getYoutubeId(url) { const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/; const match = url.match(regExp); return (match && match[2].length === 11) ? match[2] : null; }
 
         async function loadData() {
             try {
                 const response = await fetch(JSON_URL);
                 if (!response.ok) throw new Error('Netwerkfout bij laden JSON');
-                
                 const data = await response.json();
                 let globalIdCounter = 1000;
-
-                const process = (arr, type) => {
-                    if (!arr) return [];
-                    return arr.map(item => ({ ...item, id: globalIdCounter++, type: type }));
-                };
-
+                const process = (arr, type) => (arr || []).map(item => ({ ...item, id: globalIdCounter++, type: type }));
+                
                 turkishFilms = process(data.filmler, 'film');
                 turkishSeries = process(data.diziler, 'series');
                 cizgiFilms = process(data.cizgi, 'cizgi');
-                hintFilms = process(data.hint, 'hint'); // FIX: Process the new 'hint' data from JSON
-
-                if (data.youtube) {
-                    youtubeVideos = data.youtube.map(item => {
-                        const processedItem = { ...item, id: globalIdCounter++, type: 'youtube' };
-                        if (processedItem.videoUrl) {
-                            const ytid = getYoutubeId(processedItem.videoUrl);
-                            if (ytid) {
-                                processedItem.poster = `https://img.youtube.com/vi/${ytid}/hqdefault.jpg`;
-                                processedItem.videoUrl = `https://www.youtube.com/embed/${ytid}`;
-                            }
-                        }
-                        return processedItem;
-                    });
-                } else {
-                    youtubeVideos = [];
-                }
-
+                hintFilms = process(data.hint, 'hint');
+                
+                youtubeVideos = (data.youtube || []).map(item => {
+                    const processedItem = { ...item, id: globalIdCounter++, type: 'youtube' };
+                    if (processedItem.videoUrl) {
+                        const ytid = getYoutubeId(processedItem.videoUrl);
+                        if (ytid) { processedItem.poster = `https://img.youtube.com/vi/${ytid}/hqdefault.jpg`; processedItem.videoUrl = `https://www.youtube.com/embed/${ytid}`; }
+                    }
+                    return processedItem;
+                });
                 groupSeries();
                 showCategory('filmler');
-
             } catch (error) {
                 console.error("Fout bij laden:", error);
                 document.querySelector('.movies-container').innerHTML = `<p style="text-align:center; margin-top:20px; color:red;">Fout bij laden van gegevens.<br>Controleer je JSON link in de code.</p>`;
             }
         }
 
-        function fetchYoutubeThumbnail() { const videoUrlInput = document.getElementById('adminVideoUrl'); const posterInput = document.getElementById('adminPoster'); const typeSelect = document.getElementById('adminType'); const url = videoUrlInput.value.trim(); if (!url) { alert('Voer eerst een YouTube URL in.'); return; } let videoId = null; const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/; const match = url.match(regex); if (match && match[1]) { videoId = match[1]; } else { alert('Kon geen geldige YouTube Video ID vinden in de URL.'); return; } const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`; posterInput.value = thumbnailUrl; typeSelect.value = 'youtube'; const embedUrl = `https://www.youtube.com/embed/${videoId}`; videoUrlInput.value = embedUrl; alert('Poster afbeelding en embed link zijn succesvol ingesteld!'); }
+        function fetchYoutubeThumbnail() { const videoUrlInput = document.getElementById('adminVideoUrl'), posterInput = document.getElementById('adminPoster'), typeSelect = document.getElementById('adminType'), url = videoUrlInput.value.trim(); if (!url) { alert('Voer eerst een YouTube URL in.'); return; } const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/; const match = url.match(regex); if (match && match[1]) { const videoId = match[1]; posterInput.value = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`; typeSelect.value = 'youtube'; videoUrlInput.value = `https://www.youtube.com/embed/${videoId}`; alert('Poster afbeelding en embed link zijn succesvol ingesteld!'); } else { alert('Kon geen geldige YouTube Video ID vinden in de URL.'); } }
+        function addItemToQueue() { const type = document.getElementById('adminType').value; const newItem = { id: Date.now(), type, title: document.getElementById('adminTitle').value, poster: document.getElementById('adminPoster').value, videoUrl: document.getElementById('adminVideoUrl').value, year: document.getElementById('adminYear').value || new Date().getFullYear().toString(), genre: document.getElementById('adminGenre').value, episodes: document.getElementById('adminEpisodes').value, description: document.getElementById('adminDescription').value || "Beschrijving nog niet beschikbaar." }; if (!newItem.title || !newItem.poster || !newItem.videoUrl) { alert("Naam, Poster URL en Video URL zijn verplicht!"); return; } if (type === 'film') turkishFilms.push(newItem); else if (type === 'series') { turkishSeries.push(newItem); groupSeries(); } else if (type === 'cizgi') cizgiFilms.push(newItem); else if (type === 'youtube') youtubeVideos.push(newItem); else if (type === 'hint') hintFilms.push(newItem); alert(`'${newItem.title}' is tijdelijk toegevoegd!`); closeAdminModal(); const activeBtn = document.querySelector('.category-btn.active'); if (activeBtn) { const activeCat = activeBtn.getAttribute('onclick').match(/'([^']+)'/)[1]; displayContent(activeCat); } }
         
-        function addItemToQueue() { 
-            const type = document.getElementById('adminType').value;
-            const newItem = { id: Date.now(), type: type, title: document.getElementById('adminTitle').value, poster: document.getElementById('adminPoster').value, videoUrl: document.getElementById('adminVideoUrl').value, year: document.getElementById('adminYear').value || new Date().getFullYear().toString(), genre: document.getElementById('adminGenre').value, episodes: document.getElementById('adminEpisodes').value, description: document.getElementById('adminDescription').value || "Beschrijving nog niet beschikbaar." };
-            if (!newItem.title || !newItem.poster || !newItem.videoUrl) { alert("Naam (Titel), Image (Poster URL) en Link (Video URL) zijn verplichte velden!"); return; } 
-            
-            if(type === 'film') turkishFilms.push(newItem);
-            else if(type === 'series') { turkishSeries.push(newItem); groupSeries(); }
-            else if(type === 'cizgi') cizgiFilms.push(newItem);
-            else if(type === 'youtube') youtubeVideos.push(newItem);
-            else if(type === 'hint') hintFilms.push(newItem); // FIX: Handle adding new 'hint' items
-            
-            alert(`'${newItem.title}' is tijdelijk toegevoegd!`);
-            closeAdminModal();
-            
-            const activeBtn = document.querySelector('.category-btn.active');
-            if (activeBtn) {
-                const activeCat = activeBtn.getAttribute('onclick').match(/'([^']+)'/)[1];
-                displayContent(activeCat);
-            }
-        }
-        
-        let groupedSeries = {}; let currentSeriesView = 'titles'; let selectedSeriesTitle = null;
+        let groupedSeries = {}, currentSeriesView = 'titles', selectedSeriesTitle = null;
         const itemsPerPage = 20;
-        let currentFilmPage = 1, currentSeriesPage = 1, currentCizgiPage = 1, currentYoutubePage = 1, currentHintPage = 1; // FIX: Added page tracker for 'hint'
+        let currentFilmPage = 1, currentSeriesPage = 1, currentCizgiPage = 1, currentYoutubePage = 1, currentHintPage = 1;
         let currentItem = null, isFullscreen = false, controlsTimeout = null;
         
-        function openAdminPanel() { const password = prompt("Voer het admin wachtwoord in:"); if (password === "admin123") { document.getElementById('adminModal').classList.add('active'); document.body.style.overflow = 'hidden'; closeDropdown(); } else if (password !== null) { alert("Incorrect wachtwoord!"); } }
+        function openAdminPanel() { const p = prompt("Voer het admin wachtwoord in:"); if (p === "admin123") { document.getElementById('adminModal').classList.add('active'); document.body.style.overflow = 'hidden'; closeDropdown(); } else if (p !== null) { alert("Incorrect wachtwoord!"); } }
         function closeAdminModal() { document.getElementById('adminModal').classList.remove('active'); document.body.style.overflow = 'auto'; }
-        function closeAdminModalOnBackground(event) { if (event.target === document.getElementById('adminModal')) closeAdminModal(); }
+        function closeAdminModalOnBackground(e) { if (e.target === document.getElementById('adminModal')) closeAdminModal(); }
         function toggleDropdown() { document.getElementById('dropdown').classList.toggle('active'); }
         function closeDropdown() { document.getElementById('dropdown').classList.remove('active'); }
         document.addEventListener('click', (e) => { if (e.target && !e.target.closest('.dropdown') && !e.target.closest('#adminModal')) closeDropdown(); });
-        
-        function groupSeries() { groupedSeries = {}; turkishSeries.forEach(episode => { if (!groupedSeries[episode.title]) { groupedSeries[episode.title] = { title: episode.title, poster: episode.poster, year: episode.year, genre: episode.genre, type: 'series_group', episodes: [] }; } groupedSeries[episode.title].episodes.push(episode); }); }
+        function groupSeries() { groupedSeries = {}; turkishSeries.forEach(ep => { if (!groupedSeries[ep.title]) groupedSeries[ep.title] = { title: ep.title, poster: ep.poster, year: ep.year, genre: ep.genre, type: 'series_group', episodes: [] }; groupedSeries[ep.title].episodes.push(ep); }); }
         function showEpisodesForSeries(title) { currentSeriesView = 'episodes'; selectedSeriesTitle = title; currentSeriesPage = 1; document.getElementById('searchSeries').value = ''; displayContent('series'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
         function showSeriesTitles() { currentSeriesView = 'titles'; selectedSeriesTitle = null; currentSeriesPage = 1; document.getElementById('searchSeries').value = ''; displayContent('series'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
         
@@ -271,160 +215,111 @@
             document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active')); 
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active')); 
             const activate = (cat) => { document.querySelector(`.category-btn[onclick*="'${cat}'"]`).classList.add('active'); document.getElementById(`${cat}Section`).classList.add('active'); };
-            
             if (category === 'filmler') { currentFilmPage = 1; activate(category); displayContent('film'); } 
             else if (category === 'diziler') { showSeriesTitles(); activate(category); } 
             else if (category === 'cizgi') { currentCizgiPage = 1; activate(category); displayContent('cizgi'); } 
             else if (category === 'youtube') { currentYoutubePage = 1; activate(category); displayContent('youtube'); }
-            else if (category === 'hint') { currentHintPage = 1; activate(category); displayContent('hint'); } // FIX: Handle showing the new 'hint' category
+            else if (category === 'hint') { currentHintPage = 1; activate(category); displayContent('hint'); }
             closeDropdown();
         }
 
-        function filterByGenre(genre) { 
-            const activeSectionId = document.querySelector('.content-section.active').id;
-            let type = activeSectionId.replace('Section', ''); // Simplified way to get type
-            if(type === 'series') showSeriesTitles();
-            displayContent(type, genre);
-            closeDropdown();
-        }
+        function filterByGenre(genre) { const activeSectionId = document.querySelector('.content-section.active').id; let type = activeSectionId.replace('Section', ''); if (type === 'series') showSeriesTitles(); displayContent(type, genre); closeDropdown(); }
 
-        window.addEventListener('load', () => { 
-            if(JSON_URL === 'PLAK_HIER_JE_GITHUB_LINK') {
-                alert("LET OP: Je bent vergeten de GitHub JSON link in de code te plakken!");
-            } else {
-                loadData(); 
-            }
-        });
+        window.addEventListener('load', () => { if (JSON_URL.startsWith('https')) loadData(); else alert("LET OP: JSON link in de code is niet correct!"); });
 
         function displayContent(type, genreFilter = null) {
             let grid, paginationId, currentPage, sourceData, searchTerm;
-
             switch(type) {
-                case 'film':
-                    grid = document.getElementById('filmlerGrid'); paginationId = 'filmlerPagination'; currentPage = currentFilmPage; sourceData = turkishFilms; searchTerm = document.getElementById('searchFilms').value.toLowerCase();
-                    break;
-                case 'series':
-                    grid = document.getElementById('dizilerGrid'); paginationId = 'dizilerPagination'; currentPage = currentSeriesPage; searchTerm = document.getElementById('searchSeries').value.toLowerCase();
-                    break;
-                case 'cizgi':
-                    grid = document.getElementById('cizgiGrid'); paginationId = 'cizgiPagination'; currentPage = currentCizgiPage; sourceData = cizgiFilms; searchTerm = document.getElementById('searchCizgi').value.toLowerCase();
-                    break;
-                case 'youtube': 
-                    grid = document.getElementById('youtubeGrid'); paginationId = 'youtubePagination'; currentPage = currentYoutubePage; sourceData = youtubeVideos; searchTerm = document.getElementById('searchYoutube').value.toLowerCase();
-                    break;
-                // FIX: Added case for the new 'hint' category
-                case 'hint': 
-                    grid = document.getElementById('hintGrid'); paginationId = 'hintPagination'; currentPage = currentHintPage; sourceData = hintFilms; searchTerm = document.getElementById('searchHint').value.toLowerCase();
-                    break;
+                case 'film': grid = document.getElementById('filmlerGrid'); paginationId = 'filmlerPagination'; currentPage = currentFilmPage; sourceData = turkishFilms; searchTerm = document.getElementById('searchFilms').value.toLowerCase(); break;
+                case 'series': grid = document.getElementById('dizilerGrid'); paginationId = 'dizilerPagination'; currentPage = currentSeriesPage; searchTerm = document.getElementById('searchSeries').value.toLowerCase(); break;
+                case 'cizgi': grid = document.getElementById('cizgiGrid'); paginationId = 'cizgiPagination'; currentPage = currentCizgiPage; sourceData = cizgiFilms; searchTerm = document.getElementById('searchCizgi').value.toLowerCase(); break;
+                case 'youtube': grid = document.getElementById('youtubeGrid'); paginationId = 'youtubePagination'; currentPage = currentYoutubePage; sourceData = youtubeVideos; searchTerm = document.getElementById('searchYoutube').value.toLowerCase(); break;
+                case 'hint': grid = document.getElementById('hintGrid'); paginationId = 'hintPagination'; currentPage = currentHintPage; sourceData = hintFilms; searchTerm = document.getElementById('searchHint').value.toLowerCase(); break;
             }
-            grid.innerHTML = '';
-            
-            let itemsToDisplay = [];
+            grid.innerHTML = ''; let itemsToDisplay = [];
             if (type === 'series') {
                 document.getElementById('backToSeriesBtn').style.display = currentSeriesView === 'episodes' ? 'inline-block' : 'none';
                 document.getElementById('seriesSectionTitle').textContent = currentSeriesView === 'titles' ? '📺 DİZİLER' : `📺 ${selectedSeriesTitle}`;
                 if (currentSeriesView === 'titles') {
                     let seriesGroups = Object.values(groupedSeries);
-                    if (genreFilter) seriesGroups = seriesGroups.filter(g => genreFilter === 'all' || g.genre === genreFilter);
+                    if (genreFilter) seriesGroups = seriesGroups.filter(g => g.genre === genreFilter);
                     itemsToDisplay = seriesGroups.filter(g => g.title.toLowerCase().includes(searchTerm));
-                } else {
-                    itemsToDisplay = groupedSeries[selectedSeriesTitle].episodes.filter(ep => ep.episodes.toLowerCase().includes(searchTerm));
-                }
+                } else itemsToDisplay = groupedSeries[selectedSeriesTitle].episodes.filter(ep => (ep.episodes || '').toLowerCase().includes(searchTerm));
             } else {
                 let filteredData = sourceData;
-                if (genreFilter) filteredData = sourceData.filter(item => genreFilter === 'all' || item.genre === genreFilter);
+                if (genreFilter) filteredData = sourceData.filter(item => item.genre === genreFilter);
                 itemsToDisplay = filteredData.filter(item => item.title.toLowerCase().includes(searchTerm));
             }
-            
-            const totalItemsCount = itemsToDisplay.length;
             const pagedItems = itemsToDisplay.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-            if (pagedItems.length === 0) { grid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; margin-top: 50px;">İçerik bulunamadı.</p>'; } 
-            else { pagedItems.forEach(item => grid.appendChild(createCard(item))); }
-            renderPagination(totalItemsCount, paginationId, type, currentPage); 
+            if (pagedItems.length === 0) grid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; margin-top: 50px;">İçerik bulunamadı.</p>';
+            else pagedItems.forEach(item => grid.appendChild(createCard(item)));
+            renderPagination(itemsToDisplay.length, paginationId, type, currentPage); 
         }
 
         function createCard(item) {
-            const card = document.createElement('div'); card.className = 'movie-card';
-            card.setAttribute('data-id', item.id);
+            const card = document.createElement('div'); card.className = 'movie-card'; card.setAttribute('data-id', item.id);
             let badge = '', cardInfo = '';
             if (item.type === 'series_group') { card.onclick = () => showEpisodesForSeries(item.title); badge = `<span class="episode-count-badge">${item.episodes.length} BÖLÜM</span>`; cardInfo = `<div class="movie-info"><div class="movie-title">${item.title}</div><div class="movie-year">${item.year}</div></div>`; } 
             else { 
                 card.onclick = () => openModal(item); 
                 if (item.type === 'series') badge = '<span class="series-badge">DİZİ</span>'; 
-                if (item.type === 'cizgi') badge = '<span class="series-badge" style="background: linear-gradient(135deg, #ff9800, #f57c00);">ÇİZGİ</span>'; 
-                if (item.type === 'youtube') badge = '<span class="youtube-badge">YOUTUBE</span>';
-                // FIX: Added badge for 'hint' movies
-                if (item.type === 'hint') badge = '<span class="series-badge" style="background: linear-gradient(135deg, #4caf50, #388e3c);">HINT</span>';
-                cardInfo = `<div class="movie-info"><div class="movie-title">${item.title}</div><div class="movie-year">${item.year}</div>${item.episodes ? `<div style="color: #FFD700; font-size: 0.65em; margin-top: 2px; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">${item.episodes}</div>` : ''}</div>`; 
+                else if (item.type === 'cizgi') badge = '<span class="series-badge" style="background: linear-gradient(135deg, #ff9800, #f57c00);">ÇİZGİ</span>'; 
+                else if (item.type === 'youtube') badge = '<span class="youtube-badge">YOUTUBE</span>'; 
+                else if (item.type === 'hint') badge = '<span class="series-badge" style="background: linear-gradient(135deg, #4caf50, #388e3c);">HINT</span>';
+                cardInfo = `<div class="movie-info"><div class="movie-title">${item.title}</div><div class="movie-year">${item.year}</div>${item.episodes ? `<div style="color: #FFD700; font-size: 0.65em;">${item.episodes}</div>` : ''}</div>`; 
             }
             card.innerHTML = `<img src="${item.poster}" alt="${item.title}" class="movie-poster" onerror="this.src='https://via.placeholder.com/200x300/E30A17/FFFFFF?text=${encodeURIComponent(item.title)}'">${badge}<div class="play-overlay"><div class="play-icon"></div></div>${cardInfo}`;
             return card;
         }
 
-        function renderPagination(totalItems, paginationId, type, currentPage) { const container = document.getElementById(paginationId); container.innerHTML = ''; const totalPages = Math.ceil(totalItems / itemsPerPage); if (totalPages <= 1) return; const createButton = (text, page, isDisabled = false, isActive = false) => { const btn = document.createElement('button'); btn.innerHTML = text; btn.disabled = isDisabled; if (isActive) btn.classList.add('active'); btn.onclick = () => changePage(type, page); return btn; }; container.appendChild(createButton('«', currentPage - 1, currentPage === 1)); for (let i = 1; i <= totalPages; i++) { if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) { container.appendChild(createButton(i, i, false, i === currentPage)); } else if (i === currentPage - 2 || i === currentPage + 2) { const ellipsis = document.createElement('span'); ellipsis.textContent = '...'; ellipsis.style.cssText = 'padding: 0 5px; align-self: center;'; container.appendChild(ellipsis); } } container.appendChild(createButton('»', currentPage + 1, currentPage === totalPages)); }
+        function renderPagination(totalItems, paginationId, type, currentPage) { const container = document.getElementById(paginationId); container.innerHTML = ''; const totalPages = Math.ceil(totalItems / itemsPerPage); if (totalPages <= 1) return; const createButton = (text, page, isDisabled = false, isActive = false) => { const btn = document.createElement('button'); btn.innerHTML = text; btn.disabled = isDisabled; if (isActive) btn.classList.add('active'); btn.onclick = () => changePage(type, page); return btn; }; container.appendChild(createButton('«', currentPage - 1, currentPage === 1)); for (let i = 1; i <= totalPages; i++) { if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) { if (i === currentPage - 2 && i > 1) container.insertAdjacentHTML('beforeend', '<span style="padding: 0 5px; align-self: center;">...</span>'); container.appendChild(createButton(i, i, false, i === currentPage)); if (i === currentPage + 2 && i < totalPages) container.insertAdjacentHTML('beforeend', '<span style="padding: 0 5px; align-self: center;">...</span>'); } } container.appendChild(createButton('»', currentPage + 1, currentPage === totalPages)); }
         function changePage(type, page) { if (type === 'film') currentFilmPage = page; else if (type === 'series') currentSeriesPage = page; else if (type === 'cizgi') currentCizgiPage = page; else if (type === 'youtube') currentYoutubePage = page; else if (type === 'hint') currentHintPage = page; displayContent(type); window.scrollTo({ top: 0, behavior: 'smooth' }); }
         
         document.getElementById('searchFilms').addEventListener('input', () => { currentFilmPage = 1; displayContent('film'); });
         document.getElementById('searchSeries').addEventListener('input', () => { currentSeriesPage = 1; displayContent('series'); });
         document.getElementById('searchCizgi').addEventListener('input', () => { currentCizgiPage = 1; displayContent('cizgi'); });
         document.getElementById('searchYoutube').addEventListener('input', () => { currentYoutubePage = 1; displayContent('youtube'); });
-        document.getElementById('searchHint').addEventListener('input', () => { currentHintPage = 1; displayContent('hint'); }); // FIX: Added search event listener for 'hint'
+        document.getElementById('searchHint').addEventListener('input', () => { currentHintPage = 1; displayContent('hint'); });
         
         function openModal(item) { 
-            currentItem = item;
-            highlightCard(item.id);
+            currentItem = item; highlightCard(item.id);
             document.getElementById('modalTitle').textContent = item.title + (item.episodes ? ` - ${item.episodes}` : ''); 
             let typeName = item.type.charAt(0).toUpperCase() + item.type.slice(1); 
-            if(item.type === 'cizgi') typeName = 'Çizgi Film'; 
-            if(item.type === 'film') typeName = 'Film'; 
-            if(item.type === 'series') typeName = 'Dizi'; 
-            if(item.type === 'hint') typeName = 'Hint Filmi'; // FIX: Handle type name for 'hint'
-            
+            if (item.type === 'cizgi') typeName = 'Çizgi Film'; else if (item.type === 'film') typeName = 'Film'; else if (item.type === 'series') typeName = 'Dizi'; else if (item.type === 'hint') typeName = 'Hint Filmi'; 
             document.getElementById('modalInfo').innerHTML = `<p><strong>Tür:</strong> ${typeName}</p><p><strong>Yıl:</strong> ${item.year}</p><p><strong>Kategori:</strong> ${item.genre}</p>${item.episodes ? `<p><strong>Bölüm:</strong> ${item.episodes}</p>` : ''}<p><strong>Açıklama:</strong> ${item.description || "N/A"}</p>`; 
-            
             const url = item.videoUrl.toLowerCase();
-            const isWebsite = url.includes('dailymotion.com') || url.includes('youtube.com') || url.includes('jfvid.com') || url.includes('player.html');
+            // FIX VOOR MOVTURS.CLICK: Voeg 'movturs.click' toe aan de lijst van website-spelers
+            const isWebsite = url.includes('dailymotion.com') || url.includes('youtube.com') || url.includes('jfvid.com') || url.includes('player.html') || url.includes('movturs.click');
             const btnGrid = document.getElementById('playerButtonsGrid');
             const msg = document.getElementById('webOnlyMsg');
             const buttons = btnGrid.querySelectorAll('.play-btn-small:not(.btn-web)');
-            
-            if (isWebsite) {
-                buttons.forEach(btn => btn.parentElement.style.display = 'none'); msg.style.display = 'block';
-            } else {
-                buttons.forEach(btn => btn.parentElement.style.display = 'flex'); msg.style.display = 'none';
-            }
-
+            if (isWebsite) { buttons.forEach(btn => btn.parentElement.style.display = 'none'); msg.style.display = 'block'; } 
+            else { buttons.forEach(btn => btn.parentElement.style.display = 'flex'); msg.style.display = 'none'; }
             document.getElementById('movieModal').classList.add('active'); document.body.style.overflow = 'hidden'; 
         }
         
         function playExternal(player) {
             if (!currentItem || !currentItem.videoUrl) return;
-            let url = currentItem.videoUrl;
-            if (url.includes('pixeldrain.com')) { url = url.replace('/u/', '/api/file/').split('?')[0]; }
-            let scheme = 'https';
-            if (url.startsWith('http://')) { scheme = 'http'; url = url.replace('http://', ''); } 
-            else if (url.startsWith('https://')) { url = url.replace('https://', ''); }
-            let packageName = '';
-            switch(player) { case 'vlc': packageName = 'org.videolan.vlc'; break; case 'wuffy': packageName = 'co.wuffy.player'; break; case 'mx': packageName = 'com.mxtech.videoplayer.ad'; break; case 'km': packageName = 'com.kmplayer'; break; }
-            window.location.href = `intent://${url}#Intent;scheme=${scheme};type=video/*;package=${packageName};end`;
+            let url = currentItem.videoUrl; if (url.includes('pixeldrain.com')) { url = url.replace('/u/', '/api/file/').split('?')[0]; }
+            let scheme = url.startsWith('http://') ? 'http' : 'https'; url = url.replace(/^(https?:\/\/)/, '');
+            let pkg = ''; switch(player) { case 'vlc': pkg = 'org.videolan.vlc'; break; case 'wuffy': pkg = 'co.wuffy.player'; break; case 'mx': pkg = 'com.mxtech.videoplayer.ad'; break; case 'km': pkg = 'com.kmplayer'; break; }
+            window.location.href = `intent://${url}#Intent;scheme=${scheme};type=video/*;package=${pkg};end`;
         }
 
         function closeModal() { document.getElementById('movieModal').classList.remove('active'); document.body.style.overflow = 'auto'; }
-        function closeModalOnBackground(event) { if (event.target === document.getElementById('movieModal')) closeModal(); }
-        
+        function closeModalOnBackground(e) { if (e.target === document.getElementById('movieModal')) closeModal(); }
         function startControlsTimer() { if (controlsTimeout) clearTimeout(controlsTimeout); controlsTimeout = setTimeout(() => { document.querySelector('.video-controls').classList.add('controls-hidden'); }, 5000); }
         
         function playVideo() { 
             if (!currentItem || !currentItem.videoUrl) return;
-            const videoPlayer = document.getElementById('videoPlayer');
-            const videoIframe = document.getElementById('videoIframe');
+            const videoPlayer = document.getElementById('videoPlayer'), videoIframe = document.getElementById('videoIframe');
             document.getElementById('videoTitle').textContent = currentItem.title + (currentItem.episodes ? ` - ${currentItem.episodes}` : ''); 
             document.querySelector('.video-controls').classList.remove('controls-hidden');
             let finalUrl = currentItem.videoUrl;
-            if (finalUrl.includes('pixeldrain.com') && finalUrl.includes('/api/file/')) { finalUrl = finalUrl.replace('/api/file/', '/u/') + '?embed'; }
+            if (finalUrl.includes('pixeldrain.com/api/file/')) { finalUrl = finalUrl.replace('/api/file/', '/u/') + '?embed'; }
 
-            if (finalUrl.includes('youtube.com/embed') || finalUrl.includes('/player/') || finalUrl.includes('jfvid.com') || finalUrl.includes('pixeldrain.com')) {
+            // FIX VOOR MOVTURS.CLICK: Voeg 'movturs.click' toe aan de lijst van links die in een iframe moeten
+            if (finalUrl.includes('youtube.com/embed') || finalUrl.includes('/player/') || finalUrl.includes('jfvid.com') || finalUrl.includes('pixeldrain.com') || finalUrl.includes('movturs.click')) {
                 videoPlayer.style.display = 'none'; videoIframe.style.display = 'block'; videoIframe.src = finalUrl; 
             } else { 
                 videoPlayer.style.display = 'block'; videoIframe.style.display = 'none'; videoPlayer.src = finalUrl; 
@@ -433,22 +328,13 @@
             document.getElementById('videoModal').classList.add('active'); closeModal(); startControlsTimer(); 
         }
 
-        function toggleFullscreen() { const videoModal = document.getElementById('videoModal'); if (!document.fullscreenElement) videoModal.requestFullscreen().catch(err => alert(`Tam ekran hatası: ${err.message}`)); else document.exitFullscreen(); }
+        function toggleFullscreen() { const vm = document.getElementById('videoModal'); if (!document.fullscreenElement) vm.requestFullscreen().catch(err => alert(`Tam ekran hatası: ${err.message}`)); else document.exitFullscreen(); }
         document.addEventListener('fullscreenchange', () => { isFullscreen = !!document.fullscreenElement; document.getElementById('videoModal').classList.toggle('fullscreen', isFullscreen); });
-        
-        function closeVideo() { 
-            if (document.fullscreenElement) document.exitFullscreen();
-            document.getElementById('videoModal').classList.remove('active', 'fullscreen'); 
-            if (controlsTimeout) clearTimeout(controlsTimeout); 
-            document.querySelector('.video-controls').classList.remove('controls-hidden'); 
-            const videoPlayer = document.getElementById('videoPlayer'); 
-            const videoIframe = document.getElementById('videoIframe'); 
-            videoPlayer.pause(); videoPlayer.src = ''; videoIframe.src = ''; 
-        }
+        function closeVideo() { if (document.fullscreenElement) document.exitFullscreen(); document.getElementById('videoModal').classList.remove('active', 'fullscreen'); if (controlsTimeout) clearTimeout(controlsTimeout); document.querySelector('.video-controls').classList.remove('controls-hidden'); const vp = document.getElementById('videoPlayer'), vi = document.getElementById('videoIframe'); vp.pause(); vp.src = ''; vi.src = ''; }
         
         document.getElementById('videoModal').addEventListener('click', (e) => { if (e.target.closest('.video-controls')) return; document.querySelector('.video-controls').classList.remove('controls-hidden'); startControlsTimer(); });
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal(); closeAdminModal(); closeVideo(); } });
-        let lastTap = 0; document.getElementById('videoModal').addEventListener('touchend', e => { const currentTime = new Date().getTime(); if (currentTime - lastTap < 300) { if (!e.target.closest('.video-controls')) { toggleFullscreen(); e.preventDefault(); } } lastTap = currentTime; });
+        let lastTap = 0; document.getElementById('videoModal').addEventListener('touchend', e => { const now = new Date().getTime(); if (now - lastTap < 300 && !e.target.closest('.video-controls')) { toggleFullscreen(); e.preventDefault(); } lastTap = now; });
     </script>
 </body>
 </html>
