@@ -18,7 +18,6 @@
       "type": "film",
       "videoUrl": "https://vs17.photofunia.pro/v/Ask.Sadece.Bir.An.2025.WEB-DL.1080p.H.264-HDM/1080.m3u8"
     },
-
     {
       "title": "Karate Kid ",
       "year": "2025",
@@ -370,9 +369,6 @@
       "type": "film",
       "videoUrl": "https://pixeldrain.com/api/file/gECA4YNR"
     }
- 
-
-
   ],
   "diziler": [
     {
@@ -575,36 +571,26 @@
       "type": "series",
       "videoUrl": "https://dcdl50eadec6df95.xyz/player/gGb4l0rOButzQnBP6GFfdHIR"
     }
-
-
-
-
   ],
-  "Hint Filmler": [
+  "hint": [
     {
-      "title": "Gassal",
+      "title": "Hint Film Voorbeeld 1",
       "year": "2025",
       "poster": "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg",
       "genre": "action",
       "description": "Mahalle ve aile dizisi.",
-      "episodes": "1 Bölüm",
-      "type": "series",
+      "type": "hint",
       "videoUrl": "https://dcdl50eadec6df95.xyz/player/U5_TKDV4n3ZwibpwxfUwdTTJ"
     },
     {
-      "title": "Gassal",
+      "title": "Hint Film Voorbeeld 2",
       "year": "2025",
       "poster": "https://dizi20.life/assets/images/95939754cab5b95f7178d3befb422ce0_thumb.jpg",
       "genre": "action",
       "description": "İntikam hikayesi.",
-      "episodes": "2 Bölüm",
-      "type": "series",
+      "type": "hint",
       "videoUrl": "https://dcdl50eadec6df95.xyz/player/BpdagJfNspLkTKWCR_7MXgrm"
     }
-
-    
-
-
   ],
   "cizgi": [
     {
@@ -616,7 +602,6 @@
       "type": "cizgi",
       "videoUrl": "https://cnn-edition.jfvid.com/play/TVN4RGZKNUlRS1lYT0IxVkk4dlp0c2E0WlVkeURtczRNUVBHQkZuRmY3cjZ3SHlRZ0dYU1ZCQWxrWDNncFlzVVBqNFAyR1VYWGlyOVpha2tkTzhVY1E9PQ"
     },
-
     {
       "title": "Rafadan Tayfa 4",
       "year": "2025",
@@ -635,12 +620,6 @@
       "type": "cizgi",
       "videoUrl": "https://jetv.xyz/apollo/?id=950168"
     }
-
-
-
-
-
-    
   ],
   "youtube": [
     {
@@ -649,17 +628,7 @@
       "genre": "muzik",
       "description": "Clip",
       "type": "youtube",
-      "videoUrl": "https://www.yout-ube.com/embed/JjTeViaVdoI"
+      "videoUrl": "https://www.youtube.com/watch?v=JjTeViaVdoI"
     }
   ]
-
-
-
-
-
-
-  
-
 }
-
-
