@@ -160,22 +160,19 @@
     <div class="modal" id="adminModal" onclick="closeAdminModalOnBackground(event)"><div class="modal-content"><button class="close-modal" onclick="closeAdminModal()">×</button><div class="modal-header"><h2 class="modal-title">Admin Panel</h2></div><div class="form-group"><label for="adminType">Type:</label><select id="adminType"><option value="film">Film</option><option value="series">Dizi</option><option value="cizgi">Çizgi Film</option><option value="youtube">YouTube</option><option value="hint">Hint Filmi</option></select></div><div class="form-group"><label for="adminTitle">Naam (Titel):</label><input type="text" id="adminTitle" placeholder="bv. Ayla"></div><div class="form-group"><label for="adminPoster">Image (Poster URL):</label><input type="text" id="adminPoster" placeholder="https://..."></div><div class="form-group"><label for="adminVideoUrl">Link (Video URL):</label><div style="display: flex; gap: 5px; align-items: center;"><input type="text" id="adminVideoUrl" placeholder="Plak YouTube link hier voor poster..." style="flex: 1;"><button type="button" onclick="fetchYoutubeThumbnail()" style="padding: 8px 10px; font-size: 12px; background: #3498db; border: none; color: white; border-radius: 5px; cursor: pointer; white-space: nowrap;">🖼️ Pak Poster</button></div></div><div class="form-group"><label for="adminYear">Jaar:</label><input type="text" id="adminYear" placeholder="bv. 2024"></div><div class="form-group"><label for="adminGenre">Genre:</label><select id="adminGenre"><option value="action">action</option><option value="comedy">comedy</option><option value="drama">drama</option><option value="romance">romance</option></select></div><div class="form-group"><label for="adminEpisodes">(Optioneel) Aflevering info:</label><input type="text" id="adminEpisodes" placeholder="bv. 1. Sezon 5. Bölüm"></div><div class="form-group"><label for="adminDescription">Beschrijving:</label><input type="text" id="adminDescription" placeholder="Korte beschrijving..."></div><button class="play-button" onclick="addItemToQueue()">✅ Voeg los item toe</button></div></div>
 
     <script>
-        // CORRECTIE: We gaan terug naar de werkende methode met ÉÉN JSON-bestand.
+        // HERSTELD: Terug naar de werkende methode met ÉÉN JSON-bestand.
         const JSON_URL = 'https://raw.githubusercontent.com/Turis-Tv/2026-Appcreator/refs/heads/main/Films/film.json'; 
         
         let turkishFilms = [], turkishSeries = [], cizgiFilms = [], youtubeVideos = [], hintFilms = [];
 
-        // CORRECTIE: Deze loadData functie werkt met JOUW enkele JSON-bestand.
         async function loadData() {
             try {
                 const response = await fetch(JSON_URL);
                 if (!response.ok) throw new Error('Netwerkfout bij laden JSON');
-                
                 const data = await response.json();
                 let globalIdCounter = 1000;
                 const process = (arr, type) => (arr || []).map(item => ({ ...item, id: globalIdCounter++, type: type }));
-
-                // Leest de data uit het ene grote bestand
+                
                 turkishFilms = process(data.filmler, 'film');
                 turkishSeries = process(data.diziler, 'series');
                 cizgiFilms = process(data.cizgi, 'cizgi');
@@ -189,14 +186,9 @@
                     }
                     return processedItem;
                 });
-                
                 groupSeries();
                 showCategory('filmler');
-
-            } catch (error) {
-                console.error("Fout bij laden:", error);
-                document.querySelector('.movies-container').innerHTML = `<p style="text-align:center; margin-top:20px; color:red;">Fout bij laden van gegevens.<br>Controleer je JSON link in de code.</p>`;
-            }
+            } catch (error) { console.error("Fout bij laden:", error); document.querySelector('.movies-container').innerHTML = `<p style="text-align:center; margin-top:20px; color:red;">Fout bij laden van gegevens.<br>Controleer je JSON link in de code.</p>`; }
         }
         
         function openLinkSelectionModal(item) {
@@ -215,8 +207,6 @@
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
-        function closeLinkSelectionModal() { document.getElementById('linkSelectionModal').classList.remove('active'); document.body.style.overflow = 'auto'; }
-        function closeLinkSelectionModalOnBackground(e) { if (e.target === document.getElementById('linkSelectionModal')) closeLinkSelectionModal(); }
         
         function openModal(item) { 
             currentItem = item;
@@ -235,7 +225,7 @@
             let typeName = currentItem.type.charAt(0).toUpperCase() + currentItem.type.slice(1); 
             if (currentItem.type === 'cizgi') typeName = 'Çizgi Film'; else if (currentItem.type === 'film') typeName = 'Film'; else if (currentItem.type === 'series') typeName = 'Dizi'; else if (currentItem.type === 'hint') typeName = 'Hint Filmi'; 
             document.getElementById('modalInfo').innerHTML = `<p><strong>Tür:</strong> ${typeName}</p><p><strong>Yıl:</strong> ${currentItem.year}</p><p><strong>Kategori:</strong> ${currentItem.genre}</p>${currentItem.episodes ? `<p><strong>Bölüm:</strong> ${currentItem.episodes}</p>` : ''}<p><strong>Açıklama:</strong> ${currentItem.description || "N/A"}</p>`; 
-            const url = selectedUrl.toLowerCase();
+            const url = selectedUrl ? selectedUrl.toLowerCase() : '';
             const isWebsite = url.includes('dailymotion.com') || url.includes('youtube.com') || url.includes('jfvid.com') || url.includes('player.html') || url.includes('movturs.click') || url.includes('drive.google.com') || url.includes('my.mail.ru') || url.includes('ok.ru') || url.includes('vk.com') || url.includes('vimeo.com') || url.includes('dood.stream') || url.includes('dood.so') || url.includes('streamtape.com') || url.includes('video.sibnet.ru');
             const btnGrid = document.getElementById('playerButtonsGrid');
             const msg = document.getElementById('webOnlyMsg');
@@ -272,8 +262,36 @@
         function changePage(type, page) { if (type === 'film') currentFilmPage = page; else if (type === 'series') currentSeriesPage = page; else if (type === 'cizgi') currentCizgiPage = page; else if (type === 'youtube') currentYoutubePage = page; else if (type === 'hint') currentHintPage = page; displayContent(type); window.scrollTo({ top: 0, behavior: 'smooth' }); }
         document.getElementById('searchFilms').addEventListener('input', () => { currentFilmPage = 1; displayContent('film'); }); document.getElementById('searchSeries').addEventListener('input', () => { currentSeriesPage = 1; displayContent('series'); }); document.getElementById('searchCizgi').addEventListener('input', () => { currentCizgiPage = 1; displayContent('cizgi'); }); document.getElementById('searchYoutube').addEventListener('input', () => { currentYoutubePage = 1; displayContent('youtube'); }); document.getElementById('searchHint').addEventListener('input', () => { currentHintPage = 1; displayContent('hint'); });
         
-        function playExternal(player) { if (!currentItem) return; const urlToPlay = currentItem.selectedVideoUrl || (Array.isArray(currentItem.videoUrl) ? currentItem.videoUrl[0] : currentItem.videoUrl); if (!urlToPlay) return; let url = urlToPlay; if (url.includes('pixeldrain.com')) { url = url.replace('/u/', '/api/file/').split('?')[0]; } let scheme = url.startsWith('http://') ? 'http' : 'https'; url = url.replace(/^(https?:\/\/)/, ''); let pkg = ''; switch(player) { case 'vlc': pkg = 'org.videolan.vlc'; break; case 'wuffy': pkg = 'co.wuffy.player'; break; case 'mx': pkg = 'com.mxtech.videoplayer.ad'; break; case 'km': pkg = 'com.kmplayer'; break; } window.location.href = `intent://${url}#Intent;scheme=${scheme};type=video/*;package=${pkg};end`; }
-        function playVideo() { if (!currentItem) return; const urlToPlay = currentItem.selectedVideoUrl || (Array.isArray(currentItem.videoUrl) ? currentItem.videoUrl[0] : currentItem.videoUrl); if (!urlToPlay) return; const videoPlayer = document.getElementById('videoPlayer'), videoIframe = document.getElementById('videoIframe'); document.getElementById('videoTitle').textContent = currentItem.title + (currentItem.episodes ? ` - ${currentItem.episodes}` : ''); document.querySelector('.video-controls').classList.remove('controls-hidden'); let finalUrl = urlToPlay; if (finalUrl.includes('pixeldrain.com/api/file/')) { finalUrl = finalUrl.replace('/api/file/', '/u/') + '?embed'; } const isWebsite = finalUrl.includes('youtube.com/embed') || finalUrl.includes('/player/') || finalUrl.includes('jfvid.com') || finalUrl.includes('pixeldrain.com') || finalUrl.includes('movturs.click') || finalUrl.includes('drive.google.com') || finalUrl.includes('my.mail.ru') || finalUrl.includes('ok.ru') || finalUrl.includes('vk.com') || finalUrl.includes('vimeo.com') || finalUrl.includes('dood.stream') || finalUrl.includes('dood.so') || finalUrl.includes('streamtape.com') || finalUrl.includes('video.sibnet.ru'); if (isWebsite) { videoPlayer.style.display = 'none'; videoIframe.style.display = 'block'; videoIframe.src = finalUrl; } else { videoPlayer.style.display = 'block'; videoIframe.style.display = 'none'; videoIframe.src = finalUrl; videoPlayer.play().catch(e => console.warn("Autoplay geblokkeerd:", e)); } document.getElementById('videoModal').classList.add('active'); closeModal(); startControlsTimer(); }
+        // HERSTELD: Functies gebruiken de correcte link, ofwel de geselecteerde, ofwel de standaard.
+        function playExternal(player) {
+            if (!currentItem) return;
+            const urlToPlay = currentItem.selectedVideoUrl || (Array.isArray(currentItem.videoUrl) ? currentItem.videoUrl[0] : currentItem.videoUrl);
+            if (!urlToPlay) { alert("Geen video link gevonden!"); return; }
+            let url = urlToPlay;
+            if (url.includes('pixeldrain.com')) { url = url.replace('/u/', '/api/file/').split('?')[0]; }
+            let scheme = url.startsWith('http://') ? 'http' : 'https'; url = url.replace(/^(https?:\/\/)/, '');
+            let pkg = ''; switch(player) { case 'vlc': pkg = 'org.videolan.vlc'; break; case 'wuffy': pkg = 'co.wuffy.player'; break; case 'mx': pkg = 'com.mxtech.videoplayer.ad'; break; case 'km': pkg = 'com.kmplayer'; break; }
+            window.location.href = `intent://${url}#Intent;scheme=${scheme};type=video/*;package=${pkg};end`;
+        }
+
+        function playVideo() { 
+            if (!currentItem) return;
+            const urlToPlay = currentItem.selectedVideoUrl || (Array.isArray(currentItem.videoUrl) ? currentItem.videoUrl[0] : currentItem.videoUrl);
+            if (!urlToPlay) { alert("Geen video link gevonden!"); return; }
+            const videoPlayer = document.getElementById('videoPlayer'), videoIframe = document.getElementById('videoIframe');
+            document.getElementById('videoTitle').textContent = currentItem.title + (currentItem.episodes ? ` - ${currentItem.episodes}` : ''); 
+            document.querySelector('.video-controls').classList.remove('controls-hidden');
+            let finalUrl = urlToPlay;
+            if (finalUrl.includes('pixeldrain.com/api/file/')) { finalUrl = finalUrl.replace('/api/file/', '/u/') + '?embed'; } 
+            const isWebsite = finalUrl.includes('youtube.com/embed') || finalUrl.includes('/player/') || finalUrl.includes('jfvid.com') || finalUrl.includes('pixeldrain.com') || finalUrl.includes('movturs.click') || finalUrl.includes('drive.google.com') || finalUrl.includes('my.mail.ru') || finalUrl.includes('ok.ru') || finalUrl.includes('vk.com') || finalUrl.includes('vimeo.com') || finalUrl.includes('dood.stream') || finalUrl.includes('dood.so') || finalUrl.includes('streamtape.com') || finalUrl.includes('video.sibnet.ru');
+            if (isWebsite) {
+                videoPlayer.style.display = 'none'; videoIframe.style.display = 'block'; videoIframe.src = finalUrl; 
+            } else { 
+                videoPlayer.style.display = 'block'; videoIframe.style.display = 'none'; videoIframe.src = finalUrl; 
+                videoPlayer.play().catch(e => console.warn("Autoplay geblokkeerd:", e)); 
+            } 
+            document.getElementById('videoModal').classList.add('active'); closeModal(); startControlsTimer(); 
+        }
 
         function closeModal() { document.getElementById('movieModal').classList.remove('active'); document.body.style.overflow = 'auto'; }
         function closeModalOnBackground(e) { if (e.target === document.getElementById('movieModal')) closeModal(); }
