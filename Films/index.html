@@ -96,29 +96,8 @@
         .btn-web { background: linear-gradient(135deg, #f44336, #b71c1c); grid-column: 1 / -1; font-size: 12px; padding: 10px; margin-top: 5px; }
         .content-section { display: none; }
         .content-section.active { display: block; }
-        
-        /* NIEUW: Stijlen voor de link-selectie knoppen */
-        .link-selection-btn {
-            display: block;
-            width: 100%;
-            padding: 12px 20px;
-            margin: 8px 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
-            border: 2px solid rgba(255,255,255,0.4);
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-        .link-selection-btn:hover {
-            background: linear-gradient(135deg, #E30A17, #B5000D);
-            border-color: #E30A17;
-            transform: scale(1.02);
-        }
-
+        .link-selection-btn { display: block; width: 100%; padding: 12px 20px; margin: 8px 0; background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); border: 2px solid rgba(255,255,255,0.4); color: white; font-size: 16px; font-weight: bold; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; text-align: center; }
+        .link-selection-btn:hover { background: linear-gradient(135deg, #E30A17, #B5000D); border-color: #E30A17; transform: scale(1.02); }
         #adminModal .form-group { margin-bottom: 15px; }
         #adminModal label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; color: #ccc; }
         #adminModal input, #adminModal select, #adminModal textarea, #m3uFileInput { width: 100%; padding: 10px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.3); color: white; font-size: 14px; resize: vertical;}
@@ -175,18 +154,7 @@
     <p id="webOnlyMsg" style="display:none; color: #aaa; font-size: 11px; text-align: center; margin-top: 10px;">(Deze link werkt alleen in de Web Player)</p>
     <div id="modalInfo" style="font-size: 13px; line-height: 1.6; margin-top: 20px;"></div></div></div>
     
-    <!-- NIEUW: De pop-up voor het kiezen van een link -->
-    <div class="modal" id="linkSelectionModal" onclick="closeLinkSelectionModalOnBackground(event)">
-        <div class="modal-content">
-            <button class="close-modal" onclick="closeLinkSelectionModal()">×</button>
-            <div class="modal-header">
-                <h2 class="modal-title" id="linkSelectionModalTitle">Kies een link</h2>
-            </div>
-            <div id="linkButtonsContainer">
-                <!-- Knoppen worden hier door JavaScript ingevoegd -->
-            </div>
-        </div>
-    </div>
+    <div class="modal" id="linkSelectionModal" onclick="closeLinkSelectionModalOnBackground(event)"><div class="modal-content"><button class="close-modal" onclick="closeLinkSelectionModal()">×</button><div class="modal-header"><h2 class="modal-title" id="linkSelectionModalTitle">Kies een link</h2></div><div id="linkButtonsContainer"></div></div></div>
 
     <div class="video-modal" id="videoModal"><div class="video-container" id="videoContainer"><div class="video-controls"><button class="fullscreen-btn" onclick="toggleFullscreen()">⛶</button><button class="video-close-btn" onclick="closeVideo()">×</button></div><video id="videoPlayer" class="video-player" controls autoplay style="display: none;"><source src="" type="video/mp4"></video><iframe id="videoIframe" class="video-iframe" style="display: none;" allowfullscreen allow="fullscreen; autoplay"></iframe><div class="video-title" id="videoTitle"></div></div></div>
 
@@ -201,13 +169,10 @@
         
         let turkishFilms = [], turkishSeries = [], cizgiFilms = [], youtubeVideos = [], hintFilms = [];
 
-        function highlightCard(id) { document.querySelectorAll('.movie-card.watched').forEach(card => card.classList.remove('watched')); const card = document.querySelector(`.movie-card[data-id="${id}"]`); if (card) card.classList.add('watched'); }
-        function getYoutubeId(url) { const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/; const match = url.match(regExp); return (match && match[2].length === 11) ? match[2] : null; }
-
         async function loadData() {
             try {
                 const responses = await Promise.all([fetch(FILMLER_URL), fetch(DIZILER_URL), fetch(CIZGI_URL), fetch(YOUTUBE_URL), fetch(HINT_URL)]);
-                for (const response of responses) { if (!response.ok) throw new Error(`Netwerkfout bij laden: ${response.url} (${response.status})`); }
+                for (const response of responses) { if (!response.ok) throw new Error(`Netwerkfout: ${response.url} (${response.status})`); }
                 const [filmData, diziData, cizgiData, youtubeData, hintData] = await Promise.all(responses.map(res => res.json()));
                 let globalIdCounter = 1000;
                 const process = (arr, type) => (arr || []).map(item => ({ ...item, id: globalIdCounter++, type: type }));
@@ -221,65 +186,49 @@
             } catch (error) { console.error("Fout bij laden:", error); document.querySelector('.movies-container').innerHTML = `<p style="text-align:center; margin-top:20px; color:red;">Fout bij laden van gegevens.<br>Controleer je JSON links in de code.</p>`; }
         }
         
-        // AANGEPAST: Logica voor de nieuwe link-selectie pop-up
         function openLinkSelectionModal(item) {
             const modal = document.getElementById('linkSelectionModal');
             const title = document.getElementById('linkSelectionModalTitle');
             const container = document.getElementById('linkButtonsContainer');
-            
             title.textContent = item.title;
-            container.innerHTML = ''; // Maak de container leeg
-
+            container.innerHTML = '';
             item.videoUrl.forEach((url, index) => {
                 const button = document.createElement('button');
                 button.className = 'link-selection-btn';
                 button.textContent = `Link ${index + 1}`;
-                button.onclick = () => {
-                    closeLinkSelectionModal();
-                    proceedToPlayerSelection(url); // Ga verder met de geselecteerde link
-                };
+                button.onclick = () => { closeLinkSelectionModal(); proceedToPlayerSelection(url); };
                 container.appendChild(button);
             });
-
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
         function closeLinkSelectionModal() { document.getElementById('linkSelectionModal').classList.remove('active'); document.body.style.overflow = 'auto'; }
         function closeLinkSelectionModalOnBackground(e) { if (e.target === document.getElementById('linkSelectionModal')) closeLinkSelectionModal(); }
         
-        // AANGEPAST: `openModal` beslist nu of de link-selectie pop-up nodig is.
         function openModal(item) { 
             currentItem = item;
             highlightCard(item.id);
-
-            // Controleer of videoUrl een lijst is met meerdere items
             if (Array.isArray(item.videoUrl) && item.videoUrl.length > 1) {
                 openLinkSelectionModal(item);
             } else {
-                // Als het geen array is, of een array met maar 1 link, ga direct door
                 const url = Array.isArray(item.videoUrl) ? item.videoUrl[0] : item.videoUrl;
                 proceedToPlayerSelection(url);
             }
         }
         
-        // AANGEPAST: Nieuwe functie die de speler-keuze pop-up opent. De oude logica van `openModal` staat nu hier.
         function proceedToPlayerSelection(selectedUrl) {
-            currentItem.selectedVideoUrl = selectedUrl; // Sla de gekozen link op
-
+            currentItem.selectedVideoUrl = selectedUrl;
             document.getElementById('modalTitle').textContent = currentItem.title + (currentItem.episodes ? ` - ${currentItem.episodes}` : ''); 
             let typeName = currentItem.type.charAt(0).toUpperCase() + currentItem.type.slice(1); 
             if (currentItem.type === 'cizgi') typeName = 'Çizgi Film'; else if (currentItem.type === 'film') typeName = 'Film'; else if (currentItem.type === 'series') typeName = 'Dizi'; else if (currentItem.type === 'hint') typeName = 'Hint Filmi'; 
             document.getElementById('modalInfo').innerHTML = `<p><strong>Tür:</strong> ${typeName}</p><p><strong>Yıl:</strong> ${currentItem.year}</p><p><strong>Kategori:</strong> ${currentItem.genre}</p>${currentItem.episodes ? `<p><strong>Bölüm:</strong> ${currentItem.episodes}</p>` : ''}<p><strong>Açıklama:</strong> ${currentItem.description || "N/A"}</p>`; 
-            
             const url = selectedUrl.toLowerCase();
             const isWebsite = url.includes('dailymotion.com') || url.includes('youtube.com') || url.includes('jfvid.com') || url.includes('player.html') || url.includes('movturs.click') || url.includes('drive.google.com') || url.includes('my.mail.ru') || url.includes('ok.ru') || url.includes('vk.com') || url.includes('vimeo.com') || url.includes('dood.stream') || url.includes('dood.so') || url.includes('streamtape.com') || url.includes('video.sibnet.ru');
-            
             const btnGrid = document.getElementById('playerButtonsGrid');
             const msg = document.getElementById('webOnlyMsg');
             const buttons = btnGrid.querySelectorAll('.play-btn-small:not(.btn-web)');
             if (isWebsite) { buttons.forEach(btn => btn.parentElement.style.display = 'none'); msg.style.display = 'block'; } 
             else { buttons.forEach(btn => btn.parentElement.style.display = 'flex'); msg.style.display = 'none'; }
-            
             document.getElementById('movieModal').classList.add('active'); 
             document.body.style.overflow = 'hidden'; 
         }
@@ -288,8 +237,11 @@
         const itemsPerPage = 20;
         let currentFilmPage = 1, currentSeriesPage = 1, currentCizgiPage = 1, currentYoutubePage = 1, currentHintPage = 1;
         let currentItem = null, isFullscreen = false, controlsTimeout = null;
-
-        // ... (De rest van het JavaScript, zoals playExternal, playVideo, closeModal, etc. blijft hetzelfde, maar gebruikt nu `currentItem.selectedVideoUrl`)
+        
+        // ... (De rest van de functies blijven ongewijzigd, maar gebruiken nu de correct ingestelde link)
+        function getYoutubeId(url) { const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/; const match = url.match(regExp); return (match && match[2].length === 11) ? match[2] : null; }
+        function fetchYoutubeThumbnail() { const videoUrlInput = document.getElementById('adminVideoUrl'), posterInput = document.getElementById('adminPoster'), typeSelect = document.getElementById('adminType'), url = videoUrlInput.value.trim(); if (!url) { alert('Voer eerst een YouTube URL in.'); return; } const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/; const match = url.match(regex); if (match && match[1]) { const videoId = match[1]; posterInput.value = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`; typeSelect.value = 'youtube'; videoUrlInput.value = `https://www.youtube.com/embed/${videoId}`; alert('Poster afbeelding en embed link zijn succesvol ingesteld!'); } else { alert('Kon geen geldige YouTube Video ID vinden in de URL.'); } }
+        function addItemToQueue() { const type = document.getElementById('adminType').value; const newItem = { id: Date.now(), type, title: document.getElementById('adminTitle').value, poster: document.getElementById('adminPoster').value, videoUrl: document.getElementById('adminVideoUrl').value, year: document.getElementById('adminYear').value || new Date().getFullYear().toString(), genre: document.getElementById('adminGenre').value, episodes: document.getElementById('adminEpisodes').value, description: document.getElementById('adminDescription').value || "Beschrijving nog niet beschikbaar." }; if (!newItem.title || !newItem.poster || !newItem.videoUrl) { alert("Naam, Poster URL en Video URL zijn verplicht!"); return; } if (type === 'film') turkishFilms.push(newItem); else if (type === 'series') { turkishSeries.push(newItem); groupSeries(); } else if (type === 'cizgi') cizgiFilms.push(newItem); else if (type === 'youtube') youtubeVideos.push(newItem); else if (type === 'hint') hintFilms.push(newItem); alert(`'${newItem.title}' is tijdelijk toegevoegd!`); closeAdminModal(); const activeBtn = document.querySelector('.category-btn.active'); if (activeBtn) { const activeCat = activeBtn.getAttribute('onclick').match(/'([^']+)'/)[1]; displayContent(activeCat); } }
         function openAdminPanel() { const p = prompt("Voer het admin wachtwoord in:"); if (p === "admin123") { document.getElementById('adminModal').classList.add('active'); document.body.style.overflow = 'hidden'; closeDropdown(); } else if (p !== null) { alert("Incorrect wachtwoord!"); } }
         function closeAdminModal() { document.getElementById('adminModal').classList.remove('active'); document.body.style.overflow = 'auto'; }
         function closeAdminModalOnBackground(e) { if (e.target === document.getElementById('adminModal')) closeAdminModal(); }
@@ -301,22 +253,55 @@
         function showSeriesTitles() { currentSeriesView = 'titles'; selectedSeriesTitle = null; currentSeriesPage = 1; document.getElementById('searchSeries').value = ''; displayContent('series'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
         function showCategory(category) { document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active')); const activate = (cat) => { document.querySelector(`.category-btn[onclick*="'${cat}'"]`).classList.add('active'); document.getElementById(`${cat}Section`).classList.add('active'); }; if (category === 'filmler') { currentFilmPage = 1; activate(category); displayContent('film'); } else if (category === 'diziler') { showSeriesTitles(); activate(category); } else if (category === 'cizgi') { currentCizgiPage = 1; activate(category); displayContent('cizgi'); } else if (category === 'youtube') { currentYoutubePage = 1; activate(category); displayContent('youtube'); } else if (category === 'hint') { currentHintPage = 1; activate(category); displayContent('hint'); } closeDropdown(); }
         function filterByGenre(genre) { const activeSectionId = document.querySelector('.content-section.active').id; let type = activeSectionId.replace('Section', ''); if (type === 'series') showSeriesTitles(); displayContent(type, genre); closeDropdown(); }
-        window.addEventListener('load', () => { loadData(); });
         function displayContent(type, genreFilter = null) { let grid, paginationId, currentPage, sourceData, searchTerm; switch(type) { case 'film': grid = document.getElementById('filmlerGrid'); paginationId = 'filmlerPagination'; currentPage = currentFilmPage; sourceData = turkishFilms; searchTerm = document.getElementById('searchFilms').value.toLowerCase(); break; case 'series': grid = document.getElementById('dizilerGrid'); paginationId = 'dizilerPagination'; currentPage = currentSeriesPage; searchTerm = document.getElementById('searchSeries').value.toLowerCase(); break; case 'cizgi': grid = document.getElementById('cizgiGrid'); paginationId = 'cizgiPagination'; currentPage = currentCizgiPage; sourceData = cizgiFilms; searchTerm = document.getElementById('searchCizgi').value.toLowerCase(); break; case 'youtube': grid = document.getElementById('youtubeGrid'); paginationId = 'youtubePagination'; currentPage = currentYoutubePage; sourceData = youtubeVideos; searchTerm = document.getElementById('searchYoutube').value.toLowerCase(); break; case 'hint': grid = document.getElementById('hintGrid'); paginationId = 'hintPagination'; currentPage = currentHintPage; sourceData = hintFilms; searchTerm = document.getElementById('searchHint').value.toLowerCase(); break; } grid.innerHTML = ''; let itemsToDisplay = []; if (type === 'series') { document.getElementById('backToSeriesBtn').style.display = currentSeriesView === 'episodes' ? 'inline-block' : 'none'; document.getElementById('seriesSectionTitle').textContent = currentSeriesView === 'titles' ? '📺 DİZİLER' : `📺 ${selectedSeriesTitle}`; if (currentSeriesView === 'titles') { let seriesGroups = Object.values(groupedSeries); if (genreFilter) seriesGroups = seriesGroups.filter(g => g.genre === genreFilter); itemsToDisplay = seriesGroups.filter(g => g.title.toLowerCase().includes(searchTerm)); } else itemsToDisplay = groupedSeries[selectedSeriesTitle].episodes.filter(ep => (ep.episodes || '').toLowerCase().includes(searchTerm)); } else { let filteredData = sourceData; if (genreFilter) filteredData = sourceData.filter(item => item.genre === genreFilter); itemsToDisplay = filteredData.filter(item => item.title.toLowerCase().includes(searchTerm)); } const pagedItems = itemsToDisplay.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage); if (pagedItems.length === 0) grid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; margin-top: 50px;">İçerik bulunamadı.</p>'; else pagedItems.forEach(item => grid.appendChild(createCard(item))); renderPagination(itemsToDisplay.length, paginationId, type, currentPage); }
         function createCard(item) { const card = document.createElement('div'); card.className = 'movie-card'; card.setAttribute('data-id', item.id); let badge = '', cardInfo = ''; if (item.type === 'series_group') { card.onclick = () => showEpisodesForSeries(item.title); badge = `<span class="episode-count-badge">${item.episodes.length} BÖLÜM</span>`; cardInfo = `<div class="movie-info"><div class="movie-title">${item.title}</div><div class="movie-year">${item.year}</div></div>`; } else { card.onclick = () => openModal(item); if (item.type === 'series') badge = '<span class="series-badge">DİZİ</span>'; else if (item.type === 'cizgi') badge = '<span class="series-badge" style="background: linear-gradient(135deg, #ff9800, #f57c00);">ÇİZGİ</span>'; else if (item.type === 'youtube') badge = '<span class="youtube-badge">YOUTUBE</span>'; else if (item.type === 'hint') badge = '<span class="series-badge" style="background: linear-gradient(135deg, #4caf50, #388e3c);">HINT</span>'; cardInfo = `<div class="movie-info"><div class="movie-title">${item.title}</div><div class="movie-year">${item.year}</div>${item.episodes ? `<div style="color: #FFD700; font-size: 0.65em;">${item.episodes}</div>` : ''}</div>`; } card.innerHTML = `<img src="${item.poster}" alt="${item.title}" class="movie-poster" onerror="this.src='https://via.placeholder.com/200x300/E30A17/FFFFFF?text=${encodeURIComponent(item.title)}'">${badge}<div class="play-overlay"><div class="play-icon"></div></div>${cardInfo}`; return card; }
         function renderPagination(totalItems, paginationId, type, currentPage) { const container = document.getElementById(paginationId); container.innerHTML = ''; const totalPages = Math.ceil(totalItems / itemsPerPage); if (totalPages <= 1) return; const createButton = (text, page, isDisabled = false, isActive = false) => { const btn = document.createElement('button'); btn.innerHTML = text; btn.disabled = isDisabled; if (isActive) btn.classList.add('active'); btn.onclick = () => changePage(type, page); return btn; }; container.appendChild(createButton('«', currentPage - 1, currentPage === 1)); for (let i = 1; i <= totalPages; i++) { if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) { if (i === currentPage - 2 && i > 1) container.insertAdjacentHTML('beforeend', '<span style="padding: 0 5px; align-self: center;">...</span>'); container.appendChild(createButton(i, i, false, i === currentPage)); if (i === currentPage + 2 && i < totalPages) container.insertAdjacentHTML('beforeend', '<span style="padding: 0 5px; align-self: center;">...</span>'); } } container.appendChild(createButton('»', currentPage + 1, currentPage === totalPages)); }
         function changePage(type, page) { if (type === 'film') currentFilmPage = page; else if (type === 'series') currentSeriesPage = page; else if (type === 'cizgi') currentCizgiPage = page; else if (type === 'youtube') currentYoutubePage = page; else if (type === 'hint') currentHintPage = page; displayContent(type); window.scrollTo({ top: 0, behavior: 'smooth' }); }
         document.getElementById('searchFilms').addEventListener('input', () => { currentFilmPage = 1; displayContent('film'); }); document.getElementById('searchSeries').addEventListener('input', () => { currentSeriesPage = 1; displayContent('series'); }); document.getElementById('searchCizgi').addEventListener('input', () => { currentCizgiPage = 1; displayContent('cizgi'); }); document.getElementById('searchYoutube').addEventListener('input', () => { currentYoutubePage = 1; displayContent('youtube'); }); document.getElementById('searchHint').addEventListener('input', () => { currentHintPage = 1; displayContent('hint'); });
-        function playExternal(player) { if (!currentItem || !currentItem.selectedVideoUrl) return; let url = currentItem.selectedVideoUrl; if (url.includes('pixeldrain.com')) { url = url.replace('/u/', '/api/file/').split('?')[0]; } let scheme = url.startsWith('http://') ? 'http' : 'https'; url = url.replace(/^(https?:\/\/)/, ''); let pkg = ''; switch(player) { case 'vlc': pkg = 'org.videolan.vlc'; break; case 'wuffy': pkg = 'co.wuffy.player'; break; case 'mx': pkg = 'com.mxtech.videoplayer.ad'; break; case 'km': pkg = 'com.kmplayer'; break; } window.location.href = `intent://${url}#Intent;scheme=${scheme};type=video/*;package=${pkg};end`; }
+        
+        // CORRECTIE: De play functies gebruiken nu een slimmere manier om de juiste link te vinden.
+        function playExternal(player) {
+            if (!currentItem) return;
+            const urlToPlay = currentItem.selectedVideoUrl || (Array.isArray(currentItem.videoUrl) ? currentItem.videoUrl[0] : currentItem.videoUrl);
+            if (!urlToPlay) return;
+
+            let url = urlToPlay;
+            if (url.includes('pixeldrain.com')) { url = url.replace('/u/', '/api/file/').split('?')[0]; }
+            let scheme = url.startsWith('http://') ? 'http' : 'https'; url = url.replace(/^(https?:\/\/)/, '');
+            let pkg = ''; switch(player) { case 'vlc': pkg = 'org.videolan.vlc'; break; case 'wuffy': pkg = 'co.wuffy.player'; break; case 'mx': pkg = 'com.mxtech.videoplayer.ad'; break; case 'km': pkg = 'com.kmplayer'; break; }
+            window.location.href = `intent://${url}#Intent;scheme=${scheme};type=video/*;package=${pkg};end`;
+        }
+
+        function playVideo() { 
+            if (!currentItem) return;
+            const urlToPlay = currentItem.selectedVideoUrl || (Array.isArray(currentItem.videoUrl) ? currentItem.videoUrl[0] : currentItem.videoUrl);
+            if (!urlToPlay) return;
+
+            const videoPlayer = document.getElementById('videoPlayer'), videoIframe = document.getElementById('videoIframe');
+            document.getElementById('videoTitle').textContent = currentItem.title + (currentItem.episodes ? ` - ${currentItem.episodes}` : ''); 
+            document.querySelector('.video-controls').classList.remove('controls-hidden');
+            let finalUrl = urlToPlay;
+            if (finalUrl.includes('pixeldrain.com/api/file/')) { finalUrl = finalUrl.replace('/api/file/', '/u/') + '?embed'; } 
+            
+            const isWebsite = finalUrl.includes('youtube.com/embed') || finalUrl.includes('/player/') || finalUrl.includes('jfvid.com') || finalUrl.includes('pixeldrain.com') || finalUrl.includes('movturs.click') || finalUrl.includes('drive.google.com') || finalUrl.includes('my.mail.ru') || finalUrl.includes('ok.ru') || finalUrl.includes('vk.com') || finalUrl.includes('vimeo.com') || finalUrl.includes('dood.stream') || finalUrl.includes('dood.so') || finalUrl.includes('streamtape.com') || finalUrl.includes('video.sibnet.ru');
+            
+            if (isWebsite) {
+                videoPlayer.style.display = 'none'; videoIframe.style.display = 'block'; videoIframe.src = finalUrl; 
+            } else { 
+                videoPlayer.style.display = 'block'; videoIframe.style.display = 'none'; videoIframe.src = finalUrl; 
+                videoPlayer.play().catch(e => console.warn("Autoplay geblokkeerd:", e)); 
+            } 
+            document.getElementById('videoModal').classList.add('active'); closeModal(); startControlsTimer(); 
+        }
+
         function closeModal() { document.getElementById('movieModal').classList.remove('active'); document.body.style.overflow = 'auto'; }
         function closeModalOnBackground(e) { if (e.target === document.getElementById('movieModal')) closeModal(); }
         function startControlsTimer() { if (controlsTimeout) clearTimeout(controlsTimeout); controlsTimeout = setTimeout(() => { document.querySelector('.video-controls').classList.add('controls-hidden'); }, 5000); }
-        function playVideo() { if (!currentItem || !currentItem.selectedVideoUrl) return; const videoPlayer = document.getElementById('videoPlayer'), videoIframe = document.getElementById('videoIframe'); document.getElementById('videoTitle').textContent = currentItem.title + (currentItem.episodes ? ` - ${currentItem.episodes}` : ''); document.querySelector('.video-controls').classList.remove('controls-hidden'); let finalUrl = currentItem.selectedVideoUrl; if (finalUrl.includes('pixeldrain.com/api/file/')) { finalUrl = finalUrl.replace('/api/file/', '/u/') + '?embed'; } if (finalUrl.includes('youtube.com/embed') || finalUrl.includes('/player/') || finalUrl.includes('jfvid.com') || finalUrl.includes('pixeldrain.com') || finalUrl.includes('movturs.click') || finalUrl.includes('drive.google.com') || finalUrl.includes('my.mail.ru') || finalUrl.includes('ok.ru') || finalUrl.includes('vk.com') || finalUrl.includes('vimeo.com') || finalUrl.includes('dood.stream') || finalUrl.includes('dood.so') || finalUrl.includes('streamtape.com') || finalUrl.includes('video.sibnet.ru')) { videoPlayer.style.display = 'none'; videoIframe.style.display = 'block'; videoIframe.src = finalUrl; } else { videoPlayer.style.display = 'block'; videoIframe.style.display = 'none'; videoIframe.src = finalUrl; videoPlayer.play().catch(e => console.warn("Autoplay geblokkeerd:", e)); } document.getElementById('videoModal').classList.add('active'); closeModal(); startControlsTimer(); }
         function toggleFullscreen() { const vm = document.getElementById('videoModal'); if (!document.fullscreenElement) vm.requestFullscreen().catch(err => alert(`Tam ekran hatası: ${err.message}`)); else document.exitFullscreen(); }
         document.addEventListener('fullscreenchange', () => { isFullscreen = !!document.fullscreenElement; document.getElementById('videoModal').classList.toggle('fullscreen', isFullscreen); });
         function closeVideo() { if (document.fullscreenElement) document.exitFullscreen(); document.getElementById('videoModal').classList.remove('active', 'fullscreen'); if (controlsTimeout) clearTimeout(controlsTimeout); document.querySelector('.video-controls').classList.remove('controls-hidden'); const vp = document.getElementById('videoPlayer'), vi = document.getElementById('videoIframe'); vp.pause(); vp.src = ''; vi.src = ''; }
         document.getElementById('videoModal').addEventListener('click', (e) => { if (e.target.closest('.video-controls')) return; document.querySelector('.video-controls').classList.remove('controls-hidden'); startControlsTimer(); });
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal(); closeLinkSelectionModal(); closeAdminModal(); closeVideo(); } }); // AANGEPAST: Sluit ook de link-selectie pop-up met Esc.
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal(); closeLinkSelectionModal(); closeAdminModal(); closeVideo(); } });
         let lastTap = 0; document.getElementById('videoModal').addEventListener('touchend', e => { const now = new Date().getTime(); if (now - lastTap < 300 && !e.target.closest('.video-controls')) { toggleFullscreen(); e.preventDefault(); } lastTap = now; });
     </script>
 </body>
