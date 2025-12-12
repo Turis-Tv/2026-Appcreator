@@ -3,6 +3,74 @@
 
 
 
+{
+  "title": "Phone Bhoot",
+  "year": "2022",
+  "poster": "https://asyafilmizlesene.org/wp-content/uploads/2022/12/resim-43-360x618_c.jpg",
+  "videoUrl": [
+    "https://vk.com/video_ext.php?oid=639657717&#038;id=456239066&#038;hash=9db99f42db4f2272&#038;hd=2",
+    "https://ok.ru/videoembed/4414270081636",
+    "https://my.mail.ru/video/embed/7558610805613134081",
+    "https://drive.google.com/file/d/1ATqNohOO5uuDgD_LP17qV-tgPbLTIkD-/preview",
+    "https://csst.online/embed/646903"
+  ]
+},
+{
+  "title": "Bharat",
+  "year": "2019",
+  "poster": "https://asyafilmizlesene.org/wp-content/uploads/2023/01/MV5BYzRjMTY1MzktZGRmNi00YjM0LWJkOTUtMmI0ZGEyZjdkOGFhXkEyXkFqcGdeQXVyOTAzMTc2MjA@._V1_SX300-360x618_c.jpg",
+  "videoUrl": [
+    "https://my.mail.ru/video/embed/7558610805613134209",
+    "https://csst.online/embed/633877"
+  ]
+},
+{
+  "title": "Thugs of Hindostan",
+  "year": "2018",
+  "poster": "https://asyafilmizlesene.org/wp-content/uploads/2023/03/MV5BMTA3ODUxMzUzMzleQTJeQWpwZ15BbWU4MDMzMzkyNDYz._V1_SX300-360x618_c.jpg",
+  "videoUrl": [
+    "https://my.mail.ru/video/embed/7558610805613134409",
+    "https://odnoklassniki.ru/videoembed/2371923544657",
+    "https://ok.ru/videoembed/920015997627"
+  ]
+},
+{
+  "title": "Tiger Zinda Hai",
+  "year": "2017",
+  "poster": "https://asyafilmizlesene.org/wp-content/uploads/2023/03/MV5BYzM0ZTg2OTEtNzI4My00NjBlLWFhYTctY2E4NzdiYzY1YWYwXkEyXkFqcGdeQXVyODE5NzE3OTE@._V1_SX300-360x618_c.jpg",
+  "videoUrl": [
+    "https://my.mail.ru/video/embed/7558610805613134470",
+    "https://ok.ru/videoembed/4684208409188"
+  ]
+},
+
+{
+  "title": "Dhoom 3",
+  "year": "2013",
+  "poster": "https://asyafilmizlesene.org/wp-content/uploads/2023/03/MV5BMjA4OTEzMjkzN15BMl5BanBnXkFtZTgwMDAwNzg3MDE@._V1_SX300.jpg",
+  "videoUrl": [
+    "https://my.mail.ru/video/embed/7558610805613134510",
+    "https://ok.ru/videoembed/4760601299556",
+    "https://my.mail.ru/video/embed/9208342477407256620"
+  ]
+},
+
+
+{
+  "title": "Fitoor",
+  "year": "2016",
+  "poster": "https://asyafilmizlesene.org/wp-content/uploads/2023/03/MV5BOWVhMjhjZWUtYjNlYS00ZGE3LTg2NTMtM2RhNTE5NGM3YzZmXkEyXkFqcGdeQXVyNjQ2MjQ5NzM@._V1_SX300-360x618_c.jpg",
+  "videoUrl": [
+    "https://my.mail.ru/video/embed/7558610805613134492",
+    "https://ok.ru/videoembed/231330089526",
+    "https://ok.ru/videoembed/470282013371",
+    "https://ok.ru/videoembed/91549338258",
+    "https://ok.ru/videoembed/85561903844"
+  ]
+},
+
+
+
 
 {
   "title": "New York",
@@ -92,6 +160,16 @@
   ]
 },
 
+{
+  "title": "Mere Brother Ki Dulhan ",
+  "year": "2012",
+  "poster": "https://asyafilmizlesene.org/wp-content/uploads/2023/03/MV5BODE2Njk4MTU4NV5BMl5BanBnXkFtZTcwNjU4OTc1Ng@@._V1_SX300-360x618_c.jpg",
+  "videoUrl": [
+    "https://my.mail.ru/video/embed/7558610805613134511",
+    "https://ok.ru/videoembed/300716002020",
+    "https://ok.ru/videoembed/90436274742"
+  ]
+},
 
 
 
@@ -270,16 +348,7 @@
       "type": "hint",
       "videoUrl": "https://box-1035-f2.vmeas.cloud/hls/xqx2p3cyybokjiqbtees5ka2xaejhyns6mf5e7h5q53bm2e7zcirbajgaoyq/index-v1-a1.m3u8"
     },
-
-        {
-      "title": "Phone Bhoot",
-      "year": "2024",
-      "poster": "https://asyafilmizlesene.org/wp-content/uploads/2022/12/resim-43-360x618_c.jpg",
-      "genre": "action",
-      "description": "Phone Bhoot",
-      "type": "hint",
-      "videoUrl": "https://drive.google.com/file/d/1ATqNohOO5uuDgD_LP17qV-tgPbLTIkD-/preview"
-    },
+ 
 
 
 
