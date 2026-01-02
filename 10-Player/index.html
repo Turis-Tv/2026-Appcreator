@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Watch free TV online with our IPTV player. Live channel streaming, easy to use, no downloads. HD digital TV straight to your browser.">
+  <meta name="keywords" content="iptv player, online tv, live channels, streaming tv, m3u player, iptv list, free tv, watch tv online, tv channels, iptv world">
+
+  <title>Turis Tv</title>
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap">
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="https://od.lk/s/NzJfNDgwMjQzMjNf/gmtv.png">
+  <link rel="apple-touch-icon" href="./img/icon-192x192.png">
+  <!-- Feather Icons and player libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.1.4/dist/hls.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dashjs/dist/dash.all.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+
+  <style>
+    :root {
+      --playlist-width: 400px;
+      --primary: #1a73e8;
+      --highlight: #25c1ff;
+      --player-bg-dark: #15191f;
+      --player-bg-light: #f7f7f9;
+      --sidebar-bg-dark: #232735;
+      --sidebar-bg-light: #f1f2f8;
+      --bar-trans-dark: rgba(33,41,60,0.94);
+      --bar-trans-light: #e7edf7;
+      --text-dark: #e7edf7;
+      --text-light: #151a22;
+      --panel-bg-dark: #212638;
+      --panel-bg-light: #f9fafc;
+      --playlist-bar-h: 54px;
+      --success: #2ec866;
+      --warn: #eab626;
+      --error: #ee3a40;
+      --snackbar: #15191fEA;
+    }
+    html, body { margin:0;padding:0;width:100vw;height:100vh;overflow:hidden; background: var(--player-bg-dark);}
+    body {font-family:'Noto Sans SC',sans-serif; color:var(--text-dark); background: var(--player-bg-dark); transition: background .23s;}
+    body.theme-light {background: var(--player-bg-light); color:var(--text-light);}
+    body.theme-purple { background:#29224b; }
+    body.theme-green { background:#112a22; }
+    .iptv-root {height:100vh;display:flex;position:relative;}
+    .iptv-player-area {flex:1;position:relative;min-width:0;}
+    .player-container {width:100vw;height:100vh;position:relative;overflow:hidden;}
+    #video-player {
+      position:absolute;left:0;top:0;width:100vw;height:100vh;object-fit:contain;background:#000;background-color:#000;
+    }
+    .player-controls {
+      position:absolute;left:0;right:0;bottom:0;z-index:20;
+      display:flex;align-items:center;padding:16px;background:rgba(21,25,31,0.7);
+    }
+    .control-btn, .fullscreen-btn {background:rgba(255,255,255,0.1);border:none;color:var(--text-dark);
+      width:44px;height:44px;border-radius:50%;font-size:21px;margin-right:7px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
+    body.theme-light .control-btn {background:rgba(32,47,80,0.08);color:var(--text-light);}
+    .channel-info-flex {flex:1;padding:0 14px;min-width:0;}
+    #current-channel {font-weight:600;font-size:1.1rem;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;}
+    #player-status {color:var(--highlight);font-size:0.9rem;}
+    .fullscreen-btn {margin-left:auto;}
+
+    .default-playlist-bar {
+      position:absolute;top:0;left:0;right:0;z-index:33;height:var(--playlist-bar-h);display:flex;align-items:center;
+      background:var(--bar-trans-dark);border-bottom:1.5px solid #234f76; padding:0 12px;
+      transition:top 0.34s cubic-bezier(0.5,0,0.3,1.1);
+      gap: 8px; 
+    }
+    body.theme-light .default-playlist-bar {background:var(--bar-trans-light);border-bottom:1.5px solid #0b468c0c;}
+    .default-playlist-bar.hide {top:-80px;}
+
+    #show-playlist-slider-btn {
+        margin-left: auto;
+    }
+
+    .theme-btn, .category-btn, #history-btn, #show-upload-panel-btn {
+      background:none;color:#ffb100; font-size:1.19rem; padding:12px 12px; cursor:pointer; border:none; opacity:0.97;
+      border-radius:12px; transition:opacity 0.13s,background 0.13s,color 0.13s;display:inline-flex;align-items:center;}
+    .theme-btn:hover, .category-btn:hover, #history-btn:hover, #show-upload-panel-btn:hover {opacity:1;background:rgba(230,185,15,0.13);}
+    
+    .playlist-dropdown-wrap, .category-dropdown-wrap {position:relative;display:inline-block;}
+    .playlist-dropdown-icon {
+      width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+      border-radius:100%;background:linear-gradient(42deg,var(--primary),var(--highlight));cursor:pointer;
+      box-shadow:0 2px 13px #1a73e818;transition:box-shadow .17s;}
+    
+    .bar-dropdown-list {
+        position:absolute;top:110%;right: 0; 
+        min-width:150px;padding:7px;background:var(--panel-bg-dark);border-radius:9px;display:none;flex-direction:column;gap:5px;border:1.3px solid #1a73e83d;margin-top:2px; z-index: 34;
+        max-height: 50vh; overflow-y: auto;
+    }
+    body.theme-light .bar-dropdown-list {background:var(--panel-bg-light);border:1.3px solid #d2e3fc;}
+    .bar-dropdown-list.open {display:flex;}
+    
+    .playlist-dropdown-list { min-width: 200px; flex-direction: column; }
+    
+    .playlist-dd-item {
+      background:none; border:none; width: 100%; padding: 8px 12px; margin: 0; border-radius: 8px; box-shadow:none;
+      display:flex; align-items:center; gap: 12px; cursor:pointer; font-size: 1rem; transition:background .13s;
+      color: var(--text-dark); text-align: left; box-sizing: border-box;
+    }
+    .playlist-dd-item span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .playlist-dd-item i, .playlist-dd-item svg {
+        stroke: var(--text-dark);
+        flex-shrink: 0;
+    }
+    .playlist-dd-item.selected {
+      background:var(--highlight);
+      color: #fff;
+      font-weight: bold;
+    }
+    .playlist-dd-item.selected i, .playlist-dd-item.selected svg {
+      stroke: #fff;
+    }
+    .playlist-dd-item:hover:not(.selected) {background:rgba(31,177,236,0.13);}
+
+    body.theme-light .playlist-dd-item { color: var(--text-light); }
+    body.theme-light .playlist-dd-item i, body.theme-light .playlist-dd-item svg { stroke: var(--text-light); }
+    body.theme-light .playlist-dd-item.selected { color: #fff; }
+    body.theme-light .playlist-dd-item.selected i, body.theme-light .playlist-dd-item.selected svg { stroke: #fff; }
+
+    .category-dd-item {
+        background: none; border: none; color: inherit; font-size: 1rem; padding: 8px 12px; border-radius: 6px; cursor: pointer; text-align: left;
+    }
+    .category-dd-item:hover, .category-dd-item.selected { background: rgba(31,177,236,0.13); }
+    .category-dd-item.selected { font-weight: bold; color: var(--highlight); }
+
+    .default-playlist-btn {border:none;border-radius:8px;color:var(--text-dark);font-size:1rem;font-weight:600;display:flex;align-items:center;gap:7px;cursor:pointer; background:#2c63ff;min-width:36px;padding: 0 7px; margin:5px;}
+    
+    .playlist-slider {
+      position:fixed;
+      top: var(--playlist-bar-h); 
+      height: calc(100vh - var(--playlist-bar-h));
+      right:0;
+      width:var(--playlist-width);
+      max-width:99vw;
+      background:var(--sidebar-bg-dark);
+      box-shadow:-8px 0px 30px #0005;
+      transform:translateX(100%);
+      transition:transform 0.38s cubic-bezier(.53,.02,.33,1.2);
+      z-index: 30; 
+      display:flex;
+      flex-direction:column;
+      border-top-left-radius:18px;
+    }
+
+    body.theme-light .playlist-slider {background:var(--sidebar-bg-light);}
+    .playlist-slider.open {transform:translateX(0);}
+    .playlist-header {display:flex;align-items:center;justify-content:space-between;height:56px;
+      padding:0 12px;border-bottom:1.2px solid #284088;color:var(--text-dark);background:rgba(40,40,65,0.92);}
+    body.theme-light .playlist-header {background: #eff3fc;color:var(--text-light);border-bottom:1.2px solid #c3d5f0;}
+    .playlist-header-main {display:flex;align-items:center;gap:12px;width:100%;min-width:0;}
+    .playlist-header h3 {font-size:1.09rem;font-weight:600;letter-spacing:.18px;margin:0;color:var(--highlight);}
+    .playlist-counts {font-size:1rem;color:#25baff;opacity:.95;font-weight:600;margin-left:2px;}
+    .close-slider-btn {font-size:1.15rem;background:none;color:inherit;border:none;cursor:pointer;line-height:1;opacity:0.97;}
+    .channels-list {flex:1;overflow-y:auto;overflow-x:hidden;padding:12px 8px 24px;display:grid;grid-gap:11px;}
+    .channel-item {
+      background:rgba(80,193,247,0.07);border-radius:8px;display:flex;align-items:center;gap:12px;min-width:0;
+      padding:16px 18px;cursor:pointer;transition:background .17s,border .15s;}
+    .channel-item.active {background:rgba(80,193,247,0.23);border-left:5px solid var(--highlight);}
+    body.theme-light .channel-item {background:rgba(32,47,80,0.05);}
+    body.theme-light .channel-item.active {background:rgba(36,153,244,0.18);border-left:5px solid var(--highlight);}
+    
+    .channel-logo {
+      width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:rgba(79,195,247,0.10);border-radius:50%;overflow:hidden;
+      color: #fff;
+    }
+    body.theme-light .channel-logo {
+        color: var(--text-light);
+    }
+    .channel-logo img {
+      width:100%;height:100%;object-fit:cover;border-radius:50%;
+    }
+    .channel-logo i {
+        width: 24px; height: 24px;
+    }
+
+    .channel-details {flex:1;min-width:0;}
+    .channel-name {font-weight:500;font-size:1.13rem;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;}
+    .channel-category {font-size:1em;color:#25a0ec;opacity:.81;}
+    .empty-list {color:#79a1ff;text-align:center;padding:30px 12px 10px;}
+    .empty-list i {font-size:2.4rem;opacity:0.23;margin-bottom:13px;}
+    .loading-overlay {
+      position:absolute;left:0;top:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      background:rgba(0,0,0,0.74);z-index:888;color:var(--text-dark); animation:fadein .5s;}
+    body.theme-light .loading-overlay { background:rgba(180,200,235,0.72);color:#232b3e;}
+    .spinner {width:44px;height:44px;border-radius:50%;border:5px solid #eee3;border-top:5px solid var(--highlight);animation:spin 1s linear infinite;}
+    @keyframes spin {0%{transform:rotate(0);}100%{transform:rotate(360deg);}}
+    @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+    .snackbar {
+      display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+      background:var(--snackbar);color:#fff;min-width:160px;max-width:93vw;padding:17px 32px;font-size:1.07em;
+      border-radius:12px;box-shadow:0 6px 40px #1238;z-index:2000;text-align:center;animation:fadein .38s;}
+    .snackbar.show {display:block;}
+
+    .upload-panel-bg {pointer-events:none;opacity:0;transition:opacity .23s;position:fixed;z-index:99;left:0;top:0;width:100vw;height:100vh;background:rgba(10,18,28,0.79);}
+    .upload-panel-bg.open {opacity:1;pointer-events:auto;}
+    .upload-panel {
+        position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+        background:var(--panel-bg-dark);padding:25px 20px;border-radius:18px;box-shadow:0 3px 80px #000c;
+        display:flex;flex-direction:column;align-items:center;
+        width: 360px; max-width:92vw; max-height: 90vh; overflow-y: auto;
+    }
+    body.theme-light .upload-panel {background:var(--panel-bg-light);}
+    .upload-panel h2 {margin:0 0 12px;color:var(--highlight); font-size: 1.3rem; text-align: center;}
+    .file-upload-label {
+      border:2px dashed #2da9e6;border-radius:10px;padding:12px 20px;color:var(--highlight);
+      background:rgba(30,35,54,0.12);cursor:pointer;font-size:1rem;display:flex;flex-direction:column;align-items:center;margin-bottom:12px; text-align: center; width: 100%; box-sizing: border-box;}
+    .file-upload-label i {margin-bottom:6px;font-size:1.5em;}
+    .upload-drop-info {margin-bottom:10px; font-size: 0.9rem; opacity: 0.8;}
+    .or-upload {margin:10px 0 8px; font-size: 0.95rem; text-align: center;}
+    .upload-panel input[type="file"]{display:none;}
+    .url-upload-group {display:flex; flex-direction: column; gap:8px; margin-bottom:12px; width: 100%;}
+    .url-upload-input {border:1px solid #2196f3;border-radius:7px;padding:12px;font-size:1rem; width: 100%; box-sizing: border-box;}
+    body.theme-light .url-upload-input {border:1px solid #7fbbee;background:#f8faff;}
+    .url-upload-btn {background:var(--highlight);color:#fff;border:none;padding:12px;border-radius:7px;font-weight:600;font-size:1rem;cursor:pointer; width: 100%;}
+    .upload-panel .panel-close {position:absolute;right:10px;top:10px;font-size:1.2rem;background:none;border:none;cursor:pointer; color: var(--text-dark); padding: 5px;}
+    body.theme-light .upload-panel .panel-close { color: var(--text-light); }
+    .upload-panel .big-upload-progress {margin:6px 0 0; width:100%; background:#b7c3db; border-radius:7px; height:10px; }
+    .upload-panel .bar {height:100%;background:linear-gradient(90deg,#56bfff 70%,#378fff);width:0%;transition:width .25s;}
+    
+    [role="button"] {outline: 0;}
+    .focus-visible:focus { outline: 2px solid var(--highlight);}
+    [aria-live] {outline: none;}
+    #history-modal-bg {pointer-events:none;opacity:0;position:fixed;z-index:120;top:0;left:0;width:100vw;height:100vh;background:rgba(5,10,21,0.72);transition:opacity .18s;}
+    #history-modal-bg.open {pointer-events:auto;opacity:1;}
+    #history-modal {
+      background:var(--panel-bg-dark);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+      border-radius:17px;padding:32px 18px 22px;max-width:94vw;min-width:245px;color:#ace7ff;box-shadow:0 2px 50px #000b;display:flex;flex-direction:column;align-items:center;
+      border:1.5px solid rgba(76,175,247,0.12);}
+    body.theme-light #history-modal {background:var(--panel-bg-light);color:#2c4671;}
+    #history-modal h2 {margin:0 0 12px;font-size:1.08em;color:var(--highlight);}
+    .history-list{margin:0 0 8px;width:100%;max-height:340px;overflow:auto;overflow-x:hidden;text-align:left;}
+    .history-item {background:rgba(60,66,98,0.14);padding:8px 7px 8px 9px;margin-bottom:8px;font-size:.96em;
+      border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:5px;}
+    .history-item span {flex:1;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
+    .history-del-btn {background:none;color:#fea3a6;font-size:1.08em;border:none;cursor:pointer;padding:3px;margin-left:6px;}
+    .history-del-btn:hover{color:#ff3656;}
+    .history-dt {color:#76b2ff;font-size:.88em;margin-left:11px;}
+    .bulkbtn {background:linear-gradient(45deg,#dc2430,#ffb100);border:none;color:#fff;border-radius:7px;padding:7px 13px 7px 12px;margin-top:6px;cursor:pointer;}
+    .bulkbtn:hover{opacity:.91;}
+
+    #stream-select-bg {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(10, 18, 28, 0.79);
+      z-index: 150;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity .2s;
+    }
+    #stream-select-bg.open {
+      opacity: 1; pointer-events: auto;
+    }
+    #stream-select-modal {
+      background: var(--panel-bg-dark);
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 3px 80px #000c;
+      width: 280px; max-width: 90vw;
+      border: 1.5px solid rgba(76, 175, 247, 0.4);
+      position: relative;
+    }
+    body.theme-light #stream-select-modal {
+        background: var(--panel-bg-light);
+    }
+    #stream-select-modal h2 {
+      margin: 0 0 15px;
+      color: var(--highlight);
+      font-size: 1.1rem; /* AANGEPAST */
+      text-align: center;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    #stream-select-list {
+      display: flex; flex-direction: column; gap: 8px;
+      max-height: 50vh; overflow-y: auto;
+    }
+    .stream-select-btn {
+      background: rgba(80,193,247,0.09);
+      border: 1px solid rgba(80,193,247,0.2);
+      color: inherit;
+      width: 100%;
+      padding: 8px 10px; /* AANGEPAST */
+      font-size: 0.9rem; /* AANGEPAST */
+      font-weight: 500;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background .15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .stream-select-btn:hover {
+      background: rgba(80,193,247,0.2);
+    }
+    .stream-select-btn.playing {
+        background: var(--highlight);
+        color: #fff;
+        font-weight: bold;
+        border-color: var(--highlight);
+        justify-content: space-between;
+    }
+    .stream-select-btn.playing svg {
+        stroke: #fff;
+    }
+    #stream-select-modal .panel-close {
+        position:absolute;right:8px;top:8px;font-size:1.2rem;background:none;border:none;cursor:pointer;
+        color: var(--text-dark); padding: 5px;
+    }
+    body.theme-light #stream-select-modal .panel-close { color: var(--text-light); }
+
+    @media (max-width: 600px) {
+      .default-playlist-bar {
+        touch-action: pan-x pan-y;
+        min-height: 58px;
+        font-size: 1.15rem;
+        flex-wrap: wrap;
+      }
+      .playlist-dropdown-icon, .control-btn, #history-btn, #show-upload-panel-btn {
+        min-width: 44px;
+        min-height: 44px;
+        font-size: 1.2em;
+      }
+      .playlist-header-main {flex-wrap: wrap;}
+      
+      .category-dd-item {
+        font-size: 0.9rem;
+        padding: 7px 11px;
+      }
+      
+      .playlist-header h3 { font-size: 1rem; }
+      .playlist-counts { font-size: 0.9rem; }
+      .channel-item { padding: 10px 12px; gap: 10px; }
+      .channel-name { font-size: 0.95rem; }
+      .channel-category { font-size: 0.8rem; }
+    }
+    .default-playlist-bar.slide-down {
+      top:0 !important;
+      transition: top 0.2s ease-in;
+      box-shadow: 0 7px 32px #0005;
+    }
+  </style>
+</head>
+<body>
+<div class="iptv-root">
+  <div class="iptv-player-area" id="iptv-player-area" aria-label="IPTV Player" role="region">
+
+    <div class="default-playlist-bar" id="default-playlist-bar">
+      <button class="theme-btn" id="theme-switch-btn" aria-label="Switch Theme" role="button" title="Switch Theme"><i data-feather="moon"></i></button>
+      <button id="history-btn" aria-label="Yükleme Geçmişini Göster" role="button" title="Çalma Listesi Geçmişleri"><i data-feather="clock"></i></button>
+      <button id="show-upload-panel-btn" aria-label="Oynatma Listesini Yükle" role="button" title="Oynatma Listesini Yükle"><i data-feather="upload-cloud"></i></button>
+      
+      <div class="category-dropdown-wrap" id="category-dropdown-wrap">
+          <button id="category-btn" class="category-btn" title="Kategori Seçin"><i data-feather="grid"></i></button>
+          <div id="category-dropdown-list" class="bar-dropdown-list"></div>
+      </div>
+      
+      <div class="playlist-dropdown-wrap" id="playlist-dropdown-wrap">
+        <div class="playlist-dropdown-icon" id="playlist-dropdown-current" title="Varsayılan Çalma Listesini Seçin"><i data-feather="layers"></i></div>
+        <div id="playlist-dropdown-list" class="bar-dropdown-list playlist-dropdown-list"></div>
+      </div>
+      
+      <button class="default-playlist-btn" id="show-playlist-slider-btn" aria-label="Kanal Listesini Göster" role="button" title="Oynatma Listesini Göster">
+        <i data-feather="list"></i>
+      </button>
+    </div>
+    
+    <div class="player-container" id="player-container">
+      <video id="video-player" controls poster="https://od.lk/s/NzJfNDgwMjU0MDdf/player-poster%20-%20kopie.png" aria-label="Video Player"></video>
+      <div class="notice-overlay fade-enter fade-enter-active" id="notice-overlay" aria-live="polite">
+        <div id="notice-text-msg"></div>
+        <div class="notice-actions" id="notice-actions"></div>
+      </div>
+      <div class="loading-overlay" id="loading-overlay" style="display:none;">
+        <div class="spinner" aria-label="Loading"></div>
+        <p id="loading-text">Loading...</p>
+      </div>
+      <div class="snackbar" id="snackbar"></div>
+
+      <div class="player-controls">
+        <button class="control-btn" id="play-pause-btn" aria-label="Play/Pause" role="button"><i data-feather="play"></i></button>
+        <button class="control-btn" id="mute-btn" aria-label="Mute/Unmute" role="button"><i data-feather="volume-2"></i></button>
+        <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="1" style="width:70px;margin-right:8px;" aria-label="Volume slider">
+        <div class="channel-info-flex">
+          <div class="channel-title" id="current-channel"></div>
+          <div class="channel-status" id="player-status"></div>
+        </div>
+        <button class="control-btn fullscreen-btn" id="fullscreen-btn" aria-label="Fullscreen" role="button"><i data-feather="maximize"></i></button>
+      </div>
+    </div>
+
+    <div class="upload-panel-bg" id="upload-panel-bg">
+      <form class="upload-panel" id="upload-panel" autocomplete="off" onsubmit="return false;" aria-label="Upload playlist panel">
+        <button class="panel-close" id="close-upload-panel-btn" aria-label="Close upload panel" role="button"><i data-feather="x"></i></button>
+        <h2><i data-feather="upload"></i> Oynatma Listesini Yükle</h2>
+        
+        <label for="file-upload-input" class="file-upload-label" id="file-upload-label" aria-label="Upload playlist file">
+          <i data-feather="file-text"></i> Dosya Seç (m3u, txt, json, mpd, mp4)
+        </label>
+        <input type="file" id="file-upload-input" accept=".m3u,.txt,.json,.mpd,.hls,.ts,.mp4,.m3u8" />
+        <div class="upload-drop-info">veya buraya sürükleyin</div>
+        
+        <div class="or-upload">Veya Medya URL'sini Girin</div>
+        <div class="url-upload-group">
+          <input id="url-upload-input" class="url-upload-input" type="text" placeholder="http://...m3u8 / .mp4" aria-label="URL">
+          <button class="url-upload-btn" id="upload-url-btn" type="submit"><i data-feather="play-circle"></i> Load</button>
+        </div>
+        <div class="big-upload-progress" id="upload-progress-bar" style="display:none;"><div class="bar" id="upload-progress-bar-fill"></div></div>
+      </form>
+    </div>
+
+    <div id="history-modal-bg">
+      <div id="history-modal" aria-label="Upload History">
+        <h2><i data-feather="clock"></i>Yükleme Geçmişi</h2>
+        <div class="history-list" id="history-list"></div>
+        <button class="bulkbtn" id="clear-all-history"><i data-feather="trash-2"></i> Tüm Yükleme Geçmişini Temizle</button>
+      </div>
+    </div>
+
+    <div id="stream-select-bg">
+      <div id="stream-select-modal">
+        <button class="panel-close" id="close-stream-select-btn"><i data-feather="x"></i></button>
+        <h2 id="stream-select-title"></h2>
+        <div id="stream-select-list"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="playlist-slider" id="playlist-slider">
+    <div class="playlist-header">
+      <div class="playlist-header-main">
+        <h3><i data-feather="tv"></i> </h3>
+        <span class="playlist-counts" id="playlist-counts"></span>
+      </div>
+      <button class="close-slider-btn" id="close-playlist-slider-btn" aria-label="Close playlist slider" role="button"><i data-feather="x"></i></button>
+    </div>
+    <div class="channels-list" id="channels-list"></div>
+  </div>
+</div>
+
+<script>
+// Feather Icons setup and helpers
+function runFeather(){ if(window.feather) feather.replace(); }
+document.addEventListener('DOMContentLoaded', runFeather);
+function updateIcons() { setTimeout(runFeather, 20); }
+
+function focusLargeBtns() {
+  document.querySelectorAll('[role="button"]').forEach(btn=>{
+    btn.addEventListener('keydown',e=>{
+      if(e.key==='Enter'||e.key===' ')btn.click();
+    });
+    btn.setAttribute('tabindex','0');
+  });
+}
+
+function showSnackbar(txt, type="") {
+  let s = document.getElementById('snackbar');
+  s.textContent = txt;
+  s.style.background = type==='success'? 'var(--success)' : type==='warn'? 'var(--warn)' : type==='error'? 'var(--error)' : 'var(--snackbar)';
+  s.classList.add('show'); setTimeout(()=>s.classList.remove('show'), 1900);
+}
+
+// Theme toggling
+const themes = ['dark', 'light', 'purple', 'green'];
+let curTheme = localStorage.getItem('iptvTheme') || 'dark';
+function setTheme(mode) {
+  themes.forEach(t => document.body.classList.toggle('theme-'+t, t===mode));
+  curTheme=mode;
+  document.getElementById('theme-switch-btn').firstElementChild.setAttribute('data-feather', mode==='light' ? 'sun' : mode==='purple'? 'droplet' : mode==='green'? 'activity': 'moon');
+  localStorage.setItem('iptvTheme',mode);
+  updateIcons();
+}
+document.getElementById('theme-switch-btn').onclick=function(){
+  let idx = themes.indexOf(curTheme); setTheme(themes[(idx+1)%themes.length]);
+};
+setTheme(curTheme);
+focusLargeBtns();
+
+// DOM element references
+const videoPlayer = document.getElementById('video-player');
+const playPauseBtn = document.getElementById('play-pause-btn');
+const muteBtn = document.getElementById('mute-btn');
+const volumeSlider = document.getElementById('volume-slider');
+const fullscreenBtn = document.getElementById('fullscreen-btn');
+const currentChannel = document.getElementById('current-channel');
+const playerStatus = document.getElementById('player-status');
+const playlistSlider = document.getElementById('playlist-slider');
+const showPlaylistBtn = document.getElementById('show-playlist-slider-btn');
+const closePlaylistBtn = document.getElementById('close-playlist-slider-btn');
+const channelsList = document.getElementById('channels-list');
+const playerArea = document.getElementById('iptv-player-area');
+const playlistDropdownWrap = document.getElementById('playlist-dropdown-wrap');
+const playlistDropdownCurrent = document.getElementById('playlist-dropdown-current');
+const playlistDropdownList = document.getElementById('playlist-dropdown-list');
+const loadingOverlay = document.getElementById('loading-overlay');
+const loadingText = document.getElementById('loading-text');
+const bar = document.getElementById('default-playlist-bar');
+const uploadPanelBg = document.getElementById('upload-panel-bg');
+const uploadPanel = document.getElementById('upload-panel');
+const showUploadPanelBtn = document.getElementById('show-upload-panel-btn');
+const closeUploadPanelBtn = document.getElementById('close-upload-panel-btn');
+const fileUploadInput = document.getElementById('file-upload-input');
+const fileUploadLabel = document.getElementById('file-upload-label');
+const urlUploadInput = document.getElementById('url-upload-input');
+const uploadUrlBtn = document.getElementById('upload-url-btn');
+const uploadProgressBar = document.getElementById('upload-progress-bar');
+const uploadProgressFill = document.getElementById('upload-progress-bar-fill');
+const playlistCounts = document.getElementById('playlist-counts');
+const historyBtn = document.getElementById('history-btn');
+const historyModalBg = document.getElementById('history-modal-bg');
+const historyListDiv = document.getElementById('history-list');
+const clearAllHistoryBtn = document.getElementById('clear-all-history');
+const noticeOverlay = document.getElementById('notice-overlay');
+const noticeTextMsg = document.getElementById('notice-text-msg');
+const noticeActions = document.getElementById('notice-actions');
+const categoryDropdownWrap = document.getElementById('category-dropdown-wrap');
+const categoryBtn = document.getElementById('category-btn');
+const categoryDropdownList = document.getElementById('category-dropdown-list');
+
+const streamSelectBg = document.getElementById('stream-select-bg');
+const streamSelectModal = document.getElementById('stream-select-modal');
+const streamSelectTitle = document.getElementById('stream-select-title');
+const streamSelectList = document.getElementById('stream-select-list');
+const closeStreamSelectBtn = document.getElementById('close-stream-select-btn');
+
+// Variabelen
+let sliderOpen = false, barHideT = null, hls = null, dash = null;
+let channels = [], allChannels = [], currentPlayingChannel = null;
+let uploadHistory = JSON.parse(localStorage.getItem('iptvUploadHistory')||'[]');
+let playlistCache = JSON.parse(localStorage.getItem("iptvPlaylists")||"{}");
+let channelLoadTimeout = null;
+let currentCategory = 'Hepsi';
+
+function savePlaylistOffline(key,txt) {
+  playlistCache[key]=txt;
+  localStorage.setItem("iptvPlaylists",JSON.stringify(playlistCache));
+}
+window.addEventListener('offline',()=>{ showSnackbar("Offline: Local playlists available",'warn'); });
+
+// AANGEPASTE VOLGORDE EN INDEX
+let defaultListIcons = [
+ 
+
+  {name: "Turis Tv", icon:'<i data-feather="film"></i>', m3u:"https://raw.githubusercontent.com/Turis-Tv/m3u-Dosyalar/refs/heads/main/M3U-Dosyalari/Ipt-Radyo.m3u"},
+  {name: "Bugsfree Br", icon:'<i data-feather="tv"></i>', m3u:"https://raw.githubusercontent.com/bugsfreeweb/LiveTVCollector/main/BugsfreeStreams/Output/StreamLinks-BR.m3u"},
+  {name: "Bugsfree Id", icon:'<i data-feather="video"></i>', m3u:"https://raw.githubusercontent.com/bugsfreeweb/LiveTVCollector/main/BugsfreeStreams/Output/StreamLinks-ID.m3u"},
+  {name: "Nederland Tv", icon:'<i data-feather="play-circle"></i>', m3u:"https://raw.githubusercontent.com/iptv-org/iptv/master/streams/nl.m3u"},
+
+
+];
+let selectedPlaylistIdx = 0; // Standaard opstart playlist: 0 = Turkse TV
+
+function renderPlaylistMenu() {
+    playlistDropdownList.innerHTML = '';
+    defaultListIcons.forEach((item, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'playlist-dd-item';
+        btn.innerHTML = item.icon + `<span>${item.name}</span>`;
+        if(index === selectedPlaylistIdx) btn.classList.add('selected');
+        
+        btn.onclick = () => { selectDefaultPlaylist(index, false); };
+        playlistDropdownList.appendChild(btn);
+    });
+    updateIcons();
+}
+
+playlistDropdownCurrent.onclick=function(){
+  playlistDropdownList.classList.toggle('open'); updateIcons();
+};
+
+document.addEventListener('mousedown',function(e){
+  if(!playlistDropdownWrap.contains(e.target)) playlistDropdownList.classList.remove('open');
+  if(!categoryDropdownWrap.contains(e.target)) categoryDropdownList.classList.remove('open');
+});
+
+function selectDefaultPlaylist(idx,auto) {
+  selectedPlaylistIdx = idx;
+  playlistDropdownCurrent.innerHTML = defaultListIcons[idx].icon;
+  playlistDropdownList.classList.remove('open');
+  renderPlaylistMenu();
+  if(!auto)loadDefaultPlaylist(idx);
+}
+
+function loadDefaultPlaylist(idx) {
+  let m3uUrl = defaultListIcons[idx].m3u;
+  loadingOverlay.style.display='flex';loadingText.textContent="Kanalenlijst laden...";
+  channels = []; allChannels = [];
+  fetch(m3uUrl).then(resp=>{
+    if(!resp.ok)throw new Error('Network error');
+    return resp.text();
+  }).then(txt=>{
+    allChannels = parsePlaylist(txt);
+    currentCategory = 'Hepsi';
+    renderCategories();
+    renderChannels();
+    savePlaylistOffline(defaultListIcons[idx].name,txt);
+    loadingOverlay.style.display='none'; playerStatus.textContent='Geladen';
+    autoPlayFirstChannel();
+  }).catch(err=>{
+    loadingOverlay.style.display='none';
+    noticeShow("Laden van playlist mislukt: "+err.message); renderChannels();
+    playerStatus.textContent='Mislukt: '+(err.message||'Error');
+  });
+  updateIcons();
+}
+
+renderPlaylistMenu();
+selectDefaultPlaylist(selectedPlaylistIdx,true);
+
+const openSlider = ()=>{playlistSlider.classList.add('open');sliderOpen=true;updateIcons()}
+const closeSlider = ()=>{playlistSlider.classList.remove('open');sliderOpen=false;updateIcons()}
+showPlaylistBtn.onclick = openSlider;
+closePlaylistBtn.onclick = closeSlider;
+
+document.getElementById('player-container').onclick = (e) => {
+    if (e.target.closest('.player-controls')) return;
+    if (sliderOpen) {
+      closeSlider();
+    } else {
+      openSlider();
+    }
+};
+
+showUploadPanelBtn.onclick = () => {
+  noticeHide(); uploadPanelBg.classList.add('open'); urlUploadInput.value='';
+  uploadProgressBar.style.display='none'; updateIcons();
+};
+closeUploadPanelBtn.onclick = ()=>{uploadPanelBg.classList.remove('open');updateIcons()}
+uploadPanelBg.onclick = (e)=>{if(e.target===uploadPanelBg)uploadPanelBg.classList.remove('open');updateIcons()}
+fileUploadLabel.onclick = ()=>fileUploadInput.click();
+fileUploadInput.onchange = e=>handlePlaylistUpload(e.target.files,'file');
+
+uploadPanel.ondragover = (e)=>{e.preventDefault();uploadPanel.classList.add('drag');}
+uploadPanel.ondragleave = (e)=>{e.preventDefault();uploadPanel.classList.remove('drag');}
+uploadPanel.ondrop = function(e){
+  e.preventDefault();uploadPanel.classList.remove('drag');
+  handlePlaylistUpload(e.dataTransfer.files,'file');
+}
+
+function handlePlaylistUpload(fileList,type) {
+  let f = fileList[0];
+  if (!f) return;
+  fileUploadInput.value = null;
+  const CHUNK = 2 * 1024 * 1024;
+  let pos = 0, txt = "";
+  let reader = new FileReader();
+  uploadProgressBar.style.display = 'block';
+  uploadProgressFill.style.width = '0%';
+  reader.onload = function(ev) {
+    txt += ev.target.result;
+    pos += CHUNK;
+    uploadProgressFill.style.width = Math.min((pos / f.size) * 100, 100).toFixed(1) + '%';
+    if (pos < f.size) { readChunk(); } else {
+      allChannels = parsePlaylist(txt);
+      currentCategory = 'Hepsi';
+      renderCategories();
+      renderChannels();
+      savePlaylistOffline(f.name, txt);
+      uploadPanelBg.classList.remove('open');
+      noticeShow("Playlist loaded.<br>Select a channel.");
+      addUploadHistory({ type: 'file', name: f.name, date: Date.now() }, txt);
+      autoPlayFirstChannel();
+      updateIcons();
+    }
+  };
+  function readChunk() { let end = Math.min(pos + CHUNK, f.size); reader.readAsText(f.slice(pos, end)); }
+  readChunk();
+}
+
+uploadUrlBtn.onclick=(e)=>{
+  e.preventDefault(); let url = urlUploadInput.value.trim();
+  if(!url)return;
+  loadingOverlay.style.display='flex';loadingText.textContent='Yükleniyor...';
+  fetch(url).then(resp=>{
+    if(resp.ok)return resp.text(); throw new Error("Network error");
+  }).then(txt=>{
+    allChannels = parsePlaylist(txt);
+    currentCategory = 'Hepsi';
+    renderCategories();
+    renderChannels();
+    let lastpart = url.replace(/\/$/,'').split('/').slice(-1)[0].slice(0,64);
+    savePlaylistOffline(lastpart, txt);
+    uploadPanelBg.classList.remove('open'); loadingOverlay.style.display='none';
+    noticeShow("Playlist loaded."); autoPlayFirstChannel();
+    addUploadHistory({type:'url',name:lastpart, url:url, date:Date.now()}, txt);
+    updateIcons();
+  }).catch(err=>{
+    loadingOverlay.style.display='none'; noticeShow("Failed: "+err.message); updateIcons();
+  });
+}
+
+function addUploadHistory(info, txt) {
+  uploadHistory = (JSON.parse(localStorage.getItem('iptvUploadHistory')||'[]'));
+  if (txt && txt.length < 400000) { info.txt = txt; } 
+  else if (info.type === 'file' && info.name && txt) { savePlaylistOffline(info.name, txt); info.cacheKey = info.name; } 
+  else if (info.type === 'url' && info.url && txt) { let lastpart = info.url.replace(/\/$/, '').split('/').slice(-1)[0]; savePlaylistOffline(lastpart, txt); info.cacheKey = lastpart; }
+  uploadHistory.push(info);
+  if(uploadHistory.length>120)uploadHistory = uploadHistory.slice(-120);
+  localStorage.setItem('iptvUploadHistory',JSON.stringify(uploadHistory));
+}
+
+function parsePlaylist(content) {
+  let ext = (content.slice(0,150).toLowerCase().includes('#extm3u')||content.match(/#EXTINF/i)) ? 'm3u' : '';
+  let lines = content.split('\n'); const out=[]; let ch=null, index = 0;
+  for(let i=0,N=lines.length;i<N;i++) {
+    let l=lines[i].trim();
+    if(ext==='m3u' && l.startsWith('#EXTINF')) {
+      const lastComma = l.lastIndexOf(',');
+      const name = lastComma > 0 ? l.substring(lastComma + 1).trim() : 'Unknown';
+      const tvg = /tvg-name="([^"]+)"/.exec(l)?.[1]||null;
+      const group = /group-title="([^"]+)"/.exec(l)?.[1]||'General';
+      const logo = /tvg-logo="([^"]+)"/.exec(l)?.[1]||null;
+      ch={id:'ch_'+(++index),name:tvg||name,category:group,logo:logo,url:null};
+    } else if((l.startsWith('http')||l.match(/\.(m3u8|mp4|ts|hls|mpd)$/i))&&ch) {
+      ch.url=l; out.push(ch); ch=null;
+    }
+  }
+  if(!out.length && lines.length>=1) {
+    lines.forEach(line=>{
+      let l=line.trim();
+      if(l.match(/^(http|https):\/\/.+(\.m3u8|\.mp4|\.mpd|\.ts|\.hls)(\?.*)?$/i)){
+        out.push({id:"custom_"+(out.length+1),name:"Custom "+(out.length+1),category:"Custom",logo:null,url:l});
+      }
+    });
+  }
+  return out;
+}
+
+function renderCategories() {
+    const categories = ['Hepsi', ...new Set(allChannels.map(c => c.category || 'General').sort())];
+    categoryDropdownList.innerHTML = '';
+    categories.forEach(cat => {
+        const item = document.createElement('button');
+        item.className = 'category-dd-item';
+        item.textContent = cat;
+        if (cat === currentCategory) item.classList.add('selected');
+        item.onclick = () => { currentCategory = cat; renderChannels(); categoryDropdownList.classList.remove('open'); };
+        categoryDropdownList.appendChild(item);
+    });
+}
+categoryBtn.onclick = () => categoryDropdownList.classList.toggle('open');
+
+function renderChannels() {
+  channels = currentCategory === 'Hepsi' ? allChannels : allChannels.filter(c => c.category === currentCategory);
+  channelsList.innerHTML='';
+  if(!channels.length) {
+    channelsList.innerHTML = `<div class="empty-list"><i data-feather="slash"></i><h4></h4></div>`;
+    playlistCounts.textContent = `Total : 0`; updateIcons(); return;
+  }
+  
+  const renderedNames = new Set();
+  let f = document.createDocumentFragment();
+
+  channels.forEach(function(channel){
+    if (renderedNames.has(channel.name)) {
+      return; 
+    }
+    renderedNames.add(channel.name);
+
+    const el=document.createElement('div');
+    el.className='channel-item';
+    el.innerHTML=`<div class="channel-logo"><i data-feather="tv"></i></div><div class="channel-details"><div class="channel-name">${channel.name}</div><div class="channel-category">${channel.category}</div></div>`;
+    el.onclick = ()=>selectAndPlayChannel(channel);
+    f.appendChild(el);
+  });
+
+  channelsList.appendChild(f);
+  playlistCounts.textContent = `Total : ${channels.length} | Online: ${renderedNames.size}`; 
+  renderCategories();
+  updateIcons();
+}
+
+function selectAndPlayChannel(channel) {
+  const duplicates = channels.filter(c => c.name === channel.name);
+
+  if (duplicates.length > 1) {
+    showStreamSelectionModal(duplicates);
+  } else {
+    playChannel(channel);
+    noticeHide();
+    closeSlider();
+  }
+}
+
+// === GECORRIGEERDE FUNCTIE ===
+function showStreamSelectionModal(streams) {
+  streamSelectTitle.textContent = streams[0].name;
+  streamSelectList.innerHTML = '';
+
+  streams.forEach((stream, index) => {
+    const btn = document.createElement('button');
+    btn.className = 'stream-select-btn';
+    const buttonText = 'Stream ' + (index + 1);
+    
+    // Alleen als er een actieve stream is EN de URL's matchen, wordt de knop 'playing'
+    if (currentPlayingChannel && stream.url === currentPlayingChannel.url) {
+        btn.classList.add('playing');
+        btn.innerHTML = `<span>${buttonText}</span><i data-feather="check-circle"></i>`;
+    } else {
+        btn.innerHTML = `<span>${buttonText}</span>`;
+    }
+    
+    btn.onclick = () => {
+      playChannel(stream);
+      hideStreamSelectionModal();
+      noticeHide();
+      closeSlider();
+    };
+    streamSelectList.appendChild(btn);
+  });
+
+  streamSelectBg.classList.add('open');
+  updateIcons();
+}
+
+function hideStreamSelectionModal() {
+  streamSelectBg.classList.remove('open');
+}
+
+closeStreamSelectBtn.onclick = hideStreamSelectionModal;
+streamSelectBg.onclick = (e) => {
+  if (e.target === streamSelectBg) {
+    hideStreamSelectionModal();
+  }
+}
+
+
+function playChannel(channel) {
+  if(!channel?.url) return;
+  if (channelLoadTimeout) clearTimeout(channelLoadTimeout);
+  channelLoadTimeout = setTimeout(() => {
+      showSnackbar("Kanal timeout", "error");
+      if (hls) { hls.destroy(); hls = null; }
+      if (dash) { dash.reset(); dash = null; }
+      videoPlayer.src = ''; loadingOverlay.style.display = 'none'; openSlider();
+  }, 7000);
+
+  currentPlayingChannel = channel;
+  loadingOverlay.style.display='flex';loadingText.textContent='Yükleniyor...';
+  playerStatus.textContent='Bağlanıyor...';
+  currentChannel.textContent=channel.name||'Channel';
+  
+  document.querySelectorAll('.channel-item.active').forEach(el=>el.classList.remove('active'));
+  
+  const channelItems = document.querySelectorAll('.channel-item');
+  channelItems.forEach(item => {
+    const itemName = item.querySelector('.channel-name').textContent;
+    if (itemName === channel.name) {
+      item.classList.add('active');
+    }
+  });
+
+  if(hls){hls.destroy();hls=null;} if(dash){dash.reset();dash=null;}
+  const url=channel.url;
+  if(url.match(/\.mpd$/i)){ dash = dashjs.MediaPlayer().create(); dash.initialize(videoPlayer,url,true); } 
+  else if(Hls.isSupported() && url.match(/\.(m3u8|hls?|ts)$/i)) {
+    hls = new Hls(); hls.attachMedia(videoPlayer); hls.loadSource(url);
+    hls.on(Hls.Events.MANIFEST_PARSED,()=>{ videoPlayer.play().catch(()=>{}); });
+    hls.on(Hls.Events.ERROR,(_,data)=>{ if(data.fatal) { if (channelLoadTimeout) clearTimeout(channelLoadTimeout); playerStatus.textContent='Error'; loadingOverlay.style.display='none'; openSlider(); } });
+  } else { videoPlayer.src=url; videoPlayer.play(); }
+  updateIcons();
+}
+
+videoPlayer.onplay = function() {
+    if (channelLoadTimeout) clearTimeout(channelLoadTimeout);
+    loadingOverlay.style.display = 'none';
+    playerStatus.textContent = 'Şimdi Oynanıyor';
+    playPauseBtn.innerHTML = `<i data-feather="pause"></i>`;
+    updateIcons();
+};
+videoPlayer.onpause = function() { playPauseBtn.innerHTML = `<i data-feather="play"></i>`; updateIcons(); };
+videoPlayer.onvolumechange = function(){
+  muteBtn.innerHTML=`<i data-feather="${videoPlayer.muted?'volume-x':'volume-2'}"></i>`;
+  volumeSlider.value = videoPlayer.volume;
+  updateIcons();
+};
+
+playPauseBtn.onclick = () => {videoPlayer.paused?videoPlayer.play():videoPlayer.pause();}
+muteBtn.onclick = () => { videoPlayer.muted=!videoPlayer.muted; updateIcons(); }
+volumeSlider.oninput = function(){videoPlayer.volume=this.value;}
+fullscreenBtn.onclick = () => { if(!document.fullscreenElement){videoPlayer.requestFullscreen?.();} else{document.exitFullscreen?.();} }
+
+function noticeShow(txt='',opts={}) {
+  noticeTextMsg.innerHTML = txt||""; noticeOverlay.style.display='block'; noticeActions.innerHTML = "";
+  if(opts.upload) {
+    let btn = document.createElement('button');btn.innerHTML='<i data-feather="upload"></i> Oynatma Listesini Yükle';
+    btn.onclick = ()=>{noticeHide();showUploadPanelBtn.click();}; noticeActions.appendChild(btn);
+  }
+  if(opts.history) {
+    let btn = document.createElement('button');btn.innerHTML='<i data-feather="clock"></i> Yükleme Geçmişini Göster';
+    btn.onclick = ()=>{noticeHide();historyBtn.click();}; noticeActions.appendChild(btn);
+  }
+  updateIcons();
+}
+function noticeHide(){noticeOverlay.style.display='none';}
+
+function autoPlayFirstChannel() { if (channels && channels.length > 0) setTimeout(()=> playChannel(channels[0]),400); }
+
+function renderHistory() {
+  historyListDiv.innerHTML='';
+  uploadHistory = JSON.parse(localStorage.getItem('iptvUploadHistory')||'[]');
+  if(!uploadHistory.length){ historyListDiv.innerHTML='<div style="color:#aac6ff;text-align:center;">Geçmiş Yok</div>'; updateIcons(); return; }
+  uploadHistory.slice().reverse().forEach((item,idx)=>{
+    let date = new Date(item.date);
+    let dstr = date.toLocaleDateString()+' '+date.toLocaleTimeString().replace(/:\d+\s/,' ');
+    let baseName = item.type==="file" ? item.name : (item.name||"external");
+    let li = document.createElement('div');
+    li.className = 'history-item';
+    li.innerHTML = `<span>${baseName}</span><span class='history-dt'>${dstr}</span><button class="history-play-btn" data-hidx="${uploadHistory.length-idx-1}"><i data-feather="play-circle"></i></button><button class="history-del-btn" data-hidx="${uploadHistory.length-idx-1}"><i data-feather="x"></i></button>`;
+    historyListDiv.appendChild(li);
+  });
+  addHistoryBtnHandlers(); addHistoryPlayHandlers(); updateIcons();
+}
+
+clearAllHistoryBtn.onclick=function(){ if(confirm('Herşeyi Sil')){ localStorage.removeItem('iptvUploadHistory'); uploadHistory=[]; renderHistory(); } };
+historyBtn.onclick = function(){ renderHistory();historyModalBg.classList.add('open');updateIcons();}
+historyModalBg.onclick = e=>{if(e.target===historyModalBg)historyModalBg.classList.remove('open');updateIcons()}
+
+function addHistoryBtnHandlers() {
+  Array.from(document.querySelectorAll('.history-del-btn')).forEach(btn=>{
+    btn.onclick = function(){
+      let idx = parseInt(this.getAttribute('data-hidx'));
+      uploadHistory.splice(idx,1);
+      localStorage.setItem('iptvUploadHistory',JSON.stringify(uploadHistory));
+      renderHistory();
+    }
+  });
+}
+
+function addHistoryPlayHandlers() {
+  Array.from(document.querySelectorAll('.history-play-btn')).forEach(btn=>{
+    btn.onclick = function(){
+      let idx = parseInt(this.getAttribute('data-hidx'));
+      let hist = uploadHistory[idx];
+      let txt = hist.txt || playlistCache[hist.cacheKey];
+      if (!txt) { showSnackbar("Geen data gevonden.", 'warn'); return; }
+      allChannels = parsePlaylist(txt); currentCategory = 'Hepsi'; renderCategories(); renderChannels();
+      autoPlayFirstChannel(); noticeShow("History loaded."); updateIcons();
+    }
+  });
+}
+
+window.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    noticeHide();
+    historyModalBg.classList.remove('open');
+    uploadPanelBg.classList.remove('open');
+    hideStreamSelectionModal(); 
+    updateIcons();
+  }
+  if((e.key === "ArrowRight" || e.key === "ArrowLeft") && channels.length > 1 && document.activeElement.tagName !== "INPUT") {
+    let idx = currentPlayingChannel ? channels.findIndex(c => c.url === currentPlayingChannel.url) : 0;
+    let nextIdx = (idx + (e.key === "ArrowRight" ? 1 : -1) + channels.length) % channels.length;
+    playChannel(channels[nextIdx]); showHeaderBarForAWhile();
+  }
+});
+
+document.addEventListener('DOMContentLoaded',()=>{
+  loadDefaultPlaylist(selectedPlaylistIdx);
+  updateIcons();
+});
+
+let barHideTimer = null;
+function showHeaderBarForAWhile() {
+  bar.classList.remove('hide'); bar.classList.add('slide-down');
+  if (barHideTimer) clearTimeout(barHideTimer);
+  barHideTimer = setTimeout(() => { bar.classList.remove('slide-down'); bar.classList.add('hide'); }, 5000);
+}
+function hideHeaderBarImmediately() { bar.classList.remove('slide-down'); bar.classList.add('hide'); if (barHideTimer) clearTimeout(barHideTimer); }
+playerArea.addEventListener('mousemove', showHeaderBarForAWhile);
+playerArea.addEventListener('mouseleave', hideHeaderBarImmediately);
+playerArea.addEventListener('touchstart', showHeaderBarForAWhile, {passive:true});
+
+let touchStartX = null, touchStartY = null, lastSwipeTime = 0;
+document.getElementById('player-container').addEventListener('touchstart', function(e) { if(e.touches.length === 1) { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; } }, {passive:true});
+document.getElementById('player-container').addEventListener('touchend', function(e) {
+  if(touchStartX !== null && touchStartY !== null) {
+    let dx = e.changedTouches[0].clientX - touchStartX, dy = e.changedTouches[0].clientY - touchStartY;
+    if(Math.abs(dx) > 35 && Math.abs(dx) > Math.abs(dy)) {
+        if (Date.now() - lastSwipeTime > 80) { swipeChannel(dx < 0 ? 1 : -1); lastSwipeTime = Date.now(); showHeaderBarForAWhile(); }
+    } else if(Math.abs(dx) < 7 && Math.abs(dy) < 7) {
+      if (sliderOpen) { closeSlider(); } else { openSlider(); }
+      showHeaderBarForAWhile(); 
+    }
+  }
+  touchStartX = null; touchStartY = null;
+}, {passive:true});
+
+function swipeChannel(dir) {
+  if (channels && channels.length > 1) {
+    let idx = currentPlayingChannel ? channels.findIndex(c => c.url === currentPlayingChannel.url) : 0;
+    playChannel(channels[(idx + dir + channels.length) % channels.length]);
+  }
+}
+if(window.innerWidth < 600) bar.classList.add('hide');
+</script>
+</body>
+</html>
