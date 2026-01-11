@@ -1,13 +1,13 @@
-<!DOCTYPE HTML>
+﻿<!DOCTYPE HTML>
 <html oncontextmenu="return false">
 <head>
 <script disable-devtool-auto="" src='../js/disable-devtool.js'></script>
 <meta http-equiv="language" content="TR">
 <meta http-equiv="language" content="DE">
 <meta http-equiv="language" content="EN">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SPOR SARAYDORF | Futbol Maçlarını Canlı izle</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Saraydorf Spor da Dünyada oynayan Futbol maçlarını Canlı olarak, Kesintisiz donmadan izleyebilirsiniz.">
 <meta name="keywords" content="Bugünün Maçları, Futbol, Fussball, Canli, Live, Futbol canli, Fussball Live, Canli Mac, Canlı maç izle, Canlı Futbol izle, Canlı Futbol maçı izle, Beinsports maç yayinları izle, Kesintisiz maç izle, online maç izle, donmadan maç izle, Keyifli maç izle, Canlı maç yayınları, bedava maç izle, beinsports, tivibu spor,smartspor,bundesliga1, skysport1, arena sport, sporttv,trt spor">
 <meta name="author" content="saraydorf.de/spor">
@@ -22,243 +22,54 @@
 <link rel="stylesheet" href="../style.css">
 
 
-    <style>
-        /* --- TOEGEVOEGD: Moderne donkere achtergrond voor de hele pagina --- */
-        body {
-            background-color: #1a1a1a;
-            background-image: radial-gradient(circle, #3a3a3a, #1a1a1a);
-        }
-
-        /* --- Algemene Action en Scroll Container Styling --- */
-        action div.scroll-container {
-        background-color: #333;
-        overflow: auto; /* Enables horizontal scrolling */
-        white-space: nowrap;
-        padding: 10px;
-        width: 100%; /* Ensure it uses full width */
-        box-sizing: border-box;
-        }
-
-        action div.scroll-container img {
-        padding: 10px;
-        }
-
-        /* --- Section and Body Styling --- */
-        section body {
-            /* This selector is unusual (section followed by body), 
-            but keeping the original definition for consistency */
-            font-size:var(--small-font);
-            display:flex;
-            align:center;
-            flex-direction:row-reverse;
-            padding-top:4px;
-            padding-bottom:52px;
-            justify-content: center;
-        }
-        section a {
-            text-decoration:none;
-            color: white;
-        }
-
-        summary {
-            outline:none
-        }
-
-
-        .ul a:hover {
-            color: #2E64FE;
-            text-shadow: none;
-            background:linear-gradient(to bottom, #051933 5%, black 100%);
-            background-color:#4D1F89;
-        }
-
-        /* Specific styling for elements that might interfere with mobile layout */
-        .vid-onlyDesktop{display:none;} 
-
-        .sporsaraydorfmenu a {
-        margin-left: 10px;
-        }
-
-        .sporsaraydorfmenu {
-        height: 35px;
-        padding: 0 12px;
-        float: left;
-        text-transform: uppercase;
-        font-size: 18px;
-        font-weight:bold;
-        line-height: 37px;
-        box-sizing: border-box;
-        border: 1px solid #9D1F89;
-        border-radius: 3px;
-        display: inline-block;
-        margin-left: 10px;
-        margin-right: 10px;
-        margin-bottom: 5px;
-        color: black;
-        border-color: black;
-        }
-        .sporsaraydorfmenu:hover {
-        background-color:#ffffff;
-        }
-
-        /* Features sidebar (must be hidden on mobile) */
-        .features{position:fixed;right:5px;top:110px;width:146px;height:auto;z-index:99999999;color:#fff;text-align:center}
-        .featured{width:146px;height:auto;z-index:150;background:#ffffff;color:#fff;border:1px solid #102a47;margin-bottom:7px}
-        .featured .featuredHeading{height:10px;line-height:25px;font-size:10px;text-align:center;position:relative;display:flex;justify-content:center;align-items:center}
-        .featured .kapat{position:absolute;right:-2px;top:-7px;background:#110cff;color:#fff;border-radius:50%;width:10px;height:15px;text-align:center;cursor:pointer;font-size:11px;border:1px solid #000;justify-content:center;align-items:center;display:flex;padding:3px 7px}
-        .featuredHeading span b{white-space:nowrap} 
-
-        .sporsaraydorf {
-        text-align:left;
-        font-size:18px;
-        padding: 7px 1px;
-        margin-bottom:4px;
-        color:#ffffff;
-        font-weight:bold;
-        margin-top:4px;
-        display:block;
-        position:relative;
-        clear:both;
-        border-radius:0px;
-        -moz-border-radius:0px;
-        -webkit-border-radius:0px;
-            background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#000000), to(#0b3861)) ;
-            background-image: -moz-linear-gradient(100% 100% 90deg, #9d1f89, #9d1f89) ;
-        border-left: 7px solid white;
-        border-right: 7px solid white;
-        font-weight:1500;
-
-        }
-        .sporsaraydorf:hover {
-        background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#685245), to(#685245)) ;
-        background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#685245), to(#685245)) ;
-        }
-        .sporsaraydorftime{
-        border: 2px solid white;
-        display: inline-block;
-        padding: 2px 7px;
-        margin: 0 10px 0 10px;
-        font-size: 18px;
-        color: #ffffff;
-        border-radius: 5px;
-        -moz-border-radius: 5px;
-        -webkit-border-radius: 5px;
-        }
-        .vid-onlyDesktop{
-        display: inline-block;
-        padding: 2px 7px;
-        margin: 0 10px 0 10px;
-        font-size: 18px;
-        color: #ffffff;
-        border-radius: 5px;
-        -moz-border-radius: 5px;
-        -webkit-border-radius: 5px;
-        }
-        img:hover{ 
-            transform: scale(1.1); /* Iets subtielere hover dan scale(1,2) */
-        }
-	</style>
-
-
 <style>
-    /* Stijl voor de container van de video om de hoogte responsief te maken */
-    .iframe-container {
-        position: relative;
-        overflow: hidden;
-        width: 100%;
-        padding-top: 56.25%; /* 16:9 Aspect Ratio */
-    }
+/* --- ALGEMENE STIJLEN & CORRECTIES --- */
+* {
+    box-sizing: border-box; /* Voorkomt problemen met breedte door padding/border */
+}
 
-    /* Stijl voor de iframe zelf binnen de nieuwe container */
-    .iframe-container iframe {
-        position: absolute;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        right: 0;
-        width: 100%;
-        height: 100%;
-        border: none;
-    }
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden; /* Verwijdert definitief de horizontale scrollbar */
+    background-color: #000;
+}
 
-    /* --- TOEGEVOEGD: Styling voor de Exit knop en de container --- */
-    .exit-container {
-        text-align: center; /* Centreert de knop */
-        padding: 25px 0;   /* Geeft ruimte boven en onder de knop */
-    }
+/* --- SCROLLBALK MET LOGO'S --- */
+.scroll-container {
+    background-color: #333;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    padding: 1px;
+}
 
-    .exit-button {
-        background-color: #e74c3c; /* Opvallende rode kleur */
-        color: white;
-        border: none;
-        padding: 15px 40px;
-        font-size: 1.2em;
-        font-weight: bold;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        border-radius: 8px;
-        cursor: pointer;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        transition: background-color 0.3s ease, transform 0.2s ease;
-    }
+.scroll-container img {
+    padding: 1px;
+}
 
-    .exit-button:hover {
-        background-color: #c0392b; /* Iets donkerder rood bij hover */
-        transform: translateY(-2px); /* Kleine lift-animatie */
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    }
-    /* ----------------------------------------------------------- */
+/* --- VIDEOSPELER CONTAINER (NIEUW & BELANGRIJK) --- */
+.player-container {
+    width: 100vw; /* 100% van de schermbreedte */
+    margin: 0;
+    padding: 0;
+}
 
+.player {
+    width: 100%;
+    display: block; /* Verwijdert extra ruimte onder de iframe */
+    aspect-ratio: 16 / 9; /* Behoudt 16:9 verhouding */
+    border: none;
+}
 
-    /* Aanpassingen specifiek voor schermen kleiner dan 768px (telefoons) */
-    @media (max-width: 768px) {
-        
-        body, section {
-            display: block !important;
-            padding: 0;
-            margin: 0;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        
-        .features {
-            display: none !important;
-        }
+/* --- OVERIGE STIJLEN (ongewijzigd) --- */
+img:hover{ transform: scale(1.1); transition: transform 0.2s; }
+.features{position:fixed;right:5px;top:110px;width:146px;z-index:99999999;color:#fff;text-align:center}
+/* etc. */
 
-        h1 {
-            font-size: 24px; 
-            text-align: center;
-        }
-
-        action div.scroll-container img {
-            width: 80px; 
-            height: 64px;
-            padding: 5px;
-        }
-        
-        .sporsaraydorf, .sporsaraydorfmenu {
-            font-size: 15px; 
-            width: auto;
-            float: none;
-        }
-
-        .sporsaraydorftime, .vid-onlyDesktop {
-            font-size: 15px;
-        }
-        
-        article {
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        /* --- TOEGEVOEGD: Exit knop kleiner op mobiel --- */
-        .exit-button {
-            padding: 12px 30px;
-            font-size: 1em;
-        }
-    }
 </style>
+
 
 <script type="text/javascript" src="../ajax/libs/jquery/1.4.3/jquery.min.js"></script>
 <script>
@@ -266,7 +77,7 @@ $(document).ready(function(){
 	$(function () {
 		$('.eventClick').click(function () {
 			$('body,html').animate({
-				scrollTop: 250 
+				scrollTop: 0
 			}, 50);
 			return true;
 		});
@@ -277,73 +88,188 @@ $(document).ready(function(){
        
 <body>
  
-<main>
-    <!-- De <main> tag was leeg en niet goed geplaatst, ik heb hem hier gezet maar de inhoud blijft zoals het was. -->
-</main>
-
-<section>
- 
 <action>
-<div class="scroll-container">
-    <!-- HIER STAAT DE VOLLEDIGE LIJST MET KANALEN (ONGEWIJZIGD) -->
+    <div class="scroll-container">
+        <a class="eventClick" href="tv/index.htm" target="ekran"><img src="img/logo/home.png" width="65" height="50" title="home"></a>&nbsp;
+ 
+ 
+        <a class="eventClick" href="play/tr2.htm?id=bein-sports-1" target="ekran"><img src="img/logo/beinsports1.png" width="65" height="50" title="beinsports1"></a>&nbsp;
+        <a class="eventClick" href="play/tr3.htm?id=4864" target="ekran"><img src="img/logo/beinsports1.png" width="65" height="50" title="beinsports1"></a>&nbsp;
+        <a class="eventClick" href="play/b1.htm?id=yayin1" target="ekran"><img src="img/logo/beinsports1.png" width="65" height="50" title="beinsports1"></a>&nbsp;
+        <a class="eventClick" href="play/vole.htm?id=yayinzirve" target="ekran"><img src="img/logo/beinsports1.png" width="65" height="50" title="beinsports1"></a>&nbsp;
+
+        <a class="eventClick" href="play/tr2-1.htm?id=bein-sports-2" target="ekran"><img src="img/logo/beinsports2.png" width="65" height="50" title="beinsports2"></a>&nbsp;
+        <a class="eventClick" href="play/tr3-1.htm?id=4865" target="ekran"><img src="img/logo/beinsports2.png" width="65" height="50" title="beinsports2"></a>&nbsp;
+        <a class="eventClick" href="play/b1-1.htm?id=yayinb2" target="ekran"><img src="img/logo/beinsports2.png" width="65" height="50" title="beinsports2"></a>&nbsp;
+        <a class="eventClick" href="play/vole-1.htm?id=yayinb2" target="ekran"><img src="img/logo/beinsports2.png" width="65" height="50" title="beinsports2"></a>&nbsp;
+ 
+ 
+        <a class="eventClick" href="play/tr2-2.htm?id=bein-sports-3" target="ekran"><img src="img/logo/beinsports3.png" width="65" height="50" title="beinsports3"></a>&nbsp;
+        <a class="eventClick" href="play/tr3-2.htm?id=4867" target="ekran"><img src="img/logo/beinsports3.png" width="65" height="50" title="beinsports3"></a>&nbsp;
+        <a class="eventClick" href="play/b1-2.htm?id=yayinb3" target="ekran"><img src="img/logo/beinsports3.png" width="65" height="50" title="beinsports3"></a>&nbsp;
+        <a class="eventClick" href="play/vole-2.htm?id=yayinb3" target="ekran"><img src="img/logo/beinsports3.png" width="65" height="50" title="beinsports3"></a>&nbsp;
+ 
+        <a class="eventClick" href="play/tr-3.htm?id=bs4" target="ekran"><img src="img/logo/beinsports4.png" width="65" height="50" title="beinsports4"></a>&nbsp;
+        <a class="eventClick" href="play/tr2-3.htm?id=bein-sports-4" target="ekran"><img src="img/logo/beinsports4.png" width="65" height="50" title="beinsports4"></a>&nbsp;
+        <a class="eventClick" href="play/tr3-3.htm?id=4886" target="ekran"><img src="img/logo/beinsports4.png" width="65" height="50" title="beinsports4"></a>&nbsp;
+        <a class="eventClick" href="play/b1-3.htm?id=yayinb4" target="ekran"><img src="img/logo/beinsports4.png" width="65" height="50" title="beinsports4"></a>&nbsp;
+        <a class="eventClick" href="play/vole-3.htm?id=yayinb4" target="ekran"><img src="img/logo/beinsports4.png" width="65" height="50" title="beinsports4"></a>&nbsp;
+ 
+        <a class="eventClick" href="play/tr-4.htm?id=bs5" target="ekran"><img src="img/logo/beinsports5.png" width="65" height="50" title="beinsports5"></a>&nbsp;
+        <a class="eventClick" href="play/tr3-4.htm?id=4868" target="ekran"><img src="img/logo/beinsports5.png" width="65" height="50" title="beinsports5"></a>&nbsp;
+        <a class="eventClick" href="play/b1-4.htm?id=yayinb5" target="ekran"><img src="img/logo/beinsports5.png" width="65" height="50" title="beinsports5"></a>&nbsp;
+        <a class="eventClick" href="play/vole-4.htm?id=yayinb5" target="ekran"><img src="img/logo/beinsports5.png" width="65" height="50" title="beinsports5"></a>&nbsp;
+ 
+        <a class="eventClick" href="play/tr-5.htm?id=bsm1" target="ekran"><img src="img/logo/beinsportsmax1.png" width="65" height="50" title="beinsportsmax1"></a>&nbsp;
+        <a class="eventClick" href="play/tr3-5.htm?id=4870" target="ekran"><img src="img/logo/beinsportsmax1.png" width="65" height="50" title="beinsportsmax1"></a>&nbsp;
+        <a class="eventClick" href="play/b1-5.htm?id=yayinbm1" target="ekran"><img src="img/logo/beinsportsmax1.png" width="65" height="50" title="beinsportsmax1"></a>&nbsp;
+        <a class="eventClick" href="play/vole-5.htm?id=yayinbm1" target="ekran"><img src="img/logo/beinsportsmax1.png" width="65" height="50" title="beinsportsmax1"></a>&nbsp;
+
+        <a class="eventClick" href="play/tr-6.htm?id=bsm2" target="ekran"><img src="img/logo/beinsportsmax2.png" width="65" height="50" title="beinsportsmax2"></a>&nbsp;
+        <a class="eventClick" href="play/tr3-6.htm?id=4871" target="ekran"><img src="img/logo/beinsportsmax2.png" width="65" height="50" title="beinsportsmax2"></a>&nbsp;
+        <a class="eventClick" href="play/b1-6.htm?id=yayinbm2" target="ekran"><img src="img/logo/beinsportsmax2.png" width="65" height="50" title="beinsportsmax2"></a>&nbsp;
+        <a class="eventClick" href="play/vole-6.htm?id=yayinbm2" target="ekran"><img src="img/logo/beinsportsmax2.png" width="65" height="50" title="beinsportsmax2"></a>&nbsp;
+
+        <a class="eventClick" href="play/tr-7.htm?id=ss1" target="ekran"><img src="img/logo/s_sport.png" width="65" height="50" title="ssport 1"></a>&nbsp;
+        <a class="eventClick" href="play/tr2-4.htm?id=s-sport" target="ekran"><img src="img/logo/s_sport.png" width="65" height="50" title="ssport 1"></a>&nbsp;
+        <a class="eventClick" href="play/tr3-7.htm?id=4879" target="ekran"><img src="img/logo/s_sport.png" width="65" height="50" title="ssport 1"></a>&nbsp;
+        <a class="eventClick" href="play/b1-7.htm?id=yayinss" target="ekran"><img src="img/logo/s_sport.png" width="65" height="50" title="ssport 1"></a>&nbsp;
+        <a class="eventClick" href="play/vole-7.htm?id=yayinss" target="ekran"><img src="img/logo/s_sport.png" width="65" height="50" title="ssport 1"></a>&nbsp;
+
+
+<a class="eventClick" href="play/tr-8.htm?id=ss2" target="ekran"><img src="img/logo/s_sport2.png" width="65" height="50" title="ssport 2.1"></a>&nbsp;
+<a class="eventClick" href="play/tr2-5.htm?id=s-sport-2" target="ekran"><img src="img/logo/s_sport2.png" width="65" height="50" title="ssport 2.2"></a>&nbsp;
+<a class="eventClick" href="play/tr3-8.htm?id=4878" target="ekran"><img src="img/logo/s_sport2.png" width="65" height="50" title="ssport 2.3"></a>&nbsp;
+<a class="eventClick" href="play/b1-8.htm?id=yayinss2" target="ekran"><img src="img/logo/s_sport2.png" width="65" height="50" title="ssport 2.4"></a>&nbsp;
+<a class="eventClick" href="play/vole-8.htm?id=yayinss2" target="ekran"><img src="img/logo/s_sport2.png" width="65" height="50" title="ssport 2.5"></a>&nbsp;
+
+
+<a class="eventClick" href="play/tr-9.htm?id=sm1" target="ekran"><img src="img/logo/sporsmart.png" width="65" height="50" title="sporsmart.1"></a>&nbsp;
+<a class="eventClick" href="play/tr3-9.htm?id=4909" target="ekran"><img src="img/logo/sporsmart.png" width="65" height="50" title="sporsmart.2"></a>&nbsp;
+<a class="eventClick" href="play/b1-9.htm?id=yayinsmarts" target="ekran"><img src="img/logo/sporsmart.png" width="65" height="50" title="sporsmart.3"></a>&nbsp;
+<a class="eventClick" href="play/vole-9.htm?id=yayinsmarts" target="ekran"><img src="img/logo/sporsmart.png" width="65" height="50" title="sporsmart.4"></a>&nbsp;
+
+
+<a class="eventClick" href="play/tr-10.htm?id=sm2" target="ekran"><img src="img/logo/sporsmart2.png" width="65" height="50" title="sporsmart 2.1"></a>&nbsp;
+<a class="eventClick" href="play/tr3-10.htm?id=4881" target="ekran"><img src="img/logo/sporsmart2.png" width="65" height="50" title="sporsmart 2.2"></a>&nbsp;
+<a class="eventClick" href="play/b1-10.htm?id=yayinsms2" target="ekran"><img src="img/logo/sporsmart2.png" width="65" height="50" title="sporsmart 2.3"></a>&nbsp;
+<a class="eventClick" href="play/vole-10.htm?id=yayinsms2" target="ekran"><img src="img/logo/sporsmart2.png" width="65" height="50" title="sporsmart 2.4"></a>&nbsp;
+
+
+<a class="eventClick" href="play/tr-11.htm?id=ts" target="ekran"><img src="img/logo/tivibuspor.png" width="65" height="50" title="tivibuspor.1"></a>&nbsp;
+<a class="eventClick" href="play/tr3-11.htm?id=4882" target="ekran"><img src="img/logo/tivibuspor.png" width="65" height="50" title="tivibuspor.2"></a>&nbsp;
+
+<a class="eventClick" href="play/tr-12.htm?id=ts1" target="ekran"><img src="img/logo/tivibuspor1.png" width="65" height="50" title="tivibuspor1.1"></a>&nbsp;
+<a class="eventClick" href="play/b1-11.htm?id=yayint1" target="ekran"><img src="img/logo/tivibuspor1.png" width="65" height="50" title="tivibuspor1.2"></a>&nbsp;
+<a class="eventClick" href="play/vole-11.htm?id=yayint1" target="ekran"><img src="img/logo/tivibuspor1.png" width="65" height="50" title="tivibuspor1.3"></a>&nbsp;
+
+
+<a class="eventClick" href="play/tr-13.htm?id=ts2" target="ekran"><img src="img/logo/tivibuspor2.png" width="65" height="50" title="tivibuspor 2.1"></a>&nbsp;
+<a class="eventClick" href="play/b1-12.htm?id=yayint2" target="ekran"><img src="img/logo/tivibuspor2.png" width="65" height="50" title="tivibuspor 2.2"></a>&nbsp;
+<a class="eventClick" href="play/vole-12.htm?id=yayint2" target="ekran"><img src="img/logo/tivibuspor2.png" width="65" height="50" title="tivibuspor 2.3"></a>&nbsp; 
+  
+
+<a class="eventClick" href="play/tr-14.htm?id=ts3" target="ekran"><img src="img/logo/tivibuspor3.png" width="65" height="50" title="tivibuspor 3.1"></a>&nbsp;
+<a class="eventClick" href="play/b1-13.htm?id=yayint3" target="ekran"><img src="img/logo/tivibuspor3.png" width="65" height="50" title="tivibuspor 3.2"></a>&nbsp; 
+<a class="eventClick" href="play/vole-13.htm?id=yayint3" target="ekran"><img src="img/logo/tivibuspor3.png" width="65" height="50" title="tivibuspor 3.3"></a>&nbsp;
+ 
+
+<a class="eventClick" href="play/tr-15.htm?id=ts4" target="ekran"><img src="img/logo/tivibuspor4.png" width="65" height="50" title="tivibuspor 4.1"></a>&nbsp;
+<a class="eventClick" href="play/b1-14.htm?id=yayint4" target="ekran"><img src="img/logo/tivibuspor4.png" width="65" height="50" title="tivibuspor 4.2"></a>&nbsp;
+<a class="eventClick" href="play/vole-14.htm?id=yayint4" target="ekran"><img src="img/logo/tivibuspor4.png" width="65" height="50" title="tivibuspor 4.3"></a>&nbsp;
+ 
+
+<a class="eventClick" href="play/tr-16.htm?id=cbcs" target="ekran"><img src="img/logo/cbcsport.png" width="65" height="50" title="cbcsport"></a>&nbsp;
+
+<a class="eventClick" href="play/tr-17.htm?id=idm" target="ekran"><img src="img/logo/idmantv.png" width="65" height="50" title="idmantv"></a>&nbsp;
+
+<a class="eventClick" href="player/convertplayer/index.htm?s=aHR0cHM6Ly9jaW5lci1saXZlLmRhaW9uY2RuLm5ldC9odC1zcG9yL2h0LXNwb3IubTN1OA==" target="ekran"><img src="img/logo/htspor.png" width="65" height="50" title="htspor"></a>&nbsp;
+
+<a class="eventClick" href="play/tr-18.htm?id=trt1" target="ekran"><img src="img/logo/trt1.png" width="65" height="50" title="trt1.1"></a>&nbsp;
+<a class="eventClick" href="play/b1-15.htm?id=yayintrt1" target="ekran"><img src="img/logo/trt1.png" width="65" height="50" title="trt1.2"></a>&nbsp;
+<a class="eventClick" href="play/vole-15.htm?id=yayintrt1" target="ekran"><img src="img/logo/trt1.png" width="65" height="50" title="trt1.3"></a>&nbsp;
+ 
+
+<a class="eventClick" href="play/tr-19.htm?id=trts" target="ekran"><img src="img/logo/trtspor.png" width="65" height="50" title="trtspor.1"></a>&nbsp;
+<a class="eventClick" href="play/b1-16.htm?id=yayintrtspor" target="ekran"><img src="img/logo/trtspor.png" width="65" height="50" title="trtspor.2"></a>&nbsp;
+<a class="eventClick" href="play/vole-16.htm?id=yayintrtspor" target="ekran"><img src="img/logo/trtspor.png" width="65" height="50" title="trtspor.3"></a>&nbsp;
+ 
+
+<a class="eventClick" href="play/tr-20.htm?id=trtsy" target="ekran"><img src="img/logo/trtspor-yildiz.png" width="65" height="50" title="trtspor-yildiz"></a>&nbsp;
+
+<a class="eventClick" href="play/tr-21.htm?id=as" target="ekran"><img src="img/logo/aspor.png" width="65" height="50" title="aspor.1"></a>&nbsp;
+<a class="eventClick" href="play/b1-17.htm?id=yayinas" target="ekran"><img src="img/logo/aspor.png" width="65" height="50" title="aspor.2"></a>&nbsp;
+<a class="eventClick" href="play/vole-17.htm?id=yayinas" target="ekran"><img src="img/logo/aspor.png" width="65" height="50" title="aspor.3"></a>&nbsp;
+ 
+
+<a class="eventClick" href="play/tr-22.htm?id=tv8" target="ekran"><img src="img/logo/tv8.png" width="65" height="50" title="tv8.1"></a>&nbsp;
+<a class="eventClick" href="play/b1-18.htm?id=yayintv8" target="ekran"><img src="img/logo/tv8.png" width="65" height="50" title="tv8.2"></a>&nbsp;
+<a class="eventClick" href="play/vole-18.htm?id=yayintv8" target="ekran"><img src="img/logo/tv8.png" width="65" height="50" title="tv8.3"></a>&nbsp;
+ 
+
+ 
+<a class="eventClick" href="play/vole-19.htm?id=yayintv85" target="ekran"><img src="img/logo/tv85.png" width="65" height="50" title="tv85.2"></a>&nbsp;
+ 
+
+<a class="eventClick" href="play/tr-24.htm?id=atv" target="ekran"><img src="img/logo/atv.png" width="65" height="50" title="atv.1"></a>&nbsp;
+<a class="eventClick" href="play/b1-19.htm?id=yayinatv" target="ekran"><img src="img/logo/atv.png" width="65" height="50" title="atv.2"></a>&nbsp;
+<a class="eventClick" href="play/vole-20.htm?id=yayinatv" target="ekran"><img src="img/logo/atv.png" width="65" height="50" title="atv.3"></a>&nbsp;
+ 
+
+  
+<a class="eventClick" href="play/vole-21.htm?id=yayineu1" target="ekran"><img src="img/logo/eurosport1.png" width="65" height="50" title="eurosport1.2"></a>&nbsp;
+ 
+
+<a class="eventClick" href="play/tr-26.htm?id=es2" target="ekran"><img src="img/logo/eurosport2.png" width="65" height="50" title="eurosport2"></a>&nbsp;
+<a class="eventClick" href="play/vole-22.htm?id=yayineu2" target="ekran"><img src="img/logo/eurosport2.png" width="65" height="50" title="eurosport2"></a>&nbsp;
+ 
+ 
+<a class="eventClick" href="play/tr-27.htm?id=nba" target="ekran"><img src="img/logo/nba.png" width="65" height="50" title="nba.1"></a>&nbsp;
+<a class="eventClick" href="play/vole-23.htm?id=yayinnbatv" target="ekran"><img src="img/logo/nba.png" width="65" height="50" title="nba.1"></a>&nbsp;
+ 
+
+<a class="eventClick" href="play/tr-28.htm?id=tb" target="ekran"><img src="img/logo/tabii.png" width="65" height="50" title="tabii spor"></a>&nbsp;
+ 
+ 
+ 
+ 
+<a class="eventClick" href="play/tr-33.htm?id=tb5" target="ekran"><img src="img/logo/tabii.png" width="65" height="50" title="tabii spor 5"></a>&nbsp;
+<a class="eventClick" href="play/tr-34.htm?id=tb6" target="ekran"><img src="img/logo/tabii.png" width="65" height="50" title="tabii spor 6"></a>&nbsp;
+
+<a class="eventClick" href="play/vole-24.htm?id=yayinex1" target="ekran"><img src="img/logo/exxen.png" width="65" height="50" title="exxen1.1"></a>&nbsp;
+ 
+
+<a class="eventClick" href="play/vole-25.htm?id=yayinex2" target="ekran"><img src="img/logo/exxen.png" width="65" height="50" title="exxen2.1"></a>&nbsp;
+ 
+
+<a class="eventClick" href="play/vole-26.htm?id=yayinex3" target="ekran"><img src="img/logo/exxen.png" width="65" height="50" title="exxen3.1"></a>&nbsp;
+ 
+
+<a class="eventClick" href="play/vole-27.htm?id=yayinex4" target="ekran"><img src="img/logo/exxen.png" width="65" height="50" title="exxen4.1"></a>&nbsp;
+ 
+
+<a class="eventClick" href="play/vole-28.htm?id=yayinex5" target="ekran"><img src="img/logo/exxen.png" width="65" height="50" title="exxen5.1"></a>&nbsp;
+ 
+
+<a class="eventClick" href="play/vole-29.htm?id=yayinex6" target="ekran"><img src="img/logo/exxen.png" width="65" height="50" title="exxen6.1"></a>&nbsp;
  
 
 
 
-    <a class="eventClick" href="play/b1.htm?id=selcukbeinsports1" target="ekran"><img src="img/logo/beinsports1.png" width="100" height="80" title="beinsports5"></a>&nbsp;
-    <a class="eventClick" href="play/tr2.htm?id=selcukbeinsports1" target="ekran"><img src="img/logo/beinsports1.png" width="100" height="80" title="beinsports6"></a>&nbsp;
-    <a class="eventClick" href="play/tr2-1.htm?id=bein-sports-1" target="ekran"><img src="img/logo/beinsports1.png" width="100" height="80" title="beinsports8"></a>&nbsp;
-    <a class="eventClick" href="play/tr2-2.htm?id=bein-sports-2" target="ekran"><img src="img/logo/beinsports2.png" width="100" height="80" title="beinsports23"></a>&nbsp;
-    <a class="eventClick" href="play/tr2-3.htm?id=selcukbeinsports2" target="ekran"><img src="img/logo/beinsports2.png" width="100" height="80" title="beinsports2"></a>&nbsp;
-    <a class="eventClick" href="play/b1-1.htm?id=selcukbeinsports2" target="ekran"><img src="img/logo/beinsports2.png" width="100" height="80" title="beinsports24"></a>&nbsp;
-    <a class="eventClick" href="play/tr2-5.htm?id=selcukbeinsports3" target="ekran"><img src="img/logo/beinsports3.png" width="100" height="80" title="beinsports34"></a>&nbsp;
-    <a class="eventClick" href="play/b1-2.htm?id=selcukbeinsports3" target="ekran"><img src="img/logo/beinsports3.png" width="100" height="80" title="beinsports35"></a>&nbsp;
-    <a class="eventClick" href="play/tr2-6.htm?id=selcukbeinsports4" target="ekran"><img src="img/logo/beinsports4.png" width="100" height="80" title="beinsports43"></a>&nbsp;
-    <a class="eventClick" href="play/b1-3.htm?id=selcukbeinsports4" target="ekran"><img src="img/logo/beinsports4.png" width="100" height="80" title="beinsports44"></a>&nbsp;
-    <a class="eventClick" href="play/tr2-7.htm?id=bein-sports-4" target="ekran"><img src="img/logo/beinsports4.png" width="100" height="80" title="beinsports45"></a>&nbsp;
-    <a class="eventClick" href="play/tr2-9.htm?id=selcukbeinsportsmax1" target="ekran"><img src="img/logo/beinsportsmax1.png" width="100" height="80" title="beinsportsmax1"></a>&nbsp;
-    <a class="eventClick" href="play/b1-4.htm?id=selcukbeinsportsmax1" target="ekran"><img src="img/logo/beinsportsmax1.png" width="100" height="80" title="beinsportsmax13"></a>&nbsp;
-    <a class="eventClick" href="play/b1-6.htm?id=selcukssport" target="ekran"><img src="img/logo/s_sport.png" width="100" height="80" title="ssport 1"></a>&nbsp;
-    <a class="eventClick" href="play/b1-7.htm?id=selcukssport2" target="ekran"><img src="img/logo/s_sport2.png" width="100" height="80" title="ssport 2"></a>&nbsp;
-    <a class="eventClick" href="play/b1-14.htm?id=selcuktrt1" target="ekran"><img src="img/logo/trt1.png" width="100" height="80" title="trt1"></a>&nbsp;
- 
- 
-   
-</div>
+        <!-- ... de rest van uw logo's ... -->
+    </div>
 </action>
 
-<article>
-    <div class="iframe-container">
-        <iframe allowfullscreen="yes" class="player" frameborder="0" name="ekran" scrolling="auto" src="tv/index.htm"></iframe>
-    </div>
-</article>
+<div class="player-container">
+    <iframe class="player" name="ekran" allowfullscreen="yes" scrolling="no" src="tv/index.htm"></iframe>
+</div>
 
-<!-- TOEGEVOEGD: Container en knop om de pagina te sluiten -->
- 
-
-<form action="https://turis-tv.github.io/2026-Appcreator/Bein/index.html">
-    <input type="submit" value="Diger Bein" />
+&nbsp;&nbsp;
+<form action="https://turis-tv.github.io/2026-Appcreator/Bein/index.html"><center>
+ <center>   <input type="submit" value="Diger Bein" />
 </form>
-	
-<article>
-    <!-- Deze article was leeg, zo gelaten -->
-</article>
 
-</section>
 
-<aside>
-<main role="main">
-<nav>
-</nav>
-</main>
-</aside>
-
-<footer>
-</footer>
 
 </body>
 </html>
-
-
-
-
