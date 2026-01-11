@@ -191,7 +191,7 @@ if (top.location == self.location) {
                     $("[data-adv] > button").on("click", window.app.skip);
                     clearInterval(skipInterval);
                 } else {
-                    skipText = window.config.adv.skipTextN.replace("%d", skipOffset - skipCounter);
+                    skipText = window.config.adv.skipTextN.replace("id", skipOffset - skipCounter);
                     skipCounter++;
                 }
                 $("[data-adv] > button").text(skipText.toUpperCase());
