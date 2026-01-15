@@ -3,261 +3,160 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Tamil Radio's playlist</title>
+  <title>Turis Radyo</title>
 
   <style>
     :root{
       --bgA:#0f141b;
       --bgB:#0a0e13;
-
-      --title: rgba(255,255,255,.30);
       --text: rgba(255,255,255,.86);
       --muted: rgba(255,255,255,.55);
-
       --link: #2aa2ff;
-      --linkHover:#88caff;
-
+      --gold: #ffc107;
       --shadow: 0 24px 60px rgba(0,0,0,.55);
       --radius: 8px;
     }
 
     *{ box-sizing: border-box; }
-    html,body{ height:100%; }
+    html,body{ height:100%; margin:0; }
 
     body{
-      margin:0;
       font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
       color: var(--text);
-
       background:
         radial-gradient(circle at 1px 1px, rgba(255,255,255,.06) 1px, transparent 1px) 0 0 / 6px 6px,
-        radial-gradient(1200px 700px at 20% 15%, rgba(255,255,255,.08), transparent 60%),
-        radial-gradient(900px 600px at 85% 40%, rgba(255,255,255,.06), transparent 62%),
         linear-gradient(180deg, var(--bgA), var(--bgB));
     }
 
-    .page{
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 22px 14px 30px;
-    }
+    .page{ max-width: 980px; margin: 0 auto; padding: 10px 14px 30px; }
 
     .slab{
       background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
       border-radius: var(--radius);
       border: 1px solid rgba(255,255,255,.10);
       box-shadow: var(--shadow);
-      overflow: hidden;
+      overflow: hidden; display: flex; flex-direction: column;
     }
 
-    .titleWrap{ padding: 20px 26px 8px; }
+    .content{ padding: 15px 18px 18px; display: flex; flex-direction: column; align-items: center; }
 
-    .title{
-      margin: 0;
-      font-size: clamp(34px, 6vw, 72px);
-      letter-spacing: .5px;
-      font-weight: 300;
-      color: var(--title);
-      text-shadow: 0 1px 0 rgba(0,0,0,.5);
-    }
-
-    .content{
-      padding: 10px 18px 18px;
-      display: grid;
-      grid-template-columns: 150px 1fr;
-      gap: 16px;
-      align-items: start;
-    }
-
-    @media (max-width: 640px){
-      .content{ grid-template-columns: 1fr; }
-      .title{ font-size: 44px; }
-    }
-
-    .bigButtonDock{ position: relative; height: 100%; }
+    /* PLAYER SECTIE */
+    .bigButtonDock{ display: flex; flex-direction: column; align-items: center; margin-bottom: 15px; }
 
     .bigBtn{
-      width: 140px;
-      height: 140px;
-      border-radius: 999px;
-      background:
-        radial-gradient(circle at 35% 30%, rgba(255,255,255,.22), transparent 52%),
-        radial-gradient(circle at 50% 55%, #2a2f36, #14181e 72%);
-      border: 10px solid rgba(0,0,0,.45);
-      box-shadow:
-        inset 0 10px 25px rgba(255,255,255,.10),
-        inset 0 -18px 25px rgba(0,0,0,.55),
-        0 24px 55px rgba(0,0,0,.60);
-      display: grid;
-      place-items: center;
-      position: sticky;
-      top: 14px;
+      width: 125px; height: 125px; border-radius: 999px;
+      background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.22), transparent 52%),
+                  radial-gradient(circle at 50% 55%, #2a2f36, #14181e 72%);
+      border: 8px solid rgba(0,0,0,.45);
+      box-shadow: inset 0 10px 25px rgba(255,255,255,.10), inset 0 -18px 25px rgba(0,0,0,.55), 0 24px 55px rgba(0,0,0,.60);
+      display: grid; place-items: center; margin-bottom: 8px;
     }
 
-    @media (min-width: 641px){
-      .bigBtn{ transform: translateX(-36px); }
+    .control{ appearance:none; border:0; background: transparent; width: 80px; height: 80px; cursor: pointer; display:grid; place-items:center; }
+    .playIcon{ width:0; height:0; border-top: 15px solid transparent; border-bottom: 15px solid transparent; border-left: 25px solid var(--link); transform: translateX(4px); }
+
+    .control.isPlaying .playIcon{ width: 25px; height: 28px; border:0; position: relative; }
+    .control.isPlaying .playIcon::before, .control.isPlaying .playIcon::after{ content:""; position:absolute; top:0; width: 8px; height: 28px; border-radius: 2px; background: var(--link); }
+    .control.isPlaying .playIcon::before{ left:0; } .control.isPlaying .playIcon::after{ right:0; }
+
+    /* NAAM & STATUS (KLEINER) */
+    .status{ text-align:center; line-height: 1.2; }
+    .status strong{ color: #fff; font-size: 12px; display: block; }
+    .status span { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    /* TABS */
+    .tabBar { display: flex; gap: 8px; margin-bottom: 12px; }
+    .tabBtn {
+      background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+      color: var(--muted); padding: 5px 14px; border-radius: 20px;
+      font-size: 11px; cursor: pointer; transition: all 0.3s;
+    }
+    .tabBtn.active { background: var(--link) !important; color: white !important; border-color: var(--link) !important; }
+
+    /* NIEUW: Kleur voor Favorieten-tab als er items zijn */
+    .tabBtn#tabFav.has-favs {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(255, 193, 7, 0.05);
     }
 
-    @media (max-width: 640px){
-      .bigButtonDock{ display:flex; flex-direction:column; align-items:center; }
-      .bigBtn{ position: relative; transform:none; }
-    }
-
-    .control{
-      appearance:none;
-      border:0;
-      background: transparent;
-      width: 88px;
-      height: 88px;
-      border-radius: 999px;
-      cursor: pointer;
-      display:grid;
-      place-items:center;
-      padding:0;
-    }
-    .control:focus{
-      outline: 2px solid rgba(42,162,255,.7);
-      outline-offset: 6px;
-    }
-
-    /* PLAY icon (default) */
-    .playIcon{
-      width:0;height:0;
-      border-top: 18px solid transparent;
-      border-bottom: 18px solid transparent;
-      border-left: 30px solid var(--link);
-      filter: drop-shadow(0 3px 0 rgba(0,0,0,.35));
-      transform: translateX(4px);
-    }
-
-    /* PAUSE icon when playing */
-    .control.isPlaying .playIcon{
-      width: 28px;
-      height: 32px;
-      border:0;
-      transform:none;
-      position: relative;
-      filter: drop-shadow(0 3px 0 rgba(0,0,0,.35));
-    }
-    .control.isPlaying .playIcon::before,
-    .control.isPlaying .playIcon::after{
-      content:"";
-      position:absolute;
-      top:0;
-      width: 9px;
-      height: 32px;
-      border-radius: 2px;
-      background: linear-gradient(180deg, #2aa2ff, #1c77d6);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.22);
-    }
-    .control.isPlaying .playIcon::before{ left:0; }
-    .control.isPlaying .playIcon::after{ right:0; }
-
-    .status{
-      margin-top: 10px;
-      text-align:center;
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.35;
-    }
-    .status strong{ color: rgba(255,255,255,.85); font-weight: 700; }
-
-    .panel{
-      border-radius: 6px;
-      overflow: hidden;
+    /* PLAYLIST KADER */
+    .panel {
+      width: 100%; border-radius: 6px; overflow: hidden;
       border: 1px solid rgba(0,0,0,.60);
       background: linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.25));
       box-shadow: inset 0 1px 0 rgba(255,255,255,.07);
     }
+    .playlistScroll { max-height: 380px; overflow-y: auto; }
 
-    .playlistScroll{
-      max-height: min(58vh, 520px);
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
+    .row {
+      height: 38px; display: flex; align-items: center; padding: 0 10px;
+      border-top: 1px solid rgba(255,255,255,.08); border-bottom: 1px solid rgba(0,0,0,.55);
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,.10)); cursor: pointer;
     }
-    @media (max-width: 640px){
-      .playlistScroll{ max-height: min(60vh, 520px); }
-    }
+    .row.hidden { display: none; }
+    .row.active { background: rgba(42,162,255,0.12); }
 
-    .row{
-      height: 36px;
-      display:flex;
-      align-items:center;
-      padding: 0 12px;
-      border-top: 1px solid rgba(255,255,255,.08);
-      border-bottom: 1px solid rgba(0,0,0,.55);
-      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,.10));
-      cursor:pointer;
-      user-select:none;
-    }
-    .row:first-child{ border-top:0; }
+    .favBtn { background: none; border: none; font-size: 18px; color: rgba(255,255,255,0.15); cursor: pointer; padding-right: 12px; }
+    .favBtn.isFav { color: var(--gold); text-shadow: 0 0 8px rgba(255, 193, 7, 0.6); }
 
-    .row a{
-      color: var(--link);
-      text-decoration:none;
-      font-size: 13px;
-      line-height: 1.2;
-      text-shadow: 0 1px 0 rgba(0,0,0,.55);
-      display:block;
-      width:100%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    .row a { color: var(--link); text-decoration: none; font-size: 13px; flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .row.active a { color: white; font-weight: bold; }
 
-    .row:hover{
-      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(0,0,0,.05));
-    }
-    .row:hover a{ color: var(--linkHover); }
+    .hint { padding: 10px; font-size: 11px; color: var(--muted); text-align: center; }
 
-    .row.active{
-      background: linear-gradient(180deg, rgba(42,162,255,.18), rgba(0,0,0,.14));
-    }
-    .row.active a{
-      color: rgba(180,225,255,.95);
-      font-weight: 700;
-    }
-
-    .hint{
-      padding: 10px 14px;
-      font-size: 12px;
-      color: rgba(255,255,255,.45);
-      border-top: 1px solid rgba(0,0,0,.60);
-      background: linear-gradient(180deg, rgba(0,0,0,.14), rgba(0,0,0,.20));
-    }
+    /* MODAL */
+    .modalOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; place-items: center; z-index: 999; }
+    .modalOverlay.open { display: grid; }
+    .modalBox { background: #1a2029; border-radius: 8px; width: 280px; padding: 15px; border: 1px solid #333; }
+    .serverBtn { display: block; width: 100%; padding: 10px; margin-top: 5px; background: rgba(255,255,255,0.05); color: var(--link); border: 1px solid #333; cursor: pointer; text-align: center; }
   </style>
 </head>
 
 <body>
- 
-      </div>
-
+  <div class="page">
+    <div class="slab">
       <div class="content">
+        
         <div class="bigButtonDock">
           <div class="bigBtn">
-            <button id="playBtn" class="control" type="button" aria-label="Play/Pause">
-              <span class="playIcon" aria-hidden="true"></span>
-            </button>
+            <button id="playBtn" class="control" type="button"><span class="playIcon"></span></button>
           </div>
-
           <div class="status">
-            <strong id="stationName">—</strong><br/>
-            <span id="stationState">Yükleniyor...</span>
+            <strong id="stationName">İstasyon Seçin</strong>
+            <span id="stationState">Hazır</span>
           </div>
         </div>
 
-        <div class="panel" aria-label="Playlist">
-          <div class="playlistScroll" id="playlistScroll"></div>
-          <div class="hint" id="hint">Playlist wordt geladen van GitHub raw…</div>
+        <div style="width: 100%;">
+          <div class="tabBar">
+            <button class="tabBtn active" id="tabAll" onclick="switchFilter('all')">Hepsi</button>
+            <button class="tabBtn" id="tabFav" onclick="switchFilter('fav')">Favoriler ★</button>
+          </div>
+
+          <div class="panel">
+            <div class="playlistScroll" id="playlistScroll"></div>
+            <div class="hint" id="hint">Yükleniyor...</div>
+          </div>
         </div>
+
       </div>
     </div>
   </div>
 
   <audio id="audio" preload="none" crossorigin="anonymous"></audio>
 
+  <div class="modalOverlay" id="modalOverlay">
+    <div class="modalBox">
+      <h3 style="margin:0 0 10px 0; font-size:14px; text-align:center;">Sunucuyu Seçin</h3>
+      <div id="serverList"></div>
+      <button onclick="closeModal()" style="width:100%; margin-top:10px; background:none; border:none; color:#555; cursor:pointer; font-size:12px;">Kapat</button>
+    </div>
+  </div>
+
   <script>
     const PLAYLIST_URL = "https://raw.githubusercontent.com/Turis-Tv/muzik.json/refs/heads/main/15-Radyolar.txt";
+    const FAV_KEY = "tamilRadioFavorites";
 
     const audio = document.getElementById('audio');
     const playBtn = document.getElementById('playBtn');
@@ -265,146 +164,132 @@
     const stationState = document.getElementById('stationState');
     const playlistScroll = document.getElementById('playlistScroll');
     const hint = document.getElementById('hint');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const serverList = document.getElementById('serverList');
+    const tabFavBtn = document.getElementById('tabFav');
 
     let rows = [];
-    let current = null;
-
-    function escapeHtml(s){
-      return String(s).replace(/[&<>"']/g, m => ({
-        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-      }[m]));
-    }
-
-    function setPlayingUI(isPlaying){
-      // This is the key fix: toggle class on the BUTTON, not somewhere else.
-      playBtn.classList.toggle('isPlaying', isPlaying);
-    }
-
-    function setActive(rowEl){
-      rows.forEach(r => r.classList.remove('active'));
-      rowEl.classList.add('active');
-      current = rowEl;
-      stationName.textContent = rowEl.dataset.name || '—';
-    }
-
-    function loadCurrent(){
-      if(!current) return;
-      const url = current.dataset.url;
-      if(!url){
-        stationState.textContent = 'Missing URL';
-        return;
-      }
-      if(audio.src !== url) audio.src = url;
-    }
-
-    function addRow(station, makeActive=false){
-      const name = station?.name ?? station?.Name ?? station?.title ?? station?.station ?? '';
-      const url  = station?.url  ?? station?.URL  ?? station?.stream ?? station?.link ?? '';
-      if(!name || !url) return;
-
-      const row = document.createElement('div');
-      row.className = 'row' + (makeActive ? ' active' : '');
-      row.dataset.name = name;
-      row.dataset.url = url;
-      row.innerHTML = `<a href="#" onclick="return false;">${escapeHtml(name)}</a>`;
-
-      row.addEventListener('click', () => {
-        setActive(row);
-        loadCurrent();
-        stationState.textContent = 'Connecting...';
-        audio.play().catch(() => {
-          stationState.textContent = '';
-          setPlayingUI(false);
-        });
-      });
-
-      playlistScroll.appendChild(row);
-      rows.push(row);
-
-      if(makeActive){
-        current = row;
-        stationName.textContent = name;
-      }
-    }
+    let favorites = JSON.parse(localStorage.getItem(FAV_KEY) || "[]");
+    let currentFilter = 'all';
 
     async function loadPlaylist(){
-      stationState.textContent = 'Yükleniyor...';
-      hint.textContent = 'Playlist wordt geladen van GitHub raw…';
+      try {
+        const res = await fetch(PLAYLIST_URL);
+        let text = await res.text();
+        let jsonStr = text.trim();
+        if (jsonStr.includes('[')) jsonStr = jsonStr.substring(jsonStr.indexOf('['));
+        if (jsonStr.endsWith(';')) jsonStr = jsonStr.slice(0, -1);
+        const fixedJson = jsonStr.replace(/([{,]\s*)([A-Za-z_][A-Za-z0-9_]*)(\s*:)/g, '$1"$2"$3');
+        const data = JSON.parse(fixedJson);
 
-      try{
-        const res = await fetch(PLAYLIST_URL, { cache: "no-store" });
-        if(!res.ok) throw new Error("HTTP " + res.status);
-
-        const text = await res.text();
-
-        const toJsonish = (s) => {
-          let x = s.trim();
-          x = x.replace(/^\s*(var|let|const)\s+\w+\s*=\s*/i, '');
-          x = x.replace(/;\s*$/, '');
-          x = x.replace(/([{,]\s*)([A-Za-z_][A-Za-z0-9_]*)(\s*:)/g, '$1"$2"$3');
-          x = x.replace(/,\s*([}\]])/g, '$1');
-          return x;
-        };
-
-        let data;
-        try{
-          data = JSON.parse(text);
-        }catch{
-          data = JSON.parse(toJsonish(text));
-        }
-
-        if(!Array.isArray(data)) throw new Error("Playlist is geen array");
+        const grouped = {};
+        data.forEach(st => {
+          const name = (st.name || st.Name || st.title || "Onbekend").trim();
+          if(!grouped[name]) grouped[name] = [];
+          grouped[name].push(st);
+        });
 
         playlistScroll.innerHTML = '';
         rows = [];
-        current = null;
+        Object.keys(grouped).forEach(name => addRow(name, grouped[name]));
 
-        let first = true;
-        for(const st of data){
-          addRow(st, first);
-          if(first) first = false;
-        }
+        updateListVisibility();
+        updateFavTabHighlight(); // Check bij opstarten
+      } catch (err) { hint.textContent = 'Laden mislukt.'; }
+    }
 
-        if(!rows.length){
-          stationState.textContent = 'Empty list';
-          hint.textContent = 'Geen stations gevonden in de JSON.';
-          return;
-        }
-
-        stationState.textContent = 'Ready';
-        hint.textContent = `Yüklenen istasyonlar: ${rows.length} `;
-
-      }catch(err){
-        stationState.textContent = 'Error';
-        hint.textContent = 'Kon playlist niet laden. Controleer of de raw URL publiek is en geldige JSON bevat.';
-        console.error(err);
+    function updateFavTabHighlight() {
+      if(favorites.length > 0) {
+        tabFavBtn.classList.add('has-favs');
+      } else {
+        tabFavBtn.classList.remove('has-favs');
       }
     }
 
-    // Play/Pause button
-    playBtn.addEventListener('click', () => {
-      if(!current && rows.length) setActive(rows[0]);
-      if(!current) return;
+    function addRow(name, stations){
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.dataset.name = name;
+      const isFav = favorites.includes(name);
+      const isMulti = stations.length > 1;
+      const url = stations[0].url || stations[0].URL || stations[0].stream || stations[0].link;
 
-      if(!audio.src) loadCurrent();
+      row.innerHTML = `
+        <button class="favBtn ${isFav ? 'isFav' : ''}">★</button>
+        <a>${name}</a>
+        ${isMulti ? `<span style="font-size:9px; color:rgba(255,255,255,0.2); margin-left:5px;">${stations.length} SRV</span>` : ''}
+      `;
 
-      if(audio.paused){
-        stationState.textContent = 'Connecting...';
-        audio.play().catch(() => stationState.textContent = 'Cannot play stream');
-      } else {
-        audio.pause();
-      }
-    });
+      row.querySelector('.favBtn').onclick = (e) => {
+        e.stopPropagation();
+        const idx = favorites.indexOf(name);
+        if(idx > -1) {
+            favorites.splice(idx, 1);
+            e.target.classList.remove('isFav');
+        } else {
+            favorites.push(name);
+            e.target.classList.add('isFav');
+        }
+        localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
+        updateFavTabHighlight(); // Update de tab kleur
+        if(currentFilter === 'fav') updateListVisibility();
+      };
 
-    // Audio state -> icon state (this ensures correct icon always)
-    audio.addEventListener('playing', () => { stationState.textContent = 'Playing'; setPlayingUI(true); });
-    audio.addEventListener('pause',   () => { stationState.textContent = 'Paused';  setPlayingUI(false); });
-    audio.addEventListener('waiting', () => { stationState.textContent = 'Buffering...'; });
-    audio.addEventListener('stalled', () => { stationState.textContent = 'Stalled...'; });
-    audio.addEventListener('error',   () => { stationState.textContent = 'Stream error'; setPlayingUI(false); });
+      row.onclick = () => {
+        if(isMulti) openModal(name, stations, row);
+        else playStream(url, name, row);
+      };
 
-    // Initial UI state
-    setPlayingUI(false);
+      playlistScroll.appendChild(row);
+      rows.push(row);
+    }
+
+    function playStream(url, name, rowEl){
+      rows.forEach(r => r.classList.remove('active'));
+      rowEl.classList.add('active');
+      stationName.textContent = name;
+      stationState.textContent = 'Verbinden...';
+      audio.src = url;
+      audio.play().catch(() => stationState.textContent = 'Fout');
+    }
+
+    function switchFilter(type){
+      currentFilter = type;
+      document.getElementById('tabAll').classList.toggle('active', type === 'all');
+      document.getElementById('tabFav').classList.toggle('active', type === 'fav');
+      updateListVisibility();
+    }
+
+    function updateListVisibility(){
+      let count = 0;
+      rows.forEach(r => {
+        const isFav = favorites.includes(r.dataset.name);
+        const hide = (currentFilter === 'fav' && !isFav);
+        r.classList.toggle('hidden', hide);
+        if(!hide) count++;
+      });
+      hint.textContent = count + " Kanallar";
+    }
+
+    function openModal(name, stations, rowEl){
+      serverList.innerHTML = '';
+      stations.forEach((s, i) => {
+        const btn = document.createElement('div');
+        btn.className = 'serverBtn';
+        btn.textContent = 'Server ' + (i+1);
+        btn.onclick = () => { playStream(s.url || s.URL || s.stream || s.link, name, rowEl); closeModal(); };
+        serverList.appendChild(btn);
+      });
+      modalOverlay.classList.add('open');
+    }
+
+    function closeModal(){ modalOverlay.classList.remove('open'); }
+
+    playBtn.onclick = () => { if(!audio.src) return; audio.paused ? audio.play() : audio.pause(); };
+    audio.onplaying = () => { stationState.textContent = 'Çalıyor'; playBtn.classList.add('isPlaying'); };
+    audio.onpause = () => { stationState.textContent = 'Duraklatıldı'; playBtn.classList.remove('isPlaying'); };
+    audio.onwaiting = () => { stationState.textContent = 'Ara belleğe alınıyor...'; };
+
     loadPlaylist();
   </script>
 </body>
