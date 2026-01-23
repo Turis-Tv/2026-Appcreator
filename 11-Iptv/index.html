@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- PWA Settings -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f0f0f">
+    
+    <title>Turis TV - Final Edit (+18 PIN)</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- MODERN THEMA --- */
+        :root {
+            --bg-dark: #000000;
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent-active: linear-gradient(135deg, #ff8800, #ff5500);
+            --text-color: #e0e0e0;
+            --highlight: #ffaa00;
+            --watched-color: #00ff41; 
+            --menu-width: 280px;
+        }
+
+        html, body {
+            background-color: var(--bg-dark);
+            color: var(--text-color);
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden;
+            font-family: 'Tajawal', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none; -webkit-user-select: none;
+        }
+
+        /* --- ROTATIE WAARSCHUWING --- */
+        #rotate-warning {
+            display: none; 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #000; z-index: 2147483647;
+            flex-direction: column; justify-content: center; align-items: center; color: var(--highlight);
+        }
+        #rotate-warning p { font-size: 4rem; animation: rotate 2s infinite; }
+        @keyframes rotate { 0% { transform: rotate(0deg); } 50% { transform: rotate(90deg); } 100% { transform: rotate(0deg); } }
+
+        @media screen and (orientation: portrait) {
+            #rotate-warning { display: flex !important; }
+            .category-list, .sub-filter-container, .channel-list, .video-container, #link-dropdown-menu { display: none !important; }
+        }
+
+        /* --- BACKGROUND --- */
+        .video-container {
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: #050505; z-index: 1;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .vlc-bg-icon {
+            font-size: 100px; opacity: 0.1; filter: grayscale(100%);
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/e/e6/VLC_Icon.svg');
+            background-repeat: no-repeat; background-position: center; background-size: contain;
+            width: 200px; height: 200px;
+        }
+
+        /* --- CATEGORIE LIJST (HOOFDMENU) --- */
+        .category-list {
+            position: absolute; top: 0; left: 0; width: 100%; height: 42px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.95), rgba(0,0,0,0.8));
+            border-bottom: 1px solid var(--glass-border);
+            display: flex; align-items: center; justify-content: flex-start;
+            flex-wrap: nowrap; overflow-x: auto; gap: 8px;
+            padding-left: max(15px, env(safe-area-inset-left));
+            padding-right: 0; 
+            z-index: 9999; white-space: nowrap; -webkit-overflow-scrolling: touch;
+            transition: opacity 0.3s ease;
+        }
+        .category-list::-webkit-scrollbar { display: none; }
+        .category-list::after { content: ""; display: block; min-width: 130px; height: 100%; }
+
+        /* --- SUB-FILTER BALK --- */
+        .sub-filter-container {
+            position: absolute; 
+            top: 48px; left: max(15px, env(safe-area-inset-left));
+            width: var(--menu-width); height: 38px;
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid var(--glass-border); border-bottom: none;
+            border-radius: 12px 12px 0 0;
+            display: none; align-items: center; justify-content: flex-start; 
+            gap: 6px; padding: 0 8px; overflow-x: auto; white-space: nowrap;
+            z-index: 9998; -webkit-overflow-scrolling: touch;
+        }
+        .sub-filter-container::-webkit-scrollbar { display: none; }
+        .sub-filter-container.active { display: flex; }
+
+        .sub-btn {
+            background: rgba(255,255,255,0.05); color: #aaa; 
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 4px 12px; border-radius: 15px; font-size: 11px; cursor: pointer;
+            transition: all 0.2s; flex-shrink: 0;
+        }
+        .sub-btn.selected {
+            background: #333; color: white; border-color: var(--highlight);
+            box-shadow: 0 0 5px rgba(255, 170, 0, 0.3);
+        }
+
+        /* --- KANAAL LIJST --- */
+        .channel-list {
+            position: absolute; top: 48px; 
+            left: max(15px, env(safe-area-inset-left));
+            width: var(--menu-width); height: calc(100vh - 58px);
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); border-radius: 12px;
+            overflow-y: auto; padding: 6px; display: flex; flex-direction: column; gap: 4px;
+            z-index: 9997; padding-bottom: env(safe-area-inset-bottom);
+            transition: all 0.3s ease;
+        }
+        .channel-list.has-filter {
+            top: 86px; height: calc(100vh - 96px);
+            border-radius: 0 0 12px 12px; border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .channel-list::-webkit-scrollbar { width: 3px; }
+        .channel-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+
+        /* --- ITEMS --- */
+        .btn {
+            background: rgba(255, 255, 255, 0.1); color: #ccc;
+            border: 1px solid transparent; padding: 5px 14px; border-radius: 20px;
+            font-size: 11px; font-weight: 600; cursor: pointer; flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        .btn.selected {
+            background: var(--accent-active); color: white; border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 0 10px rgba(255, 136, 0, 0.4);
+        }
+
+        .channel-item {
+            background: rgba(30, 30, 30, 0.4); padding: 8px 12px; cursor: pointer; border-radius: 6px;
+            display: flex; justify-content: space-between; align-items: center;
+            color: #ddd; font-size: 13px; border-left: 3px solid transparent;
+            transition: background 0.2s;
+        }
+        .channel-item:hover { background: rgba(255, 255, 255, 0.05); }
+        .channel-item.selected {
+            background: linear-gradient(90deg, rgba(100, 50, 0, 0.6), rgba(200, 100, 0, 0.2));
+            border-left: 3px solid #ffaa00; color: white; text-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+
+        .channel-name { margin-left: 8px; flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .fav-btn { background: none; border: none; color: #555; font-size: 16px; padding: 0 4px; transition: color 0.2s; }
+        .fav-btn.active { color: #ffd700; text-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
+        
+        .loading-text { text-align: center; color: #aaa; font-size: 11px; padding: 10px; }
+        .hidden-ui { opacity: 0; pointer-events: none; }
+
+        /* --- LINK DROPDOWN --- */
+        #link-dropdown-menu {
+            display: none; position: fixed; top: 50px; right: 20px;
+            background: rgba(15, 15, 15, 0.95); backdrop-filter: blur(10px);
+            border: 1px solid var(--highlight); border-radius: 12px;
+            padding: 10px; z-index: 100000; min-width: 200px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.8); flex-direction: column; gap: 5px;
+            max-height: calc(100vh - 70px); overflow-y: auto; -webkit-overflow-scrolling: touch; 
+        }
+        #link-dropdown-menu::-webkit-scrollbar { width: 4px; }
+        #link-dropdown-menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 2px; }
+        #link-dropdown-menu.show { display: flex; }
+        
+        .link-item {
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 12px; color: white; text-decoration: none;
+            background: rgba(255,255,255,0.05); border: 1px solid transparent;
+            border-radius: 6px; font-size: 13px; transition: background 0.2s;
+            text-align: left; flex-shrink: 0; 
+        }
+        .link-item:hover { background: var(--accent-active); }
+        .link-item.last-clicked {
+            border: 1px solid var(--watched-color); background: rgba(0, 255, 65, 0.1); color: white;
+        }
+        .link-item.last-clicked .eye-icon { color: var(--watched-color); text-shadow: 0 0 5px var(--watched-color); }
+
+        /* --- POPUP (SOURCES) --- */
+        #source-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); z-index: 100000;
+            display: none; justify-content: center; align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .source-content {
+            background: #1a1a1a; border: 1px solid var(--glass-border);
+            padding: 20px; border-radius: 12px; width: 300px;
+            text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        }
+        .source-content h3 { margin: 0 0 15px 0; font-size: 16px; color: white; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .source-grid { display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; }
+        
+        .source-btn {
+            background: #333; color: white; border: 1px solid transparent; padding: 10px;
+            border-radius: 6px; font-size: 14px; cursor: pointer;
+            transition: all 0.2s; display: flex; justify-content: space-between; align-items: center;
+        }
+        .source-btn:hover { background: #444; }
+        .source-btn.last-watched { border: 1px solid var(--watched-color); background: rgba(0, 255, 65, 0.1); color: #fff; }
+        .source-btn.last-watched .status-icon { color: var(--watched-color); text-shadow: 0 0 5px var(--watched-color); }
+        .close-modal { margin-top: 15px; background: transparent; border: 1px solid #444; color: #aaa; padding: 5px 15px; border-radius: 15px; cursor: pointer; font-size: 12px; }
+
+        /* --- TOAST --- */
+        #toast {
+            visibility: hidden; min-width: 200px; background-color: #333; color: #fff;
+            text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 100001;
+            left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px;
+            border: 1px solid #ffaa00; box-shadow: 0 0 20px rgba(0,0,0,0.8);
+        }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+        /* --- PIN PAD STIJLEN (Aangepast voor landscape) --- */
+        #pin-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.95); z-index: 200000;
+            justify-content: center; align-items: center; flex-direction: column;
+            backdrop-filter: blur(10px);
+        }
+        .pin-container {
+            background: rgba(20, 20, 20, 0.95); 
+            padding: 15px; /* Minder padding */
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8); text-align: center;
+            width: 260px; /* Smaller */
+            max-height: 95vh; /* Zorg dat het nooit hoger is dan scherm */
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .pin-title { font-size: 18px; color: white; margin-bottom: 10px; font-weight: bold; }
+        .pin-dots {
+            display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; height: 15px;
+        }
+        .pin-dot {
+            width: 12px; height: 12px; border-radius: 50%;
+            border: 2px solid #555; transition: all 0.2s;
+        }
+        .pin-dot.filled { background: var(--highlight); border-color: var(--highlight); box-shadow: 0 0 8px var(--highlight); }
+        .pin-pad-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; /* Kleinere gap */
+        }
+        .pin-key {
+            background: rgba(255, 255, 255, 0.1); color: white; 
+            font-size: 20px; /* Kleiner lettertype */
+            height: 45px; width: 45px; /* Veel kleinere knoppen */
+            border-radius: 50%; border: none; cursor: pointer;
+            display: flex; justify-content: center; align-items: center;
+            transition: background 0.2s; margin: 0 auto;
+        }
+        .pin-key:active { background: var(--highlight); color: black; }
+        .pin-key-func { font-size: 16px; color: #aaa; background: transparent; }
+        .pin-error { animation: shake 0.4s ease-in-out; border-color: red; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+
+    </style>
+</head>
+<body>
+
+    <div id="rotate-warning">
+        <h1>Lütfen ekranı çevirin</h1>
+        <p>↻</p>
+    </div>
+
+    <div class="video-container">
+        <div class="vlc-bg-icon"></div>
+    </div>
+
+    <div class="category-list" id="categoryList"></div>
+    <div class="sub-filter-container" id="subFilterBar"></div>
+    <div class="channel-list" id="channelList"></div>
+    <div id="link-dropdown-menu"></div>
+
+    <!-- Bron Modal -->
+    <div id="source-modal">
+        <div class="source-content">
+            <h3 id="modal-title">Kaynak Seçin (VLC)</h3>
+            <div class="source-grid" id="source-list"></div>
+            <button class="close-modal" onclick="closeModal()">İptal</button>
+        </div>
+    </div>
+
+    <!-- PIN PAD MODAL (Aangepast formaat) -->
+    <div id="pin-overlay">
+        <div class="pin-container" id="pinContainer">
+            <div class="pin-title">Şifre Girin</div>
+            <div class="pin-dots" id="pinDots">
+                <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+            </div>
+            <div class="pin-pad-grid">
+                <button class="pin-key" onclick="enterPin(1)">1</button>
+                <button class="pin-key" onclick="enterPin(2)">2</button>
+                <button class="pin-key" onclick="enterPin(3)">3</button>
+                <button class="pin-key" onclick="enterPin(4)">4</button>
+                <button class="pin-key" onclick="enterPin(5)">5</button>
+                <button class="pin-key" onclick="enterPin(6)">6</button>
+                <button class="pin-key" onclick="enterPin(7)">7</button>
+                <button class="pin-key" onclick="enterPin(8)">8</button>
+                <button class="pin-key" onclick="enterPin(9)">9</button>
+                <button class="pin-key pin-key-func" onclick="clearPin()">C</button>
+                <button class="pin-key" onclick="enterPin(0)">0</button>
+                <button class="pin-key pin-key-func" onclick="closePinPad()">🔙</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast">🚀 VLC Açılıyor...</div>
+
+    <script>
+        // --- 1. JOUW DROPDOWN LINKS ---
+        const customLinks = [
+            { name: "Google", url: "https://www.google.com" },
+            { name: "YouTube", url: "https://www.youtube.com" },
+            { name: "Mijn Website", url: "https://jouwwebsite.com" }
+        ];
+
+        // --- 2. CONFIGURATIE VAN CATEGORIEËN ---
+        const categoryConfig = [
+            { id: "favorite", title: "⭐ ", type: "system" },
+            { id: "Ulusal",   title: "🏟️ Ulusal",   url: "https://raw.githubusercontent.com/Turis-Tv/muzik.json/refs/heads/main/1-Ulusal-Radyo-Azer.txt" },
+            { id: "Haber",    title: "📡 Haber",    url: "https://raw.githubusercontent.com/Turis-Tv/muzik.json/refs/heads/main/2-Haberler.txt" },
+            { id: "Spor",     title: "🌍 Spor",     url: "https://raw.githubusercontent.com/Turis-Tv/muzik.json/refs/heads/main/3-Sporlar.txt" },
+            { id: "Belgesel", title: "🎭 Belgesel", url: "https://raw.githubusercontent.com/Turis-Tv/muzik.json/refs/heads/main/5-Belgesel-Izle.txt" },
+            { id: "Muzik",    title: "🎵 Muzik",    url: "https://raw.githubusercontent.com/Turis-Tv/muzik.json/refs/heads/main/4-Muzikler.txt" },
+            { id: "Film",     title: "📺 Film",     url: "https://raw.githubusercontent.com/Turis-Tv/muzik.json/refs/heads/main/6-Filmler-Film.txt" },
+            { id: "Adult",    title: "🔞 +18",      url: "https://raw.githubusercontent.com/Turis-Tv/muzik.json/refs/heads/main/10-%2B18-Live-Vod-Cam.txt", protected: true }, 
+            { id: "all",      title: "📢 Tümü",     type: "dropdown" }
+        ];
+
+        // --- PIN LOGICA VARIABELEN ---
+        let currentPinInput = "";
+        const CORRECT_PIN = "1818"; 
+        let isAdultUnlocked = false; 
+        let pendingCategory = null; 
+
+        // --- BESTAANDE VARIABELEN ---
+        let channelList = document.getElementById("channelList");
+        let categoryList = document.getElementById("categoryList");
+        let subFilterBar = document.getElementById("subFilterBar");
+        let sourceModal = document.getElementById("source-modal");
+        let sourceList = document.getElementById("source-list");
+        let modalTitle = document.getElementById("modal-title");
+        let toast = document.getElementById("toast");
+        let linkDropdown = document.getElementById("link-dropdown-menu");
+        
+        let pinOverlay = document.getElementById("pin-overlay");
+        let pinDots = document.getElementById("pinDots");
+        let pinContainer = document.getElementById("pinContainer");
+
+        let currentChannelData = [];
+        let hideTimeout = null;
+        let isUIHidden = false;
+
+        // --- INITIALISATIE ---
+        window.onload = function() {
+            createCategoryButtons();
+            setupLinkDropdown();
+            loadCategory("Ulusal"); 
+            resetUITimer();
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock('landscape').catch(e => {});
+            }
+        };
+
+        function setupLinkDropdown() {
+            linkDropdown.innerHTML = "";
+            const lastClickedUrl = localStorage.getItem("last_dropdown_link");
+            customLinks.forEach(link => {
+                let a = document.createElement("a");
+                a.className = "link-item";
+                if (link.url === lastClickedUrl) {
+                    a.classList.add("last-clicked");
+                    a.innerHTML = `<span>${link.name}</span> <span class="eye-icon">👁️</span>`;
+                } else {
+                    a.textContent = link.name;
+                }
+                a.href = link.url; a.target = "_blank";
+                a.onclick = (e) => {
+                    localStorage.setItem("last_dropdown_link", link.url);
+                    linkDropdown.classList.remove("show");
+                    setTimeout(setupLinkDropdown, 500); 
+                };
+                linkDropdown.appendChild(a);
+            });
+        }
+
+        function createCategoryButtons() {
+            categoryList.innerHTML = "";
+            
+            categoryConfig.forEach(cat => {
+                let btn = document.createElement("button");
+                btn.className = "btn";
+                btn.textContent = cat.title;
+                btn.dataset.id = cat.id;
+
+                if (cat.type === 'dropdown') {
+                    btn.onclick = (e) => {
+                        e.stopPropagation();
+                        setupLinkDropdown();
+                        if (linkDropdown.classList.contains("show")) {
+                            linkDropdown.classList.remove("show");
+                            btn.classList.remove("selected");
+                        } else {
+                            closeModal();
+                            linkDropdown.classList.add("show");
+                            btn.classList.add("selected");
+                        }
+                        resetUITimer();
+                    };
+                } else {
+                    btn.onclick = (e) => {
+                        e.stopPropagation();
+                        linkDropdown.classList.remove("show");
+                        
+                        if (cat.protected) {
+                            if (isAdultUnlocked) {
+                                activateCategoryBtn(btn);
+                                loadCategory(cat.id);
+                            } else {
+                                showPinPad(cat.id, btn);
+                            }
+                        } else {
+                            isAdultUnlocked = false;
+                            activateCategoryBtn(btn);
+                            loadCategory(cat.id);
+                        }
+                        resetUITimer();
+                    };
+                }
+                categoryList.appendChild(btn);
+            });
+
+            setTimeout(() => {
+                let startBtn = Array.from(document.querySelectorAll(".category-list .btn"))
+                    .find(b => b.textContent.includes("Ulusal"));
+                if(startBtn) startBtn.classList.add("selected");
+            }, 100);
+        }
+
+        function activateCategoryBtn(targetBtn) {
+            document.querySelectorAll(".category-list .btn").forEach(b => b.classList.remove("selected"));
+            targetBtn.classList.add("selected");
+        }
+
+        // --- PIN PAD FUNCTIES ---
+        function showPinPad(catId, btnElement) {
+            pendingCategory = { id: catId, btn: btnElement };
+            currentPinInput = "";
+            updatePinDots();
+            pinOverlay.style.display = "flex";
+            pinContainer.classList.remove("pin-error");
+        }
+
+        function closePinPad() {
+            pinOverlay.style.display = "none";
+            pendingCategory = null;
+        }
+
+        function clearPin() {
+            currentPinInput = "";
+            updatePinDots();
+        }
+
+        function enterPin(num) {
+            if (currentPinInput.length < 4) {
+                currentPinInput += num;
+                updatePinDots();
+            }
+            if (currentPinInput.length === 4) {
+                setTimeout(checkPin, 200);
+            }
+        }
+
+        function updatePinDots() {
+            let dots = pinDots.children;
+            for(let i=0; i<4; i++) {
+                if(i < currentPinInput.length) dots[i].classList.add("filled");
+                else dots[i].classList.remove("filled");
+            }
+        }
+
+        function checkPin() {
+            if (currentPinInput === CORRECT_PIN) {
+                isAdultUnlocked = true;
+                pinOverlay.style.display = "none";
+                if (pendingCategory) {
+                    activateCategoryBtn(pendingCategory.btn);
+                    loadCategory(pendingCategory.id);
+                }
+            } else {
+                currentPinInput = "";
+                updatePinDots();
+                pinContainer.classList.add("pin-error");
+                setTimeout(() => pinContainer.classList.remove("pin-error"), 500);
+            }
+        }
+
+        // --- DATA OPHALEN & VERWERKEN ---
+        async function fetchCategoryData(catId) {
+            if (catId === 'favorite') {
+                let allChannels = [];
+                const validCats = categoryConfig.filter(c => c.url);
+                const promises = validCats.map(c => fetch(c.url).then(r => r.json()).catch(e => []));
+                const results = await Promise.all(promises);
+                results.forEach(list => allChannels = allChannels.concat(list));
+                return allChannels;
+            }
+
+            const cat = categoryConfig.find(c => c.id === catId);
+            if (!cat || !cat.url) return [];
+            
+            try {
+                const res = await fetch(cat.url);
+                return await res.json();
+            } catch(e) { return []; }
+        }
+
+        async function loadCategory(catId) {
+            channelList.innerHTML = "<div class='loading-text'>Yükleniyor...</div>";
+            channelList.scrollTop = 0;
+            
+            subFilterBar.innerHTML = "";
+            subFilterBar.classList.remove("active");
+            channelList.classList.remove("has-filter");
+
+            let rawList = await fetchCategoryData(catId);
+
+            if (catId === 'favorite') {
+                const favs = JSON.parse(localStorage.getItem("favorites") || "[]");
+                rawList = rawList.filter(c => favs.includes(c.url));
+            }
+            
+            currentChannelData = rawList;
+            checkForSubCategories(rawList);
+            renderChannels(rawList);
+        }
+
+        function checkForSubCategories(list) {
+            if (!list || list.length === 0) return;
+            let subCats = new Set();
+            list.forEach(item => {
+                if (item.subCategory) {
+                    subCats.add(item.subCategory);
+                }
+            });
+            if (subCats.size > 0) {
+                createSubFilters(Array.from(subCats));
+            }
+        }
+
+        function createSubFilters(subCats) {
+            subFilterBar.innerHTML = "";
+            subFilterBar.classList.add("active");
+            channelList.classList.add("has-filter");
+
+            let allBtn = document.createElement("button");
+            allBtn.className = "sub-btn selected";
+            allBtn.textContent = "Tümü"; 
+            allBtn.onclick = (e) => {
+                e.stopPropagation();
+                filterChannels(null); 
+                updateSubBtns(allBtn);
+            };
+            subFilterBar.appendChild(allBtn);
+
+            subCats.sort().forEach(sub => {
+                let btn = document.createElement("button");
+                btn.className = "sub-btn";
+                btn.textContent = sub;
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    filterChannels(sub);
+                    updateSubBtns(btn);
+                };
+                subFilterBar.appendChild(btn);
+            });
+        }
+
+        function updateSubBtns(activeBtn) {
+            document.querySelectorAll(".sub-btn").forEach(b => b.classList.remove("selected"));
+            activeBtn.classList.add("selected");
+            resetUITimer();
+        }
+
+        function filterChannels(filterSub) {
+            if (!filterSub) {
+                renderChannels(currentChannelData);
+            } else {
+                let filtered = currentChannelData.filter(item => item.subCategory === filterSub);
+                renderChannels(filtered);
+            }
+        }
+
+        function renderChannels(list) {
+            channelList.innerHTML = "";
+            if (!list || list.length === 0) {
+                channelList.innerHTML = "<div class='loading-text'>Kanal yok</div>";
+                return;
+            }
+
+            let groupedMap = new Map();
+            list.forEach(item => {
+                let cleanName = item.name.replace(/^\d+\s*-\s*/, '').trim();
+                if (!groupedMap.has(cleanName)) groupedMap.set(cleanName, []);
+                groupedMap.get(cleanName).push(item);
+            });
+
+            let index = 1;
+            groupedMap.forEach((groupItems, cleanName) => {
+                let div = document.createElement("div");
+                div.className = "channel-item";
+                
+                let favs = JSON.parse(localStorage.getItem("favorites") || "[]");
+                let isFav = groupItems.some(item => favs.includes(item.url));
+                let multiBadge = groupItems.length > 1 ? `<span style="font-size:10px; color:#ffaa00; margin-right:5px;">(Multi)</span>` : "";
+
+                div.innerHTML = `
+                    <span style="color:#666; font-size:11px; width:20px;">${index}.</span>
+                    <span class="channel-name">${cleanName}</span>
+                    ${multiBadge}
+                    <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(event, '${groupItems[0].url}', this)">${isFav ? '★' : '☆'}</button>
+                `;
+
+                div.onclick = (e) => {
+                    e.stopPropagation();
+                    document.querySelectorAll(".channel-item").forEach(i => i.classList.remove("selected"));
+                    div.classList.add("selected");
+                    linkDropdown.classList.remove("show");
+
+                    let firstItem = groupItems[0];
+                    handleItemClick(firstItem, cleanName, groupItems);
+                };
+                channelList.appendChild(div);
+                index++;
+            });
+        }
+
+        function handleItemClick(item, name, groupItems) {
+            if (item.openWith === 'web' || item.openWith === 'browser') {
+                window.open(item.url, '_blank');
+            } else {
+                if (groupItems.length > 1) {
+                    showSourceModal(name, groupItems);
+                } else {
+                    openInVLC(item.url);
+                    hideUIImmediate();
+                }
+            }
+        }
+
+        function showSourceModal(name, items) {
+            modalTitle.textContent = name;
+            sourceList.innerHTML = "";
+            let lastWatchedIndex = localStorage.getItem("last_watched_" + name);
+
+            items.forEach((item, idx) => {
+                let btn = document.createElement("button");
+                btn.className = "source-btn";
+                
+                let isLastWatched = (lastWatchedIndex == idx);
+                let icon = isLastWatched ? "<span class='status-icon'>👁️</span>" : "<span>📺</span>";
+                if (isLastWatched) btn.classList.add("last-watched");
+
+                btn.innerHTML = `<span>Canlı Yayın ${idx + 1}</span> ${icon}`;
+                
+                btn.onclick = () => {
+                    localStorage.setItem("last_watched_" + name, idx);
+                    if (item.openWith === 'web' || item.openWith === 'browser') {
+                        window.open(item.url, '_blank');
+                    } else {
+                        openInVLC(item.url);
+                    }
+                    closeModal();
+                    hideUIImmediate();
+                };
+                sourceList.appendChild(btn);
+            });
+            sourceModal.style.display = "flex";
+        }
+
+        function closeModal() { sourceModal.style.display = "none"; }
+
+        function openInVLC(url) {
+            showToast();
+            var isAndroid = navigator.userAgent.toLowerCase().indexOf("android") > -1;
+
+            if (isAndroid) {
+                let scheme = "http";
+                let cleanUrl = url;
+                if (url.startsWith("https://")) {
+                    scheme = "https";
+                    cleanUrl = url.replace("https://", "");
+                } else if (url.startsWith("http://")) {
+                    scheme = "http";
+                    cleanUrl = url.replace("http://", "");
+                }
+                let intentUri = "intent://" + cleanUrl + "#Intent;scheme=" + scheme + ";package=org.videolan.vlc;type=video/*;end";
+                let link = document.createElement('a');
+                link.href = intentUri;
+                link.click();
+            } else {
+                window.location.href = "vlc://" + url;
+            }
+            let elem = document.documentElement;
+            if (elem.requestFullscreen) elem.requestFullscreen({ navigationUI: "hide" }).catch(e => {});
+        }
+
+        function showToast() {
+            toast.className = "show";
+            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        window.toggleFav = function(e, url, btn) {
+            e.stopPropagation();
+            let favs = JSON.parse(localStorage.getItem("favorites") || "[]");
+            if (favs.includes(url)) {
+                favs = favs.filter(f => f !== url);
+                btn.textContent = "☆"; btn.classList.remove("active");
+            } else {
+                favs.push(url);
+                btn.textContent = "★"; btn.classList.add("active");
+            }
+            localStorage.setItem("favorites", JSON.stringify(favs));
+        }
+
+        function showUI() {
+            if (isUIHidden) {
+                categoryList.classList.remove("hidden-ui");
+                channelList.classList.remove("hidden-ui");
+                if (subFilterBar.classList.contains("active")) {
+                    subFilterBar.classList.remove("hidden-ui");
+                }
+                isUIHidden = false;
+            }
+            resetUITimer();
+        }
+
+        function hideUIImmediate() {
+            // Verberg UI alleen als we niet in de PIN modus zitten of modals open hebben
+            if (pinOverlay.style.display === "flex") return; 
+            
+            categoryList.classList.add("hidden-ui");
+            channelList.classList.add("hidden-ui");
+            if (subFilterBar.classList.contains("active")) {
+                subFilterBar.classList.add("hidden-ui");
+            }
+            isUIHidden = true;
+            clearTimeout(hideTimeout);
+            linkDropdown.classList.remove("show");
+        }
+
+        function resetUITimer() {
+            clearTimeout(hideTimeout);
+            hideTimeout = setTimeout(() => { hideUIImmediate(); }, 3000);
+        }
+
+        ["click", "touchstart", "mousemove"].forEach(evt => {
+            document.body.addEventListener(evt, () => {
+                showUI();
+            });
+        });
+        
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('#link-dropdown-menu') && 
+                !event.target.textContent.includes("Tümü")) {
+                linkDropdown.classList.remove("show");
+            }
+        });
+        
+    </script>
+</body>
+</html>
