@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LEVENT ABI | Paylaşımlarım</title>
+
+<style>
+/* Kleurdefinitie: Weg met blauw, hallo cyaan/groen accent */
+:root {
+    --bg-dark: #0f111a;
+    --bg-light: #181b27;
+    --card-color: rgba(255, 255, 255, 0.05); /* Zeer lichte, transparante kaart */
+    --accent-color: #00e0b3; /* Frisse cyaan/groene accentkleur */
+    --text-primary: #f0f4f8;
+    --text-secondary: #a8b0c7;
+}
+
+/* 1. GLOBALE STIJLEN & ACHTERGROND */
+body {
+    margin: 0;
+    /* Donkerder, dieper paarse/grijze gradient */
+    background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-light) 100%);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--text-primary);
+    min-height: 100vh;
+}
+.container {
+    max-width: 720px;
+    margin: auto;
+    padding: 24px;
+    padding-top: 50px;
+}
+h2 {
+    text-align: center;
+    color: var(--accent-color);
+    margin-top: 0;
+    margin-bottom: 50px; 
+    font-weight: 700;
+    font-size: 1.8em;
+    letter-spacing: 2px;
+}
+
+/* 2. CARD STIJL (MAXIMAAL GLASSMORHPISM) */
+.card {
+    /* Extreme transparantie en blur */
+    background: var(--card-color); 
+    -webkit-backdrop-filter: blur(15px);
+    backdrop-filter: blur(15px);
+    
+    border-radius: 20px; 
+    padding: 25px;
+    margin-bottom: 20px; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    /* Vloeiende, subtiele rand */
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:active {
+    transform: scale(0.97);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+.card span {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* 3. BUTTON STIJL (Cyaan accent) */
+.card button {
+    /* Nieuwe accentkleur: cyaan */
+    background: linear-gradient(145deg, var(--accent-color), #00a880); 
+    border: none;
+    color: var(--bg-dark); /* Donkere tekst op lichte knop */
+    padding: 12px 24px;
+    border-radius: 15px; /* Meer afgerond */
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 224, 179, 0.5);
+    transition: all 0.2s ease;
+}
+.card button:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 8px rgba(0, 224, 179, 0.7);
+}
+
+/* 4. FOOTER */
+.footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-bottom: 20px;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+/* 5. BROWSER CHOOSER (MAXIMAAL TRANSPARANT POPUP) */
+#chooser {
+    position: fixed;
+    inset: 0;
+    /* Transparante overlay met zachte blur */
+    background: rgba(15, 17, 26, 0.9);
+    display: none;
+    justify-content: center;
+    align-items: flex-end; /* Laat de popup van onderen komen (beter mobiel) */
+    z-index: 1000;
+    padding: 10px;
+}
+#chooserBox {
+    /* Zeer transparante basis met sterke blur */
+    background: rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(25px); 
+    backdrop-filter: blur(25px);
+    
+    padding: 30px 20px 20px;
+    border-radius: 25px 25px 0 0; /* Alleen de bovenkant afgerond */
+    width: 100%;
+    max-width: 380px;
+    
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.5);
+    
+    /* Animatie: slide up */
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Toon animatie */
+#chooser.active #chooserBox {
+    transform: translateY(0);
+}
+
+.browser {
+    /* Minimalistische knoppen in de popup */
+    background: rgba(255, 255, 255, 0.05); 
+    padding: 18px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.15s, transform 0.1s;
+}
+.browser:hover, .browser:focus {
+    background: rgba(255, 255, 255, 0.1);
+}
+.browser:active {
+    transform: scale(0.98);
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+ 
+   
+
+    <div class="card">
+        <span>💡 Turis Tv Playerleri</span>
+        <button onclick="openChooser('https://pixeldrain.com/l/CgXawK1S')">Aç</button>
+    </div>
+
+    <div class="card">
+        <span>📺 YouTube APK'ları</span>
+        <button onclick="openChooser('https://pixeldrain.com/l/CgXawK1S')">Aç</button>
+    </div>
+
+    <div class="card">
+        <span>🔒 VPN APK'ları</span>
+        <button onclick="openChooser('https://pixeldrain.com/l/61MgkcgN')">Aç</button>
+    </div>
+
+    <div class="card">
+        <span>📁 Dosya APK'ları</span>
+        <button onclick="openChooser('https://pixeldrain.com/l/4owuwZJC')">Aç</button>
+    </div>
+
+    <div class="card">
+        <span>🚀 Launcher APK'ları</span>
+        <button onclick="openChooser('https://pixeldrain.com/l/cfCsUJEH')">Aç</button>
+    </div>
+
+    <div class="card">
+        <span>📡 IPTV APK'ları</span>
+        <button onclick="openChooser('https://pixeldrain.com/l/ZZ3qAXHm')">Aç</button>
+    </div>
+
+    <div class="footer">© Turis Tv</div>
+</div>
+
+<!-- Browser chooser -->
+<div id="chooser">
+    <div id="chooserBox">
+        <div class="browser" onclick="openIntent('com.brave.browser')">Brave</div>
+        <div class="browser" onclick="openIntent('com.android.chrome')">Chrome</div>
+        <div class="browser" onclick="openIntent('com.sec.android.app.sbrowser')">Samsung Internet</div>
+        <div class="browser" onclick="openIntent('org.mozilla.firefox')">Firefox</div>
+        <div class="browser" onclick="openIntent('com.opera.browser')">Opera</div>
+        <div class="browser" onclick="openIntent('com.microsoft.emmx')">Edge</div>
+        <div class="browser" onclick="openNormal()">Varsayılan</div>
+    </div>
+</div>
+
+<script>
+let currentUrl = '';
+
+function openChooser(url) {
+    currentUrl = url;
+    const chooser = document.getElementById('chooser');
+    chooser.style.display = 'flex';
+    // Activeert de slide-up animatie
+    setTimeout(() => {
+        chooser.classList.add('active');
+    }, 10); 
+}
+
+function closeChooser() {
+    const chooser = document.getElementById('chooser');
+    chooser.classList.remove('active');
+    // Wacht tot de slide-down animatie klaar is
+    setTimeout(() => {
+        chooser.style.display = 'none';
+    }, 300); 
+}
+
+function openIntent(pkg) {
+    const intent =
+        "intent://" + currentUrl.replace(/https?:\/\//, "") +
+        "#Intent;scheme=https;package=" + pkg + ";end";
+    window.location.href = intent;
+    closeChooser();
+}
+
+function openNormal() {
+    window.open(currentUrl, '_blank');
+    closeChooser();
+}
+
+// Sluit de chooser als er op de achtergrond wordt geklikt
+document.getElementById('chooser').addEventListener('click', function(e) {
+    // Zorg ervoor dat klikken binnen de chooserBox de modal NIET sluit
+    if (e.target.id === 'chooser') {
+        closeChooser();
+    }
+});
+</script>
+</body>
+</html>
