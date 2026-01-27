@@ -1,10 +1,13 @@
 [
-
-
-
-  
- 
-
+    {
+      "title": "Şirinler",
+      "year": "2025",
+      "poster": "https://jetfilmizle.website/wp-content/posterler/2025/07/sirinler-filmi-smurfs-izle.jpg",
+      "genre": "action",
+      "description": "Beschrijving...",
+      "type": "film",
+      "videoUrl": "https://cnn-edition.jfvid.com/play/TVN4RGZKNUlRS1lYT0IxVkk4dlp0c2E0WlVkeURtczRNUVBHQkZuRmY3cjZ3SHlRZ0dYU1ZCQWxrWDNncFlzVVBqNFAyR1VYWGlyOVpha2tkTzhVY1E9PQ"
+    },
 
 
     {
@@ -369,6 +372,7 @@
     }
 
 ]
+
 
 
 
