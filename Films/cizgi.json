@@ -2,7 +2,15 @@
 
 
 
-
+    {
+      "title": "123",
+      "year": "2025",
+      "poster": "https://filmdizimerkezi.com/thumb_/180x260-1/wp-content/uploads/2026/01/cilgin-dostum-finnik-full-hd-izle.jpg",
+      "genre": "action",
+      "description": "Beschrijving...",
+      "type": "cizgi",
+      "videoUrl": "https://veev.to/e/wl8wihqv6aa7"
+    },
     {
       "title": "Tur",
       "year": "2025",
@@ -42,6 +50,7 @@
     }
 
 ]
+
 
 
 
