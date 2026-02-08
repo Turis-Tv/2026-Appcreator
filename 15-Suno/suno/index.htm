@@ -1,0 +1,784 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUNO Şarkı ve Müzik Style Prompt Oluşturucu</title>
+	<meta property="og:url" content="https://hubbez.tr/suno/">
+    <meta property="og:title" content="SUNO Prompter">
+    <meta property="og:description" content="SUNO Şarkı ve Müzik Style Prompt Oluşturucu">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://hubbez.tr/wp-content/uploads/2025/11/sunoog.jpg">
+    
+    <!-- Tailwind CSS CDN (Bu kalmalı, çünkü harici bir kütüphane) -->
+    <script src="../3.4.17"></script>
+    
+    <!-- Ayrılmış olan yerel stil dosyamız -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="text-gray-200">
+
+    <div class="min-h-screen gradient-bg p-4 md:p-8">
+        <div class="max-w-4xl mx-auto bg-gray-800 bg-opacity-80 backdrop-blur-md rounded-2xl shadow-2xl overflow-hidden">
+            
+ 
+ 
+            </div>
+
+            <!-- Form Alanı (HTML içeriği aynı) -->
+            <div class="p-6 md:p-8 space-y-6">
+
+                <!-- BÖLÜM: GENEL PARÇA -->
+                <fieldset class="border border-gray-700 rounded-lg p-4">
+                    <legend class="text-lg font-semibold text-white px-2">Genel Parça </legend>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                        
+                        <div>
+                            <label for="genre" class="block text-sm font-medium text-gray-300 mb-2">Müzik Türü  </label>
+                            <select id="genre" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Tür seçin --</option>
+                                <option value="Alternative">Alternatif </option>
+                                <option value="Blues">Blues </option>
+                                <option value="Classical">Klasik </option>
+                                <option value="Country">Country </option>
+                                <option value="Electronic">Elektronik </option>
+                                <option value="Folk">Halk Müziği </option>
+                                <option value="Hip Hop">Hip Hop </option>
+                                <option value="Jazz">Caz </option>
+                                <option value="Latin">Latin </option>
+                                <option value="Metal">Metal  </option>
+                                <option value="Pop">Pop </option>
+                                <option value="R&B">R&B/Soul  </option>
+                                <option value="Reggae">Reggae  </option>
+                                <option value="Rock">Rock  </option>
+                                <option value="Acoustic Rock">Akustik Rock  /option>
+                                <option value="Acoustic Blues">Akustik Blues  </option>
+                                <option value="Lo-fi">Lo-fi  </option>
+                                <option value="Cinematic">Sinematik  </option>
+                                <option value="Funk">Funk  </option>
+                                <option value="Soul">Soul  </option>
+                                <option value="Ambient">Ambiyans  </option>
+                                <option value="Afrobeats">Afrobeats  </option>
+                                <option value="World Music">Dünya Müzikleri  </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="genreType" class="block text-sm font-medium text-gray-300 mb-2">Alt Tür </label>
+                            <select id="genreType" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Alt-tür seçin --</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="origin" class="block text-sm font-medium text-gray-300 mb-2">Yöresel Dil </label>
+                            <select id="origin" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Köken seçin --</option>
+                                <option value="Turkish">Türkçe </option>
+                                <option value="English">İngilizce </option>
+                                <option value="Latin">Latin </option>
+                                <option value="French">Fransızca  </option>
+                                <option value="Spanish">İspanyolca  </option>
+                                <option value="Arabic">Arapça  </option>
+                                <option value="Middle Eastern">Orta Doğu  </option>
+                                <option value="Balkan">Balkan  </option>
+                                <option value="West African">Batı Afrika  </option>
+                                <option value="Indian Classical">Hint Klasik  </option>
+                                <option value="Scandinavian Folk">İskandinav Halk  </option>
+                                <option value="Andean">And  </option>
+                                <option value="Celtic">Kelt  </option>
+                                <option value="Japanese">Japonca </option>
+                                <option value="Korean">Korece  </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="turkishStyle" class="block text-sm font-medium text-gray-300 mb-2">Türk Müziği Stili </label>
+                            <select id="turkishStyle" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Stil Seçin --</option>
+                                <option value="Arabesk">Arabesk Müzik  </option>
+                                <option value="Anatolian Rock">Anadolu Rock  </option>
+                                <option value="TSM">Türk Sanat Müziği  </option>
+                                <option value="Folk">Türk Halk Müziği  </option>
+                                <option value="Fantezi">Fantezi Müzik  </option>
+                            </select>
+                        </div>
+
+                        <!-- Makam Seçimi (TSM için) -->
+                        <div id="makamContainer" class="hidden">
+                            <label for="makam" class="block text-sm font-medium text-gray-300 mb-2">Makam Seçimi  </label>
+                            <select id="makam" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Makam Seçin --</option>
+                                <optgroup label="Ana Makamlar (Basic Makams)">
+                                    <option value="Rast">Rast</option>
+                                    <option value="Uşşak">Uşşak</option>
+                                    <option value="Hüzzam">Hüzzam</option>
+                                    <option value="Hicaz">Hicaz</option>
+                                    <option value="Segah">Segah</option>
+                                    <option value="Çargah">Çargah</option>
+                                    <option value="Saba">Saba</option>
+                                    <option value="Buselik">Buselik</option>
+                                    <option value="Hüseyni">Hüseyni</option>
+                                    <option value="Neva">Neva</option>
+                                    <option value="Kürdi">Kürdi</option>
+                                    <option value="Kürdilihicazkar">Kürdilihicazkar</option>
+                                </optgroup>
+                                <optgroup label="Şed Makamlar (Compound Makams)">
+                                    <option value="Suzidil">Suzidil</option>
+                                    <option value="Nihavend">Nihavend</option>
+                                    <option value="Nikriz">Nikriz</option>
+                                    <option value="Sultani Yegah">Sultani Yegah</option>
+                                    <option value="Mahur">Mahur</option>
+                                    <option value="Acem Aşiran">Acem Aşiran</option>
+                                    <option value="Isfahan">Isfahan</option>
+                                    <option value="Şehnaz">Şehnaz</option>
+                                    <option value="Ferahnak">Ferahnak</option>
+                                </optgroup>
+                                <optgroup label="Terkip Makamlar (Composite Makams)">
+                                    <option value="Suzidilara">Suzidilara</option>
+                                    <option value="Hicazkâr">Hicazkâr</option>
+                                    <option value="Şedaraban">Şedaraban</option>
+                                    <option value="Beyati">Beyati</option>
+                                    <option value="Acemkürdî">Acemkürdî</option>
+                                    <option value="Evç">Evç</option>
+                                    <option value="Gerdaniye">Gerdaniye</option>
+                                </optgroup>
+                            </select>
+                        </div>
+
+                    </div>
+                </fieldset>
+
+                <!-- BÖLÜM: DÜNYA MÜZİKLERİ -->
+                <fieldset id="worldMusicSection" class="border border-gray-700 rounded-lg p-4 hidden">
+                    <legend class="text-lg font-semibold text-white px-2">Dünya Müzikleri Detayları </legend>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                        
+                        <div>
+                            <label for="worldRegion" class="block text-sm font-medium text-gray-300 mb-2">Bölge / Kıta (Region / Continent)</label>
+                            <select id="worldRegion" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Bölge Seçin --</option>
+                                <option value="Africa">Afrika (Africa)</option>
+                                <option value="Middle East">Orta Doğu & Kuzey Afrika (Middle East & North Africa)</option>
+                                <option value="Asia">Asya (Asia)</option>
+                                <option value="Europe">Avrupa (Europe)</option>
+                                <option value="Latin America">Latin Amerika & Karayipler (Latin America & Caribbean)</option>
+                                <option value="North America">Kuzey Amerika (North America)</option>
+                                <option value="Oceania">Okyanusya (Oceania & Polynesia)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="worldTradition" class="block text-sm font-medium text-gray-300 mb-2">Müzik Geleneği  </label>
+                            <select id="worldTradition" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500" disabled="">
+                                <option value="">-- Önce Bölge Seçin --</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="worldInstrument" class="block text-sm font-medium text-gray-300 mb-2">Ana Enstrüman  </label>
+                            <select id="worldInstrument" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500" disabled="">
+                                <option value="">-- Önce Gelenek Seçin --</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="worldRhythm" class="block text-sm font-medium text-gray-300 mb-2">Ritmik His </label>
+                            <select id="worldRhythm" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Ritim Seçin --</option>
+                                <option value="Ceremonial and slow">Törensel ve yavaş  </option>
+                                <option value="Danceable and polyrhythmic">Dansedilebilir ve çok-ritmik  </option>
+                                <option value="Meditative and free-flowing">Meditatif ve serbest akışlı  </option>
+                                <option value="Driving and energetic">İtici ve enerjik  </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="worldScale" class="block text-sm font-medium text-gray-300 mb-2">Ölçek / Mod  </label>
+                            <select id="worldScale" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Ölçek Seçin --</option>
+                                <option value="a pentatonic scale">Pentatonik ölçek </option>
+                                <option value="a major/minor diatonic scale">Majör/Minör diyatonik ölçek  </option>
+                                <option value="a traditional modal system (e.g., Maqam)">Geleneksel modal sistem - Makam  </option>
+                                <option value="a microtonal scale">Mikrotonal ölçek  </option>
+                                <option value="an atonal or chromatic scale">Atonal veya kromatik ölçek  </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="worldTexture" class="block text-sm font-medium text-gray-300 mb-2">Müzikal Doku  </label>
+                            <select id="worldTexture" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Doku Seçin --</option>
+                                <option value="a monophonic (single melody) texture">Monofonik - tek melodi  </option>
+                                <option value="a homophonic (melody with chords) texture">Homofonik - melodi ve akorlar  </option>
+                                <option value="a polyphonic (interwoven melodies) texture">Polifonik - iç içe melodiler  </option>
+                                <option value="a heterophonic (simultaneous variations) texture">Heterofonik - eşzamanlı varyasyonlar  </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="worldContext" class="block text-sm font-medium text-gray-300 mb-2">Performans Bağlamı  </label>
+                            <select id="worldContext" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Bağlam Seçin --</option>
+                                <option value="for a sacred ritual or ceremony">Kutsal tören veya ayin için  </option>
+                                <option value="for a lively community dance">Canlı topluluk dansı için  </option>
+                                <option value="for an intimate solo performance">Samimi solo performans için  </option>
+                                <option value="for a bustling street performance">Hareketli sokak performansı için  </option>
+                                <option value="for a formal court or concert setting">Resmi saray veya konser ortamı için  </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="worldVocals" class="block text-sm font-medium text-gray-300 mb-2">Vokal Stili  </label>
+                            <select id="worldVocals" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Vokal Seçin --</option>
+                                <option value="featuring storytelling vocals">Hikaye anlatan vokal  </option>
+                                <option value="based around ritualistic chanting">Ritüel ilahisi  </option>
+                                <option value="with call-and-response patterns">Çağrı-cevap kalıbı  </option>
+                                <option value="as a purely instrumental piece">Tamamen enstrümantal  </option>
+                                <option value="with overtone-rich throat singing">Boğaz şarkısı - harmonik sesler  </option>
+                                <option value="with Alpine-style yodeling">Alp tarzı yodelleme  </option>
+                                <option value="with powerful Gospel call-and-response">Güçlü Gospel çağrı-cevap  </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="worldAtmosphere" class="block text-sm font-medium text-gray-300 mb-2">Atmosfer  </label>
+                            <select id="worldAtmosphere" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Atmosfer Seçin --</option>
+                                <option value="with a raw, field-recorded feel">Ham, sahada kaydedilmiş his  </option>
+                                <option value="with a clean, natural acoustic sound">Temiz, doğal akustik ses  </option>
+                                <option value="with a trance-like, hypnotic quality">Trans benzeri, hipnotik kalite  </option>
+                                <option value="with a modern electronic fusion">Modern elektronik füzyon  </option>
+                            </select>
+                        </div>
+
+                    </div>
+                </fieldset>
+
+                <!-- BÖLÜM: PRODÜKSİYON & ENSTRÜMANLAR -->
+                <fieldset class="border border-gray-700 rounded-lg p-4">
+                    <legend class="text-lg font-semibold text-white px-2">Prodüksiyon & Enstrümanlar (Production & Instruments)</legend>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                        
+                        <div>
+                            <label for="tempo" class="block text-sm font-medium text-gray-300 mb-2">Tempo / Hız  / label
+                            <select id="tempo" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Tempo seçin --</option>
+                                <option value="Slow (60-80 BPM)">Yavaş (Slow, 60-80 BPM)</option>
+                                <option value="Medium (90-120 BPM)">Orta (Medium, 90-120 BPM)</option>
+                                <option value="Fast (130-160 BPM)">Hızlı (Fast, 130-160 BPM)</option>
+                                <option value="Very Fast (170+ BPM)">Çok Hızlı (Very Fast, 170+ BPM)</option>
+                                <option value="Free-flowing, without a strict tempo">Serbest akışlı  </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="mood" class="block text-sm font-medium text-gray-300 mb-2">Mod / Duygu </label>
+                            <select id="mood" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Mod seçin --</option>
+                                <option value="Chill & Relaxed">Sakin & Rahat  </option>
+                                <option value="Happy">Mutlu  </option>
+                                <option value="Energetic">Enerjik  </option>
+                                <option value="Melancholic">Melankolik  </option>
+                                <option value="Dark">Karanlık  </option>
+                                <option value="Epic">Epik  </option>
+                                <option value="Romantic">Romantik  </option>
+                                <option value="Uplifting">Yükselten  </option>
+                                <option value="Mysterious">Gizemli  </option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="harmonyType" class="block text-sm font-medium text-gray-300 mb-2">Genel Armoni Tipi  </label>
+                            <select id="harmonyType" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Armoni Tipi Seçin --</option>
+                                <option value="Major">Majör </option>
+                                <option value="Minor">Minör  </option>
+                                <option value="Diatonic">Diyatonic Ölçekler</option>
+                                <option value="Chromatic">Kromatik Sesler</option>
+                                <option value="Modal">Modal Makam/Mod bazlı</option>
+                                <option value="Pentatonic">Pentatonic </option>
+                                <option value="Harmonic Minor">Harmonik Minör </option>
+                                <option value="Blues Harmony">Blues Armoni </option>
+                                <option value="Whole Tone">Tam Ton </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="structureFlow" class="block text-sm font-medium text-gray-300 mb-2">Yapı & Dinamik Akış </label>
+                            <select id="structureFlow" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Yapı & Dinamik seçin --</option>
+                                <option value="classic-pop-rock">Klasik Pop/Rock Yapısı - Verse/Chorus + Kıtadan nakarata yükseliş </option>
+                                <option value="epic-cinematic">Epik/Sinematik Yapı - Full Structure + Yumuşak başlangıç, güçlü zirve  </option>
+                                <option value="minimal-ambient">Minimal/Ambient Loop - Basit tekrarlı döngü + Sabit enerji </option>
+                                <option value="edm-electronic">EDM/Elektronik Yapı - Verse/Chorus + Drop & Rise dinamikleri  </option>
+                                <option value="progressive-jazz">Progressive/Jazz Yapısı - Karmaşık through-composed + İnişli çıkışlı  </option>
+                                <option value="live-performance">Canlı Performans Tarzı - Geleneksel yapı + Yavaş yükselen enerji  </option>
+                                <option value="experimental-free">Deneysel/Serbest Akış - Serbest form + Sürekli değişen dinamikler  </option>
+                                <option value="intro-heavy">Intro-Ağırlıklı Yapı - Full Structure + Güçlü başlangıç, yavaşlayan son  </option>
+                                <option value="ballad-emotional">Ballad/Duygusal Yapı - AABA Pattern + Güçlü başlangıç, yavaşlayan son  </option>
+                                <option value="modern-pop-hit">Modern Pop Hit Yapısı - Pop Structure (V-C-V-C-B-C) + Verse-to-Chorus yükseliş  </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="percussion" class="block text-sm font-medium text-gray-300 mb-2">Ritim / Perküsyon  </label>
+                            <select id="percussion" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Ritim seçin --</option>
+                                <option value="Subtle percussion">Hafif perküsyon  </option>
+                                
+                                <!-- Akustik Davul Detayları -->
+                                <option value="Acoustic drum kit with open hi-hats and crash cymbals">Akustik davul - Açık hi-hat + Crash (Acoustic drums, open hi-hats, crashes)</option>
+                                <option value="Acoustic drum kit with closed hi-hats and ride cymbal">Akustik davul - Kapalı hi-hat + Ride (Acoustic drums, closed hi-hats, ride)</option>
+                                <option value="Acoustic drum kit with aggressive crash attacks">Akustik davul - Agresif crash atakları (Acoustic drums, aggressive crashes)</option>
+                                <option value="Acoustic drum kit with tight snare and sharp hi-hats">Akustik davul - Sıkı snare + Keskin hi-hat (Tight snare, sharp hi-hats)</option>
+                                <option value="Acoustic drum kit">Akustik davul - Standart (Acoustic drum kit)</option>
+                                
+                                <!-- Elektronik Davullar -->
+                                <option value="808 drums">808 davulları (808 drums)</option>
+                                <option value="Drum machine">Davul makinesi  </option>
+                                
+                                <!-- Sinematik & Türk -->
+                                <option value="Cinematic war-drums">Sinematik savaş davulları  </option>
+                                <option value="Darbuka and riq frame drum with jingles">Darbuka ve def (Darbuka and riq frame drum with jingles)</option>
+                                <option value="Darbuka">Darbuka  </option>
+                                <option value="Riq frame drum with jingles">Def - zilli  </option>
+                                <option value="Bendir">Bendir  </option>
+                                <option value="Bendir and riq">Bendir ve def  </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="bass" class="block text-sm font-medium text-gray-300 mb-2">Bass  </label>
+                            <select id="bass" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Bas seçin --</option>
+                                <option value="Deep, smooth sub bass">Derin, pürüzsüz sub bas  </option>
+                                <option value="Electric bass guitar">Elektro bas gitar  </option>
+                                <option value="Metal rock bass">Metal rock bas  </option>
+                                <option value="Synth bass">Synth bas  </option>
+                                <option value="Funky bassline">Funky bas hattı  </option>
+                                <option value="Walking bassline">Yürüyen bas  </option>
+                                <option value="Melodic bassline">Melodik bas hattı  </option>
+                                <option value="Acoustic bass">Akustik bas  </option>
+                                <option value="Fretless bass">Perdesiz bas  </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="leadInstrument" class="block text-sm font-medium text-gray-300 mb-2">Melodi Enstrümanı  </label>
+                            <select id="leadInstrument" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Melodi enstrümanı seçin --</option>
+                                <option value="Mellow electric guitar">Yumuşak elektro gitar  </option>
+                                <option value="Electric Metal guitar">Metal elektro gitar  </option>
+                                <option value="Electric Guitar">Elektrik Gitar  </option>
+                                <option value="Distorted guitar">Distortion'lu gitar  </option>
+                                <option value="Acoustic guitar">Akustik gitar  </option>
+                                <option value="Piano">Piyano  </option>
+                                <option value="Electric Piano (Rhodes)">Elektrik Piyano  </option>
+                                <option value="Synth pads">Synth pedler  </option>
+                                <option value="Violin">Keman  </option>
+                                <option value="Saxophone">Saksafon  </option>
+                                <option value="Woodwinds">Ağaç üflemeliler  </option>
+                                <option value="Fretless guitar">Perdesiz gitar  </option>
+                                <option value="Oud">Ud  </option>
+                                <option value="Saz">Bağlama (Saz)</option>
+                                <option value="Electric Saz">Elektro Saz / Elektro Bağlama (Electric Saz)</option>
+                                <option value="Ney">Ney  </option>
+                                <option value="Kaval">Kaval  </option>
+                                <option value="Sitar">Sitar  </option>
+                                <option value="Accordion">Akordeon  </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="accompanyingInstrument" class="block text-sm font-medium text-gray-300 mb-2">Eşlik Eden Enstrüman  </label>
+                            <select id="accompanyingInstrument" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Eşlik eden enstrüman seçin --</option>
+                                <option value="Strumming acoustic guitar">Ritmik akustik gitar  </option>
+                                <option value="Strumming electric guitar">Ritmik elektrik gitar  </option>
+                                <option value="Arpeggiated acoustic guitar">Arpej akustik gitar  </option>
+                                <option value="Arpeggiated electric guitar">Arpej elektrik gitar  </option>
+                                <option value="Acoustic saz ensemble">Akustik bağlamalar grubu  </option>
+                                <option value="Turkish classical music ensemble (oud, kanun, ney, violin, tanbur)">Türk sanat müziği topluluğu - ud, kanun, ney, keman, tanbur  </option>
+                                <option value="String section">Yaylı grubu  </option>
+                                <option value="Brass section">Bakır üflemeliler  </option>
+                                <option value="Synth strings">Synth yaylılar  </option>
+                                <option value="Pad layer">Pad katmanı  </option>
+                                <option value="Ambient texture">Ambiyans dokusu  </option>
+                            </select>
+                        </div>
+
+                    </div>
+                </fieldset>
+
+                <!-- BÖLÜM: VOKAL -->
+                <fieldset class="border border-gray-700 rounded-lg p-4">
+                    <legend class="text-lg font-semibold text-white px-2">Vokal (Vocals)</legend>
+                    
+                    <div>
+                            <label for="vocal" class="block text-sm font-medium text-gray-300 mb-2">Ana Vokal (Primary Vocal)</label>
+                        <select id="vocal" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">-- Vokal tipi seçin --</option>
+                            <option value="Female">Kadın Vokal  </option>
+                            <option value="Male">Erkek Vokal  <//option>
+                            <option value="Child">Çocuk Vokal  </option>
+                            <option value="Choir">Koro  </option>
+                            <option value="Instrumental">Vokalsiz  </option>
+                        </select>
+                    </div>
+
+                    <!-- Dinamik Vokal Detayları -->
+                    <div id="vocalDetailsContainer" class="hidden space-y-4 mt-4 pt-4 border-t border-gray-700">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="vocalEffects" class="block text-sm font-medium text-gray-300 mb-2">Vokal Tarzı (Vocal Style)</label>
+                                <select id="vocalEffects" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">-- Tarz seçin --</option>
+                                    <option value="Vocals delivered with high energy, joyful emotion, and passionate intensity throughout the song">Enerjik ve coşkulu (Energetic, joyful, passionate)</option>
+                                    <option value="Vocals performed with calm delivery, melancholic emotion, and introspective character">Sakin ve hüzünlü (Calm, melancholic, introspective)</option>
+                                    <option value="Vocals sung in rhythmic patterns with hypnotic repetition and trance-like flow">Ritmik ve hipnotik (Rhythmic, hypnotic, trance-like)</option>
+                                    <option value="Vocals delivered at fast pace with excited tone and flowing melodic lines">Hızlı ve akıcı (Fast-paced, excited, flowing)</option>
+                                    <option value="Vocals performed in call-and-response style with communal interaction and back-and-forth dynamics">Soru-cevap stili (Call-and-response, communal, interactive)</option>
+                                    <option value="Vocals sung in makam style with spiritual expression and authentic Turkish classical phrasing">Makam tarzı (Makam, spiritual, expressive)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="vocalTimbre" class="block text-sm font-medium text-gray-300 mb-2">Vokal Timbresi (Vocal Timbre)</label>
+                                <select id="vocalTimbre" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">-- Renk seçin --</option>
+                                    <option value="Clear">Net (Clear)</option>
+                                    <option value="Resonant">Dolgun  </option>
+                                    <option value="Airy">Hafif  </option>
+                                    <option value="Husky">Kısık  </option>
+                                    <option value="Breathy">Nefesli  </option>
+                                    <option value="Gravelly">Kaba  </option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="vocalAdvancedEffects" class="block text-sm font-medium text-gray-300 mb-2">Vokal Efektleri (Vocal Effects)</label>
+                                <select id="vocalAdvancedEffects" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">-- Efekt seçin --</option>
+                                    <option value="Hall reverb">Salon yankısı  </option>
+                                    <option value="Room reverb">Oda yankısı  </option>
+                                    <option value="Church reverb">Kilise yankısı  </option>
+                                    <option value="Plate reverb">Plaka yankısı  </option>
+                                    <option value="Short delay">Kısa eko  </option>
+                                    <option value="Long echo">Uzun eko  </option>
+                                    <option value="Slapback echo">Slapback eko  </option>
+                                    <option value="Lo-fi telephone effect">Telefon sesi  </option>
+                                </select>
+                            </div>
+
+                            <!-- Kadın Vokal Aralığı -->
+                            <div id="femaleVocalRangeContainer" class="hidden">
+                                <label for="femaleVocalRange" class="block text-sm font-medium text-gray-300 mb-2">Vokal Aralığı - Kadın (Female Vocal Range)</label>
+                                <select id="femaleVocalRange" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">-- Aralık seçin --</option>
+                                    <option value="Coloratura Soprano">Koloratür Soprano (Coloratura Soprano)</option>
+                                    <option value="Lyric Soprano">Lirik Soprano (Lyric Soprano)</option>
+                                    <option value="Dramatic Soprano">Dramatik Soprano (Dramatic Soprano)</option>
+                                    <option value="Soprano">Soprano (Soprano)</option>
+                                    <option value="Mezzo-soprano">Mezzo-soprano (Mezzo-soprano)</option>
+                                    <option value="Contralto">Alto / Kontralto (Contralto)</option>
+                                </select>
+                            </div>
+
+                            <!-- Erkek Vokal Aralığı -->
+                            <div id="maleVocalRangeContainer" class="hidden">
+                                <label for="maleVocalRange" class="block text-sm font-medium text-gray-300 mb-2">Vokal Aralığı - Erkek (Male Vocal Range)</label>
+                                <select id="maleVocalRange" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">-- Aralık seçin --</option>
+                                    <option value="Countertenor">Kontrtenor (Countertenor)</option>
+                                    <option value="Lyric Tenor">Lirik Tenor (Lyric Tenor)</option>
+                                    <option value="Dramatic Tenor">Dramatik Tenor (Dramatic Tenor)</option>
+                                    <option value="Tenor">Tenor (Tenor)</option>
+                                    <option value="Baritone">Bariton (Baritone)</option>
+                                    <option value="Bass-Baritone">Bas-Bariton (Bass-Baritone)</option>
+                                    <option value="Bass">Bas (Bass)</option>
+                                    <option value="Basso Profondo">Derin Bas (Basso Profondo)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- BÖLÜM: MIXING & PRODUCTION -->
+                <fieldset class="border border-gray-700 rounded-lg p-4">
+                    <legend class="text-lg font-semibold text-white px-2">Mixing & Prodüksiyon (Mixing & Production)</legend>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                        <div>
+                            <label for="mixingStyle" class="block text-sm font-medium text-gray-300 mb-2">Mixing & Prodüksiyon Stili (Mixing & Production Style)</label>
+                            <select id="mixingStyle" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Mixing & Prodüksiyon stili seçin --</option>
+                                <optgroup label="Mixing Karakter (Mixing Character)">
+                                    <option value="Warm mixing">Sıcak mix (Warm mixing)</option>
+                                    <option value="Bright mixing">Parlak mix (Bright mixing)</option>
+                                    <option value="Dark mixing">Karanlık mix (Dark mixing)</option>
+                                    <option value="Balanced mixing">Dengeli mix (Balanced mixing)</option>
+                                </optgroup>
+                                <optgroup label="Prodüksiyon Tarzı (Production Style)">
+                                    <option value="Clean, polished, modern">Temiz ve parlak stüdyo kayıt (Clean & Modern)</option>
+                                    <option value="Lo-fi, vintage, warm">Eski kaset gibi sıcak ve yumuşak (Lo-fi & Vintage)</option>
+                                    <option value="Minimal">Sade ve az enstrüman (Minimal)</option>
+                                    <option value="Layered, complex">Çok katmanlı ve zengin ses (Layered & Complex)</option>
+                                    <option value="Raw, live recording">Canlı konser gibi doğal (Raw & Live)</option>
+                                    <option value="Atmospheric, reverb-heavy">Yankılı ve geniş atmosfer (Atmospheric)</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Buton -->
+                <div class="pt-4">
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <button id="generateButton" class="w-full md:flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50">
+                            Prompt Oluştur
+                        </button>
+                        <!-- YENİ BUTON EKLENDİ -->
+                        <button id="clearButton" class="w-full md:w-auto bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg text-lg transition duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-gray-500 focus:ring-opacity-50">
+                            Formu Temizle
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sonuç Alanı -->
+            <div class="p-6 md:p-8 border-t border-gray-700">
+                <div class="flex justify-between items-center mb-2">
+                    <label for="result" class="block text-sm font-medium text-gray-300">Oluşturulan Prompt  hazır</label>
+                    <div class="text-sm font-semibold">
+                        <span id="charCount" class="text-green-400">0</span>
+                        <span class="text-gray-400"> / 1000</span>
+                    </div>
+                </div>
+                <textarea id="result" rows="10" class="w-full bg-gray-900 border border-gray-600 text-white rounded-lg p-4 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500" placeholder="Oluşturulan prompt burada görünecek..."></textarea>
+                <div class="mt-4 flex flex-wrap gap-2">
+                    <button id="copyButton" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 ease-in-out focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-opacity-50">
+                        Kopyala
+                    </button>
+                    <button id="optimizeButton" class="hidden bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 ease-in-out focus:outline-none focus:ring-4 focus:ring-orange-500 focus:ring-opacity-50">
+                        ⚡ Optimize Et (1000'e düşür)
+                    </button>
+                    <button id="undoOptimizeButton" class="hidden bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 ease-in-out focus:outline-none focus:ring-4 focus:ring-gray-500 focus:ring-opacity-50">
+                        ↶ Geri Al
+                    </button>
+                </div>
+            </div>
+
+            <!-- YARDIM BÖLÜMÜ (HELP SECTION) -->
+            <div class="border-t border-gray-700">
+                <button id="helpToggle" class="w-full p-6 text-left flex justify-between items-center hover:bg-gray-700 hover:bg-opacity-30 transition duration-200 focus:outline-none">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div>
+                            <h3 class="text-lg font-bold text-white">Yardım & Kullanım Rehberi</h3>
+                            <p class="text-sm text-gray-400">Bu uygulamayı nasıl kullanacağınızı öğrenin</p>
+                        </div>
+                    </div>
+                    <svg id="helpArrow" class="w-6 h-6 text-gray-400 transform transition-transform duration-300" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+
+                <div id="helpContent" class="hidden p-6 md:p-8 space-y-6 bg-gray-800 bg-opacity-50">
+                    
+                    <!-- 1. Genel Kullanım -->
+                    <div class="border-l-4 border-blue-500 pl-4">
+                        <h4 class="text-lg font-semibold text-white mb-2">📌 Genel Kullanım</h4>
+                        <p class="text-gray-300 leading-relaxed">
+                            Bu uygulama <strong> </strong> için optimize edilmiş müzik prompt'ları oluşturur. 
+                            Formu doldurduktan sonra <strong>"Prompt Oluştur"</strong> butonuna tıklayın. 
+                            Oluşturulan prompt otomatik olarak aşağıda görünecektir ve <strong>1000 karakter limiti</strong> vardır.
+                        </p>
+                        <ul class="list-disc list-inside text-gray-300 mt-2 space-y-1">
+                            <li>Tüm alanlar <strong>opsiyoneldir</strong> - sadece istediğiniz özellikleri seçin</li>
+                            <li><strong>"Formu Temizle"</strong> butonu tüm seçimleri sıfırlar</li>
+                        </ul>
+                    </div>
+
+                    <!-- 2. Türk Müziği Rehberi -->
+                    <div class="border-l-4 border-purple-500 pl-4">
+                        <h4 class="text-lg font-semibold text-white mb-2">🎵 Türk Müziği Stilleri</h4>
+                        <div class="space-y-3 text-gray-300">
+                            <div>
+                                <strong class="text-purple-400">Arabesk:</strong> Duygusal, makamsal melodiler. Ud, keman, darbuka. Güçlü vibrato vokaller. Lo-fi sıcak prodüksiyon.
+                            </div>
+                            <div>
+                                <strong class="text-purple-400">Fantezi:</strong> Türk pop müziği. Duygusal melodiler, modern prodüksiyon. Geleneksel ve çağdaş unsurların karışımı.
+                            </div>
+                            <div>
+                                <strong class="text-purple-400">Anadolu Rock:</strong> Rock + Türk halk füzyonu. Elektro saz + distortion gitarlar. <span class="text-yellow-300">Intro melodi ağırlıklı.</span> Geleneksel ve modern elementlerin karışımı.
+                            </div>
+                            <div>
+                                <strong class="text-purple-400">TSM (Türk Sanat Müziği):</strong> Klasik gelenek. Ud, keman, kanun, ney, tanbur. Karmaşık makam sistemleri ve usul ritimleri.
+                            </div>
+                            <div>
+                                <strong class="text-purple-400">Halk Müziği:</strong> Geleneksel Anadolu müziği. Saz, kaval, duduk. Modal armoniler, bölgesel varyasyonlar. Ham, duygusal vokal.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Dünya Müzikleri -->
+                    <div class="border-l-4 border-green-500 pl-4">
+                        <h4 class="text-lg font-semibold text-white mb-2">🌍 Dünya Müzikleri Nasıl Kullanılır?</h4>
+                        <ol class="list-decimal list-inside text-gray-300 space-y-2">
+                            <li><strong>Bölge Seçin:</strong> Afrika, Asya, Avrupa, Latin Amerika, vb.</li>
+                            <li><strong>Gelenek Seçin:</strong> Bölgeye özgü müzik türleri açılır (ör: Flamenco, Tango, Gamelan)</li>
+                            <li><strong>Enstrüman Seçin:</strong> O geleneğe ait otantik enstrümanlar listelenir</li>
+                            <li><strong>Ek Özellikler:</strong> Ritim, ölçek, doku, vokal stili, atmosfer ekleyin</li>
+                        </ol>
+                        <p class="text-yellow-300 mt-3 text-sm">
+                            ⚠️ Dünya Müzikleri seçtiyseniz, "Genel Parça" bölümündeki Genre seçimini atlayabilirsiniz.
+                        </p>
+                    </div>
+
+                    <!-- 4. Vokal Ayarları -->
+                    <div class="border-l-4 border-pink-500 pl-4">
+                        <h4 class="text-lg font-semibold text-white mb-2">🎤 Vokal Ayarları</h4>
+                        <div class="grid md:grid-cols-2 gap-4 text-gray-300">
+                            <div>
+                                <strong class="text-pink-400">Kadın Vokal Aralıkları:</strong>
+                                <ul class="list-none ml-4 text-sm space-y-1 mt-1">
+                                    <li>• <strong>Coloratura Soprano:</strong> En yüksek, çok çevik ses</li>
+                                    <li>• <strong>Lyric Soprano:</strong> Yumuşak, melodik tiz ses</li>
+                                    <li>• <strong>Dramatic Soprano:</strong> Güçlü, etkileyici tiz</li>
+                                    <li>• <strong>Soprano:</strong> Standart kadın tiz sesi</li>
+                                    <li>• <strong>Mezzo-soprano:</strong> Orta kadın sesi</li>
+                                    <li>• <strong>Contralto:</strong> En alçak kadın sesi</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <strong class="text-pink-400">Erkek Vokal Aralıkları:</strong>
+                                <ul class="list-none ml-4 text-sm space-y-1 mt-1">
+                                    <li>• <strong>Countertenor:</strong> En yüksek erkek sesi</li>
+                                    <li>• <strong>Lyric Tenor:</strong> Yumuşak, melodik tenor</li>
+                                    <li>• <strong>Dramatic Tenor:</strong> Güçlü, dramatik tenor</li>
+                                    <li>• <strong>Tenor:</strong> Standart erkek tiz sesi</li>
+                                    <li>• <strong>Baritone:</strong> Orta erkek sesi</li>
+                                    <li>• <strong>Bass-Baritone:</strong> Orta-kalın karışımı</li>
+                                    <li>• <strong>Bass:</strong> Kalın erkek sesi</li>
+                                    <li>• <strong>Basso Profondo:</strong> En derin bas ses</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <p class="text-gray-400 mt-3 text-sm">
+                            <strong>Vokal Mod:</strong> Melankolik, Duygulu, Güçlü, Yumuşak, Fısıltı<br>
+                            <strong>Vokal Tını:</strong> Net, Rezonant, Hafif, Kısık, Nefesli, Kaba
+                        </p>
+                    </div>
+
+                    <!-- 5. Karakter Limiti ve Optimize -->
+                    <div class="border-l-4 border-orange-500 pl-4">
+                        <h4 class="text-lg font-semibold text-white mb-2">⚡ 1000 Karakter Limiti & Optimize Sistemi</h4>
+                        <div class="space-y-3 text-gray-300">
+                            <div class="bg-orange-900 bg-opacity-30 p-3 rounded">
+                                <strong class="text-orange-400"> Karakter Limiti: 1000</strong>
+                                <p class="text-sm mt-1">Prompt 1000 karakteri geçerse  kabul etmez. Karakter sayacı renk kodlu çalışır:</p>
+                                <ul class="list-none ml-4 text-sm mt-2 space-y-1">
+                                    <li>🟢 <strong>0-700 karakter:</strong> Güvenli bölge</li>
+                                    <li>🟡 <strong>701-900 karakter:</strong> Dikkatli olun</li>
+                                    <li>🔴 <strong>901-1000 karakter:</strong> Limit yaklaşıyor!</li>
+                                    <li>🟠 <strong>1000+ karakter:</strong> "⚡ Optimize Et" butonu otomatik görünür</li>
+                                </ul>
+                            </div>
+                            
+                            <div>
+                                <strong class="text-orange-400">⚡ Optimize Et Butonu:</strong>
+                                <p class="text-sm mt-1">Prompt 1000 karakteri aşarsa, turuncu "Optimize Et" butonu otomatik görünür. Bu butona tıklayınca:</p>
+                                <ul class="list-disc list-inside text-sm ml-4 mt-2 space-y-1">
+                                    <li><strong>Anlam korunur</strong> - Tüm önemli bilgiler (enstrüman, genre, tempo, mood) değişmez</li>
+                                    <li><strong>Gereksiz kelimeler silinir</strong> - "with a", "that is", "should be" gibi dolgu kelimeler kaldırılır</li>
+                                    <li><strong>Uzun ifadeler kısaltılır</strong> - "providing harmonic support" → "harmony" olur</li>
+                                    <li><strong>4 fazlı algoritma</strong> - Önce dolgu sil, sonra kısalt, sonra bağlam temizle, son çare kes</li>
+                                    <li><strong>Örnek:</strong> 1200 karakter → 980 karakter (anlam aynı kalır)</li>
+                                </ul>
+                            </div>
+                            
+                            <div>
+                                <strong class="text-orange-400">↶ Geri Al Butonu:</strong>
+                                <p class="text-sm mt-1">Optimize ettikten sonra gri "↶ Geri Al" butonu görünür. Tıklarsanız optimize öncesi hale döner. Prompt'u <strong>elle düzenleyebilirsiniz</strong> - karakter sayacı canlı güncellenir.</p>
+                            </div>
+                            
+                            <div class="bg-green-900 bg-opacity-30 p-3 rounded text-sm">
+                                <strong class="text-green-400">✅ Optimize Güvenli mi?</strong>
+                                <p class="mt-1">Evet! Algoritma sadece anlamsız kelimeleri siler. Enstrüman isimleri, makam, genre, tempo, teknik terimler (vibrato, quarter tones) korunur.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 6. İpuçları -->
+                    <div class="border-l-4 border-yellow-500 pl-4">
+                        <h4 class="text-lg font-semibold text-white mb-2">💡   İpuçları</h4>
+                        <ul class="list-disc list-inside text-gray-300 space-y-2">
+                            <li><strong>Az detay = Daha iyi:</strong> Çok fazla seçenek seçmeyin,  kafası karışabilir</li>
+                            <li><strong>Enstrüman kombinasyonları:</strong> Lead + Accompanying + Bass + Percussion = En dengeli sonuç</li>
+                            <li><strong>Prodüksiyon:</strong> "Lo-fi, vintage, warm" = nostaljik | "Clean, polished, modern" = çağdaş</li>
+                            <li><strong>Dinamik Akış:</strong> "Gradual build-up" = yavaş yükselen enerji (popüler seçim)</li>
+                            <li><strong>Test edin:</strong> Aynı ayarlarla birkaç kez generate edin,  her seferinde farklı yorumlar</li>
+                        </ul>
+                    </div>
+
+                    <!-- 6. Sık Sorulan -->
+                    <div class="border-l-4 border-red-500 pl-4">
+                        <h4 class="text-lg font-semibold text-white mb-2">❓ Sık Sorulan Sorular</h4>
+                        <div class="space-y-3 text-gray-300">
+                            <div>
+                                <strong class="text-red-400">Q:</strong> Tüm alanları doldurmam gerekiyor mu?<br>
+                                <strong class="text-green-400">A:</strong> Hayır! Sadece istediğiniz özellikleri seçin. Boş alanlar prompt'a eklenmez.
+                            </div>
+                            <div>
+                                <strong class="text-red-400">Q:</strong> Türk Müziği + Normal Genre aynı anda kullanılır mı?<br>
+                                <strong class="text-green-400">A:</strong> Hayır. Türk Müziği seçtiyseniz, diğer Genre seçimini atlayın.
+                            </div>
+                            <div>
+                                <strong class="text-red-400">Q:</strong> Karakter sayısı neden önemli?<br>
+                                <strong class="text-green-400">A:</strong>  1000 karakter limiti var. Fazlası kesilir ve özellikler kaybolabilir.
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer / Geliştirici Bilgisi -->
+        <div class="max-w-4xl mx-auto mt-8 pb-8">
+            <div class="text-center">
+                <!-- Kullanım Sayacı -->
+                <p class="text-gray-500 text-sm mb-3">
+                    📊 <span id="usageCount" class="text-blue-400 font-semibold">0</span>
+                </p>
+                
+                <p class="text-gray-400 text-sm">
+                    Geliştiren: <span class="text-blue-400 font-semibold">Turis Mülayim</span>
+                </p>
+                <p class="text-gray-500 text-xs mt-1">
+                     Müzik Prompt Oluşturucu © 2026
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer / Disclaimer -->
+    <footer class="mt-12 pb-8 text-center px-4">
+        <div class="max-w-3xl mx-auto space-y-2">
+            <p class="text-gray-400 text-sm">
+                🎵 Bu araç   prompt oluşturur. Sonuçlar  modeline bağlıdır.
+            </p>
+ 
+        </div>
+    </footer>
+    
+    <!-- Ayrılmış olan yerel JavaScript dosyamız -->
+    <!-- 'defer' attribute'ü, HTML yüklendikten sonra çalışmasını sağlar -->
+    <script src="script.js" defer=""></script>
+</body>
+</html>

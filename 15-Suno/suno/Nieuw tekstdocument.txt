@@ -1,0 +1,1865 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta property="og:url" content="https://hubbez.tr/suno/">
+    <meta property="og:title" content="SUNO Prompter">
+    <meta property="og:description" content=" ">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://hubbez.tr/wp-content/uploads/2025/11/sunoog.jpg">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com/3.4.1"></script>
+    
+    <style>
+        /* İnter yazı tipi */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* Tailwind gray-900 */
+        }
+        /* Özel arkaplan gradyanı */
+        .gradient-bg {
+            background-image: linear-gradient(135deg, #1f2937 0%, #111827 50%, #3730a3 100%);
+        }
+        /* Açılır menülerin stillerini iyileştirme */
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-position: right 0.7rem center;
+            background-repeat: no-repeat;
+            background-size: 0.65em auto;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+            padding-right: 2.5rem; /* İkon için yer açar */
+        }
+
+        /* Stijl voor de opties in de dropdown voor een donker thema */
+        option {
+            background-color: #1f2937; /* Donkergrijs, passend bij de pagina (Tailwind gray-800) */
+            color: #d1d5db;          /* Lichte tekstkleur (Tailwind gray-300) */
+        }
+    </style>
+</head>
+<body class="text-gray-200">
+
+    <div class="min-h-screen gradient-bg p-4 md:p-8">
+        <div class="max-w-4xl mx-auto bg-gray-800 bg-opacity-80 backdrop-blur-md rounded-2xl shadow-2xl overflow-hidden">
+            
+            <!-- Başlık -->
+            <div class="p-6 border-b border-gray-700">
+                <p class="text-center text-blue-400 text-sm mt-3 font-semibold">Turis Mülayim</p>
+            </div>
+
+            <!-- Form Alanı -->
+            <div class="p-6 md:p-8 space-y-6">
+
+                <!-- BÖLÜM: GENEL PARÇA -->
+                <fieldset class="border border-gray-700 rounded-lg p-4">
+                    <legend class="text-lg font-semibold text-white px-2">Genel Parça (General Track)</legend>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                        
+                        <div>
+                            <label for="genre" class="block text-sm font-medium text-gray-300 mb-2">Müzik Türü (Genre)</label>
+                            <select id="genre" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Tür seçin --</option>
+                                <option value="Alternative">Alternatif (Alternative)</option>
+                                <option value="Blues">Blues (Blues)</option>
+                                <option value="Classical">Klasik (Classical)</option>
+                                <option value="Country">Country (Country)</option>
+                                <option value="Electronic">Elektronik (Electronic)</option>
+                                <option value="Folk">Halk Müziği (Folk)</option>
+                                <option value="Hip Hop">Hip Hop (Hip Hop)</option>
+                                <option value="Jazz">Caz (Jazz)</option>
+                                <option value="Latin">Latin (Latin)</option>
+                                <option value="Metal">Metal (Metal)</option>
+                                <option value="Pop">Pop (Pop)</option>
+                                <option value="R&B">R&B/Soul (R&B)</option>
+                                <option value="Reggae">Reggae (Reggae)</option>
+                                <option value="Rock">Rock (Rock)</option>
+                                <option value="Acoustic Rock">Akustik Rock (Acoustic Rock)</option>
+                                <option value="Acoustic Blues">Akustik Blues (Acoustic Blues)</option>
+                                <option value="Lo-fi">Lo-fi (Lo-fi)</option>
+                                <option value="Cinematic">Sinematik (Cinematic)</option>
+                                <option value="Funk">Funk (Funk)</option>
+                                <option value="Soul">Soul (Soul)</option>
+                                <option value="Ambient">Ambiyans (Ambient)</option>
+                                <option value="Afrobeats">Afrobeats (Afrobeats)</option>
+                                <option value="World Music">Dünya Müzikleri (World Music)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="genreType" class="block text-sm font-medium text-gray-300 mb-2">Alt Tür (Sub Genre)</label>
+                            <select id="genreType" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Alt-tür seçin --</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="origin" class="block text-sm font-medium text-gray-300 mb-2">Yöresel Dil (Origin / Language)</label>
+                            <select id="origin" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Köken seçin --</option>
+                                <option value="Turkish">Türkçe (Turkish)</option>
+                                <option value="English">İngilizce (English)</option>
+                                <option value="Latin">Latin (Latin)</option>
+                                <option value="French">Fransızca (French)</option>
+                                <option value="Spanish">İspanyolca (Spanish)</option>
+                                <option value="Arabic">Arapça (Arabic)</option>
+                                <option value="Middle Eastern">Orta Doğu (Middle Eastern)</option>
+                                <option value="Balkan">Balkan (Balkan)</option>
+                                <option value="West African">Batı Afrika (West African)</option>
+                                <option value="Indian Classical">Hint Klasik (Indian Classical)</option>
+                                <option value="Scandinavian Folk">İskandinav Halk (Scandinavian Folk)</option>
+                                <option value="Andean">And (Andean)</option>
+                                <option value="Celtic">Kelt (Celtic)</option>
+                                <option value="Japanese">Japonca (Japanese)</option>
+                                <option value="Korean">Korece (Korean)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="turkishStyle" class="block text-sm font-medium text-gray-300 mb-2">Türk Müziği Stili (Turkish Music Style)</label>
+                            <select id="turkishStyle" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Stil Seçin --</option>
+                                <option value="Arabesk">Arabesk Müzik (Arabesk Music)</option>
+                                <option value="Anatolian Rock">Anadolu Rock (Anatolian Rock)</option>
+                                <option value="TSM">Türk Sanat Müziği (Turkish Classical Art Music)</option>
+                                <option value="Folk">Türk Halk Müziği (Turkish Folk Music)</option>
+                                <option value="Fantezi">Fantezi Müzik (Fantezi Music)</option>
+                            </select>
+                        </div>
+
+                        <!-- Makam Seçimi (TSM için) -->
+                        <div id="makamContainer" class="hidden">
+                            <label for="makam" class="block text-sm font-medium text-gray-300 mb-2">Makam Seçimi (Makam Selection)</label>
+                            <select id="makam" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Makam Seçin --</option>
+                                <optgroup label="Ana Makamlar (Basic Makams)">
+                                    <option value="Rast">Rast</option>
+                                    <option value="Uşşak">Uşşak</option>
+                                    <option value="Hüzzam">Hüzzam</option>
+                                    <option value="Hicaz">Hicaz</option>
+                                    <option value="Segah">Segah</option>
+                                    <option value="Çargah">Çargah</option>
+                                    <option value="Saba">Saba</option>
+                                    <option value="Buselik">Buselik</option>
+                                    <option value="Hüseyni">Hüseyni</option>
+                                    <option value="Neva">Neva</option>
+                                    <option value="Kürdi">Kürdi</option>
+                                    <option value="Kürdilihicazkar">Kürdilihicazkar</option>
+                                </optgroup>
+                                <optgroup label="Şed Makamlar (Compound Makams)">
+                                    <option value="Suzidil">Suzidil</option>
+                                    <option value="Nihavend">Nihavend</option>
+                                    <option value="Nikriz">Nikriz</option>
+                                    <option value="Sultani Yegah">Sultani Yegah</option>
+                                    <option value="Mahur">Mahur</option>
+                                    <option value="Acem Aşiran">Acem Aşiran</option>
+                                    <option value="Isfahan">Isfahan</option>
+                                    <option value="Şehnaz">Şehnaz</option>
+                                    <option value="Ferahnak">Ferahnak</option>
+                                </optgroup>
+                                <optgroup label="Terkip Makamlar (Composite Makams)">
+                                    <option value="Suzidilara">Suzidilara</option>
+                                    <option value="Hicazkâr">Hicazkâr</option>
+                                    <option value="Şedaraban">Şedaraban</option>
+                                    <option value="Beyati">Beyati</option>
+                                    <option value="Acemkürdî">Acemkürdî</option>
+                                    <option value="Evç">Evç</option>
+                                    <option value="Gerdaniye">Gerdaniye</option>
+                                </optgroup>
+                            </select>
+                        </div>
+
+                    </div>
+                </fieldset>
+
+                <!-- BÖLÜM: DÜNYA MÜZİKLERİ -->
+                <fieldset id="worldMusicSection" class="border border-gray-700 rounded-lg p-4 hidden">
+                    <legend class="text-lg font-semibold text-white px-2">Dünya Müzikleri Detayları (World Music Details)</legend>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                        
+                        <div>
+                            <label for="worldRegion" class="block text-sm font-medium text-gray-300 mb-2">Bölge / Kıta (Region / Continent)</label>
+                            <select id="worldRegion" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Bölge Seçin --</option>
+                                <option value="Africa">Afrika (Africa)</option>
+                                <option value="Middle East">Orta Doğu & Kuzey Afrika (Middle East & North Africa)</option>
+                                <option value="Asia">Asya (Asia)</option>
+                                <option value="Europe">Avrupa (Europe)</option>
+                                <option value="Latin America">Latin Amerika & Karayipler (Latin America & Caribbean)</option>
+                                <option value="North America">Kuzey Amerika (North America)</option>
+                                <option value="Oceania">Okyanusya (Oceania & Polynesia)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="worldTradition" class="block text-sm font-medium text-gray-300 mb-2">Müzik Geleneği (Musical Tradition)</label>
+                            <select id="worldTradition" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500" disabled="">
+                                <option value="">-- Önce Bölge Seçin --</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="worldInstrument" class="block text-sm font-medium text-gray-300 mb-2">Ana Enstrüman (Primary Instrument)</label>
+                            <select id="worldInstrument" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500" disabled="">
+                                <option value="">-- Önce Gelenek Seçin --</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="worldRhythm" class="block text-sm font-medium text-gray-300 mb-2">Ritmik His (Rhythmic Feel)</label>
+                            <select id="worldRhythm" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Ritim Seçin --</option>
+                                <option value="Ceremonial and slow">Törensel ve yavaş (Ceremonial and slow)</option>
+                                <option value="Danceable and polyrhythmic">Dansedilebilir ve çok-ritmik (Danceable and polyrhythmic)</option>
+                                <option value="Meditative and free-flowing">Meditatif ve serbest akışlı (Meditative and free-flowing)</option>
+                                <option value="Driving and energetic">İtici ve enerjik (Driving and energetic)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="worldScale" class="block text-sm font-medium text-gray-300 mb-2">Ölçek / Mod (Scale / Mode)</label>
+                            <select id="worldScale" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Ölçek Seçin --</option>
+                                <option value="a pentatonic scale">Pentatonik ölçek (Pentatonic scale)</option>
+                                <option value="a major/minor diatonic scale">Majör/Minör diyatonik ölçek (Major/Minor diatonic scale)</option>
+                                <option value="a traditional modal system (e.g., Maqam)">Geleneksel modal sistem - Makam (Traditional modal system)</option>
+                                <option value="a microtonal scale">Mikrotonal ölçek (Microtonal scale)</option>
+                                <option value="an atonal or chromatic scale">Atonal veya kromatik ölçek (Atonal or chromatic scale)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="worldTexture" class="block text-sm font-medium text-gray-300 mb-2">Müzikal Doku (Musical Texture)</label>
+                            <select id="worldTexture" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Doku Seçin --</option>
+                                <option value="a monophonic (single melody) texture">Monofonik - tek melodi (Monophonic texture)</option>
+                                <option value="a homophonic (melody with chords) texture">Homofonik - melodi ve akorlar (Homophonic texture)</option>
+                                <option value="a polyphonic (interwoven melodies) texture">Polifonik - iç içe melodiler (Polyphonic texture)</option>
+                                <option value="a heterophonic (simultaneous variations) texture">Heterofonik - eşzamanlı varyasyonlar (Heterophonic texture)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="worldContext" class="block text-sm font-medium text-gray-300 mb-2">Performans Bağlamı (Performance Context)</label>
+                            <select id="worldContext" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Bağlam Seçin --</option>
+                                <option value="for a sacred ritual or ceremony">Kutsal tören veya ayin için (Sacred ritual or ceremony)</option>
+                                <option value="for a lively community dance">Canlı topluluk dansı için (Lively community dance)</option>
+                                <option value="for an intimate solo performance">Samimi solo performans için (Intimate solo performance)</option>
+                                <option value="for a bustling street performance">Hareketli sokak performansı için (Bustling street performance)</option>
+                                <option value="for a formal court or concert setting">Resmi saray veya konser ortamı için (Formal court or concert setting)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="worldVocals" class="block text-sm font-medium text-gray-300 mb-2">Vokal Stili (Vocal Style)</label>
+                            <select id="worldVocals" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Vokal Seçin --</option>
+                                <option value="featuring storytelling vocals">Hikaye anlatan vokal (Storytelling vocals)</option>
+                                <option value="based around ritualistic chanting">Ritüel ilahisi (Ritualistic chanting)</option>
+                                <option value="with call-and-response patterns">Çağrı-cevap kalıbı (Call-and-response patterns)</option>
+                                <option value="as a purely instrumental piece">Tamamen enstrümantal (Purely instrumental)</option>
+                                <option value="with overtone-rich throat singing">Boğaz şarkısı - harmonik sesler (Throat singing)</option>
+                                <option value="with Alpine-style yodeling">Alp tarzı yodelleme (Alpine-style yodeling)</option>
+                                <option value="with powerful Gospel call-and-response">Güçlü Gospel çağrı-cevap (Powerful Gospel call-and-response)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="worldAtmosphere" class="block text-sm font-medium text-gray-300 mb-2">Atmosfer (Atmosphere)</label>
+                            <select id="worldAtmosphere" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Atmosfer Seçin --</option>
+                                <option value="with a raw, field-recorded feel">Ham, sahada kaydedilmiş his (Raw, field-recorded feel)</option>
+                                <option value="with a clean, natural acoustic sound">Temiz, doğal akustik ses (Clean, natural acoustic sound)</option>
+                                <option value="with a trance-like, hypnotic quality">Trans benzeri, hipnotik kalite (Trance-like, hypnotic quality)</option>
+                                <option value="with a modern electronic fusion">Modern elektronik füzyon (Modern electronic fusion)</option>
+                            </select>
+                        </div>
+
+                    </div>
+                </fieldset>
+
+                <!-- BÖLÜM: PRODÜKSİYON & ENSTRÜMANLAR -->
+                <fieldset class="border border-gray-700 rounded-lg p-4">
+                    <legend class="text-lg font-semibold text-white px-2">Prodüksiyon & Enstrümanlar (Production & Instruments)</legend>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                        
+                        <div>
+                            <label for="tempo" class="block text-sm font-medium text-gray-300 mb-2">Tempo / Hız (Tempo / Speed)</label>
+                            <select id="tempo" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Tempo seçin --</option>
+                                <option value="Slow (60-80 BPM)">Yavaş (Slow, 60-80 BPM)</option>
+                                <option value="Medium (90-120 BPM)">Orta (Medium, 90-120 BPM)</option>
+                                <option value="Fast (130-160 BPM)">Hızlı (Fast, 130-160 BPM)</option>
+                                <option value="Very Fast (170+ BPM)">Çok Hızlı (Very Fast, 170+ BPM)</option>
+                                <option value="Free-flowing, without a strict tempo">Serbest akışlı (Free-flowing, without strict tempo)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="mood" class="block text-sm font-medium text-gray-300 mb-2">Mod / Duygu (Mood)</label>
+                            <select id="mood" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Mod seçin --</option>
+                                <option value="Chill & Relaxed">Sakin & Rahat (Chill & Relaxed)</option>
+                                <option value="Happy">Mutlu (Happy)</option>
+                                <option value="Energetic">Enerjik (Energetic)</option>
+                                <option value="Melancholic">Melankolik (Melancholic)</option>
+                                <option value="Dark">Karanlık (Dark)</option>
+                                <option value="Epic">Epik (Epic)</option>
+                                <option value="Romantic">Romantik (Romantic)</option>
+                                <option value="Uplifting">Yükselten (Uplifting)</option>
+                                <option value="Mysterious">Gizemli (Mysterious)</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="harmonyType" class="block text-sm font-medium text-gray-300 mb-2">Genel Armoni Tipi (Harmony Type)</label>
+                            <select id="harmonyType" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Armoni Tipi Seçin --</option>
+                                <option value="Major">Majör (Major)</option>
+                                <option value="Minor">Minör (Minor)</option>
+                                <option value="Diatonic">Diyatonic (Diyatonic Ölçekler)</option>
+                                <option value="Chromatic">Kromatik (Kromatik Sesler)</option>
+                                <option value="Modal">Modal (Makam/Mod bazlı)</option>
+                                <option value="Pentatonic">Pentatonic (Pentatonik)</option>
+                                <option value="Harmonic Minor">Harmonik Minör (Harmonic Minor)</option>
+                                <option value="Blues Harmony">Blues Armoni (Blues Harmony)</option>
+                                <option value="Whole Tone">Tam Ton (Whole Tone)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="structureFlow" class="block text-sm font-medium text-gray-300 mb-2">Yapı & Dinamik Akış (Structure & Flow)</label>
+                            <select id="structureFlow" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Yapı & Dinamik seçin --</option>
+                                <option value="classic-pop-rock">Klasik Pop/Rock Yapısı - Verse/Chorus + Kıtadan nakarata yükseliş (Classic Pop/Rock)</option>
+                                <option value="epic-cinematic">Epik/Sinematik Yapı - Full Structure + Yumuşak başlangıç, güçlü zirve (Epic/Cinematic)</option>
+                                <option value="minimal-ambient">Minimal/Ambient Loop - Basit tekrarlı döngü + Sabit enerji (Minimal/Ambient)</option>
+                                <option value="edm-electronic">EDM/Elektronik Yapı - Verse/Chorus + Drop & Rise dinamikleri (EDM/Electronic)</option>
+                                <option value="progressive-jazz">Progressive/Jazz Yapısı - Karmaşık through-composed + İnişli çıkışlı (Progressive/Jazz)</option>
+                                <option value="live-performance">Canlı Performans Tarzı - Geleneksel yapı + Yavaş yükselen enerji (Live Performance)</option>
+                                <option value="experimental-free">Deneysel/Serbest Akış - Serbest form + Sürekli değişen dinamikler (Experimental)</option>
+                                <option value="intro-heavy">Intro-Ağırlıklı Yapı - Full Structure + Güçlü başlangıç, yavaşlayan son (Intro-Heavy)</option>
+                                <option value="ballad-emotional">Ballad/Duygusal Yapı - AABA Pattern + Güçlü başlangıç, yavaşlayan son (Ballad)</option>
+                                <option value="modern-pop-hit">Modern Pop Hit Yapısı - Pop Structure (V-C-V-C-B-C) + Verse-to-Chorus yükseliş (Modern Pop)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="percussion" class="block text-sm font-medium text-gray-300 mb-2">Ritim / Perküsyon (Percussion)</label>
+                            <select id="percussion" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Ritim seçin --</option>
+                                <option value="Subtle percussion">Hafif perküsyon (Subtle percussion)</option>
+                                
+                                <!-- Akustik Davul Detayları -->
+                                <option value="Acoustic drum kit with open hi-hats and crash cymbals">Akustik davul - Açık hi-hat + Crash (Acoustic drums, open hi-hats, crashes)</option>
+                                <option value="Acoustic drum kit with closed hi-hats and ride cymbal">Akustik davul - Kapalı hi-hat + Ride (Acoustic drums, closed hi-hats, ride)</option>
+                                <option value="Acoustic drum kit with aggressive crash attacks">Akustik davul - Agresif crash atakları (Acoustic drums, aggressive crashes)</option>
+                                <option value="Acoustic drum kit with tight snare and sharp hi-hats">Akustik davul - Sıkı snare + Keskin hi-hat (Tight snare, sharp hi-hats)</option>
+                                <option value="Acoustic drum kit">Akustik davul - Standart (Acoustic drum kit)</option>
+                                
+                                <!-- Elektronik Davullar -->
+                                <option value="808 drums">808 davulları (808 drums)</option>
+                                <option value="Drum machine">Davul makinesi (Drum machine)</option>
+                                
+                                <!-- Sinematik & Türk -->
+                                <option value="Cinematic war-drums">Sinematik savaş davulları (Cinematic war-drums)</option>
+                                <option value="Darbuka and riq frame drum with jingles">Darbuka ve def (Darbuka and riq frame drum with jingles)</option>
+                                <option value="Darbuka">Darbuka (Darbuka)</option>
+                                <option value="Riq frame drum with jingles">Def - zilli (Riq frame drum with jingles)</option>
+                                <option value="Bendir">Bendir (Bendir)</option>
+                                <option value="Bendir and riq">Bendir ve def (Bendir and riq)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="bass" class="block text-sm font-medium text-gray-300 mb-2">Bas (Bass)</label>
+                            <select id="bass" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Bas seçin --</option>
+                                <option value="Deep, smooth sub bass">Derin, pürüzsüz sub bas (Deep, smooth sub bass)</option>
+                                <option value="Electric bass guitar">Elektro bas gitar (Electric bass guitar)</option>
+                                <option value="Metal rock bass">Metal rock bas (Metal rock bass)</option>
+                                <option value="Synth bass">Synth bas (Synth bass)</option>
+                                <option value="Funky bassline">Funky bas hattı (Funky bassline)</option>
+                                <option value="Walking bassline">Yürüyen bas (Walking bassline)</option>
+                                <option value="Melodic bassline">Melodik bas hattı (Melodic bassline)</option>
+                                <option value="Acoustic bass">Akustik bas (Acoustic bass)</option>
+                                <option value="Fretless bass">Perdesiz bas (Fretless bass)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="leadInstrument" class="block text-sm font-medium text-gray-300 mb-2">Melodi Enstrümanı (Lead Instrument)</label>
+                            <select id="leadInstrument" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Melodi enstrümanı seçin --</option>
+                                <option value="Mellow electric guitar">Yumuşak elektro gitar (Mellow electric guitar)</option>
+                                <option value="Electric Metal guitar">Metal elektro gitar (Electric Metal guitar)</option>
+                                <option value="Electric Guitar">Elektrik Gitar (Electric Guitar)</option>
+                                <option value="Distorted guitar">Distortion'lu gitar (Distorted guitar)</option>
+                                <option value="Acoustic guitar">Akustik gitar (Acoustic guitar)</option>
+                                <option value="Piano">Piyano (Piano)</option>
+                                <option value="Electric Piano (Rhodes)">Elektrik Piyano (Rhodes) (Electric Piano Rhodes)</option>
+                                <option value="Synth pads">Synth pedler (Synth pads)</option>
+                                <option value="Violin">Keman (Violin)</option>
+                                <option value="Saxophone">Saksafon (Saxophone)</option>
+                                <option value="Woodwinds">Ağaç üflemeliler (Woodwinds)</option>
+                                <option value="Fretless guitar">Perdesiz gitar (Fretless guitar)</option>
+                                <option value="Oud">Ud (Oud)</option>
+                                <option value="Saz">Bağlama (Saz)</option>
+                                <option value="Electric Saz">Elektro Saz / Elektro Bağlama (Electric Saz)</option>
+                                <option value="Ney">Ney (Ney)</option>
+                                <option value="Kaval">Kaval (Kaval)</option>
+                                <option value="Sitar">Sitar (Sitar)</option>
+                                <option value="Accordion">Akordeon (Accordion)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="accompanyingInstrument" class="block text-sm font-medium text-gray-300 mb-2">Eşlik Eden Enstrüman (Accompanying Instrument)</label>
+                            <select id="accompanyingInstrument" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Eşlik eden enstrüman seçin --</option>
+                                <option value="Strumming acoustic guitar">Ritmik akustik gitar (Strumming acoustic guitar)</option>
+                                <option value="Strumming electric guitar">Ritmik elektrik gitar (Strumming electric guitar)</option>
+                                <option value="Arpeggiated acoustic guitar">Arpej akustik gitar (Arpeggiated acoustic guitar)</option>
+                                <option value="Arpeggiated electric guitar">Arpej elektrik gitar (Arpeggiated electric guitar)</option>
+                                <option value="Acoustic saz ensemble">Akustik bağlamalar grubu (Acoustic saz ensemble)</option>
+                                <option value="Turkish classical music ensemble (oud, kanun, ney, violin, tanbur)">Türk sanat müziği topluluğu - ud, kanun, ney, keman, tanbur (Turkish classical music ensemble)</option>
+                                <option value="String section">Yaylı grubu (String section)</option>
+                                <option value="Brass section">Bakır üflemeliler (Brass section)</option>
+                                <option value="Synth strings">Synth yaylılar (Synth strings)</option>
+                                <option value="Pad layer">Pad katmanı (Pad layer)</option>
+                                <option value="Ambient texture">Ambiyans dokusu (Ambient texture)</option>
+                            </select>
+                        </div>
+
+                    </div>
+                </fieldset>
+
+                <!-- BÖLÜM: VOKAL -->
+                <fieldset class="border border-gray-700 rounded-lg p-4">
+                    <legend class="text-lg font-semibold text-white px-2">Vokal (Vocals)</legend>
+                    
+                    <div>
+                            <label for="vocal" class="block text-sm font-medium text-gray-300 mb-2">Ana Vokal (Primary Vocal)</label>
+                        <select id="vocal" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">-- Vokal tipi seçin --</option>
+                            <option value="Female">Kadın Vokal (Female)</option>
+                            <option value="Male">Erkek Vokal (Male)</option>
+                            <option value="Child">Çocuk Vokal (Child)</option>
+                            <option value="Choir">Koro (Choir)</option>
+                            <option value="Instrumental">Vokalsiz (Instrumental)</option>
+                        </select>
+                    </div>
+
+                    <!-- Dinamik Vokal Detayları -->
+                    <div id="vocalDetailsContainer" class="hidden space-y-4 mt-4 pt-4 border-t border-gray-700">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="vocalEffects" class="block text-sm font-medium text-gray-300 mb-2">Vokal Tarzı (Vocal Style)</label>
+                                <select id="vocalEffects" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">-- Tarz seçin --</option>
+                                    <option value="Vocals delivered with high energy, joyful emotion, and passionate intensity throughout the song">Enerjik ve coşkulu (Energetic, joyful, passionate)</option>
+                                    <option value="Vocals performed with calm delivery, melancholic emotion, and introspective character">Sakin ve hüzünlü (Calm, melancholic, introspective)</option>
+                                    <option value="Vocals sung in rhythmic patterns with hypnotic repetition and trance-like flow">Ritmik ve hipnotik (Rhythmic, hypnotic, trance-like)</option>
+                                    <option value="Vocals delivered at fast pace with excited tone and flowing melodic lines">Hızlı ve akıcı (Fast-paced, excited, flowing)</option>
+                                    <option value="Vocals performed in call-and-response style with communal interaction and back-and-forth dynamics">Soru-cevap stili (Call-and-response, communal, interactive)</option>
+                                    <option value="Vocals sung in makam style with spiritual expression and authentic Turkish classical phrasing">Makam tarzı (Makam, spiritual, expressive)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="vocalTimbre" class="block text-sm font-medium text-gray-300 mb-2">Vokal Timbresi (Vocal Timbre)</label>
+                                <select id="vocalTimbre" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">-- Renk seçin --</option>
+                                    <option value="Clear">Net (Clear)</option>
+                                    <option value="Resonant">Dolgun (Resonant)</option>
+                                    <option value="Airy">Hafif (Airy)</option>
+                                    <option value="Husky">Kısık (Husky)</option>
+                                    <option value="Breathy">Nefesli (Breathy)</option>
+                                    <option value="Gravelly">Kaba (Gravelly)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="vocalAdvancedEffects" class="block text-sm font-medium text-gray-300 mb-2">Vokal Efektleri (Vocal Effects)</label>
+                                <select id="vocalAdvancedEffects" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">-- Efekt seçin --</option>
+                                    <option value="Hall reverb">Salon yankısı (Hall reverb)</option>
+                                    <option value="Room reverb">Oda yankısı (Room reverb)</option>
+                                    <option value="Church reverb">Kilise yankısı (Church reverb)</option>
+                                    <option value="Plate reverb">Plaka yankısı (Plate reverb)</option>
+                                    <option value="Short delay">Kısa eko (Short delay)</option>
+                                    <option value="Long echo">Uzun eko (Long echo)</option>
+                                    <option value="Slapback echo">Slapback eko (Slapback echo)</option>
+                                    <option value="Lo-fi telephone effect">Telefon sesi (Lo-fi/Telephone)</option>
+                                </select>
+                            </div>
+
+                            <!-- Kadın Vokal Aralığı -->
+                            <div id="femaleVocalRangeContainer" class="hidden">
+                                <label for="femaleVocalRange" class="block text-sm font-medium text-gray-300 mb-2">Vokal Aralığı - Kadın (Female Vocal Range)</label>
+                                <select id="femaleVocalRange" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">-- Aralık seçin --</option>
+                                    <option value="Coloratura Soprano">Koloratür Soprano (Coloratura Soprano)</option>
+                                    <option value="Lyric Soprano">Lirik Soprano (Lyric Soprano)</option>
+                                    <option value="Dramatic Soprano">Dramatik Soprano (Dramatic Soprano)</option>
+                                    <option value="Soprano">Soprano (Soprano)</option>
+                                    <option value="Mezzo-soprano">Mezzo-soprano (Mezzo-soprano)</option>
+                                    <option value="Contralto">Alto / Kontralto (Contralto)</option>
+                                </select>
+                            </div>
+
+                            <!-- Erkek Vokal Aralığı -->
+                            <div id="maleVocalRangeContainer" class="hidden">
+                                <label for="maleVocalRange" class="block text-sm font-medium text-gray-300 mb-2">Vokal Aralığı - Erkek (Male Vocal Range)</label>
+                                <select id="maleVocalRange" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">-- Aralık seçin --</option>
+                                    <option value="Countertenor">Kontrtenor (Countertenor)</option>
+                                    <option value="Lyric Tenor">Lirik Tenor (Lyric Tenor)</option>
+                                    <option value="Dramatic Tenor">Dramatik Tenor (Dramatic Tenor)</option>
+                                    <option value="Tenor">Tenor (Tenor)</option>
+                                    <option value="Baritone">Bariton (Baritone)</option>
+                                    <option value="Bass-Baritone">Bas-Bariton (Bass-Baritone)</option>
+                                    <option value="Bass">Bas (Bass)</option>
+                                    <option value="Basso Profondo">Derin Bas (Basso Profondo)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- BÖLÜM: MIXING & PRODUCTION -->
+                <fieldset class="border border-gray-700 rounded-lg p-4">
+                    <legend class="text-lg font-semibold text-white px-2">Mixing & Prodüksiyon (Mixing & Production)</legend>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                        <div>
+                            <label for="mixingStyle" class="block text-sm font-medium text-gray-300 mb-2">Mixing & Prodüksiyon Stili (Mixing & Production Style)</label>
+                            <select id="mixingStyle" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Mixing & Prodüksiyon stili seçin --</option>
+                                <optgroup label="Mixing Karakter (Mixing Character)">
+                                    <option value="Warm mixing">Sıcak mix (Warm mixing)</option>
+                                    <option value="Bright mixing">Parlak mix (Bright mixing)</option>
+                                    <option value="Dark mixing">Karanlık mix (Dark mixing)</option>
+                                    <option value="Balanced mixing">Dengeli mix (Balanced mixing)</option>
+                                </optgroup>
+                                <optgroup label="Prodüksiyon Tarzı (Production Style)">
+                                    <option value="Clean, polished, modern">Temiz ve parlak stüdyo kayıt (Clean & Modern)</option>
+                                    <option value="Lo-fi, vintage, warm">Eski kaset gibi sıcak ve yumuşak (Lo-fi & Vintage)</option>
+                                    <option value="Minimal">Sade ve az enstrüman (Minimal)</option>
+                                    <option value="Layered, complex">Çok katmanlı ve zengin ses (Layered & Complex)</option>
+                                    <option value="Raw, live recording">Canlı konser gibi doğal (Raw & Live)</option>
+                                    <option value="Atmospheric, reverb-heavy">Yankılı ve geniş atmosfer (Atmospheric)</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Buton -->
+                <div class="pt-4">
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <button id="generateButton" class="w-full md:flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50">
+                            Prompt Oluştur
+                        </button>
+                        <button id="clearButton" class="w-full md:w-auto bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg text-lg transition duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-gray-500 focus:ring-opacity-50">
+                            Formu Temizle
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sonuç Alanı -->
+            <div class="p-6 md:p-8 border-t border-gray-700">
+                <div class="flex justify-between items-center mb-2">
+                    <label for="result" class="block text-sm font-medium text-gray-300">Oluşturulan Prompt (SUNO için hazır)</label>
+                    <div class="text-sm font-semibold">
+                        <span id="charCount" class="text-green-400">0</span>
+                        <span class="text-gray-400"> / 1000</span>
+                    </div>
+                </div>
+                <textarea id="result" rows="10" class="w-full bg-gray-900 border border-gray-600 text-white rounded-lg p-4 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500" placeholder="Oluşturulan prompt burada görünecek..."></textarea>
+                <div class="mt-4 flex flex-wrap gap-2">
+                    <button id="copyButton" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 ease-in-out focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-opacity-50">
+                        Kopyala
+                    </button>
+                    <button id="optimizeButton" class="hidden bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 ease-in-out focus:outline-none focus:ring-4 focus:ring-orange-500 focus:ring-opacity-50">
+                        ⚡ Optimize Et (1000'e düşür)
+                    </button>
+                    <button id="undoOptimizeButton" class="hidden bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 ease-in-out focus:outline-none focus:ring-4 focus:ring-gray-500 focus:ring-opacity-50">
+                        ↶ Geri Al
+                    </button>
+                </div>
+            </div>
+
+            <!-- YARDIM BÖLÜMÜ (HELP SECTION) -->
+            <div class="border-t border-gray-700">
+                <button id="helpToggle" class="w-full p-6 text-left flex justify-between items-center hover:bg-gray-700 hover:bg-opacity-30 transition duration-200 focus:outline-none">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div>
+                            <h3 class="text-lg font-bold text-white">Yardım & Kullanım Rehberi</h3>
+                            <p class="text-sm text-gray-400">Bu uygulamayı nasıl kullanacağınızı öğrenin</p>
+                        </div>
+                    </div>
+                    <svg id="helpArrow" class="w-6 h-6 text-gray-400 transform transition-transform duration-300" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+
+                <div id="helpContent" class="hidden p-6 md:p-8 space-y-6 bg-gray-800 bg-opacity-50">
+                    
+                    <!-- 1. Genel Kullanım -->
+                    <div class="border-l-4 border-blue-500 pl-4">
+                        <h4 class="text-lg font-semibold text-white mb-2">📌 Genel Kullanım</h4>
+                        <p class="text-gray-300 leading-relaxed">
+                            Bu uygulama <strong>SUNO AI</strong> için optimize edilmiş müzik prompt'ları oluşturur. 
+                            Formu doldurduktan sonra <strong>"Prompt Oluştur"</strong> butonuna tıklayın. 
+                            Oluşturulan prompt otomatik olarak aşağıda görünecektir ve <strong>1000 karakter limiti</strong> vardır.
+                        </p>
+                        <ul class="list-disc list-inside text-gray-300 mt-2 space-y-1">
+                            <li>Tüm alanlar <strong>opsiyoneldir</strong> - sadece istediğiniz özellikleri seçin</li>
+                            <li><strong>"Formu Temizle"</strong> butonu tüm seçimleri sıfırlar</li>
+                        </ul>
+                    </div>
+
+                    <!-- 2. Türk Müziği Rehberi -->
+                    <div class="border-l-4 border-purple-500 pl-4">
+                        <h4 class="text-lg font-semibold text-white mb-2">🎵 Türk Müziği Stilleri</h4>
+                        <div class="space-y-3 text-gray-300">
+                            <div>
+                                <strong class="text-purple-400">Arabesk:</strong> Duygusal, makamsal melodiler. Ud, keman, darbuka. Güçlü vibrato vokaller. Lo-fi sıcak prodüksiyon.
+                            </div>
+                            <div>
+                                <strong class="text-purple-400">Fantezi:</strong> Türk pop müziği. Duygusal melodiler, modern prodüksiyon. Geleneksel ve çağdaş unsurların karışımı.
+                            </div>
+                            <div>
+                                <strong class="text-purple-400">Anadolu Rock:</strong> Rock + Türk halk füzyonu. Elektro saz + distortion gitarlar. <span class="text-yellow-300">Intro melodi ağırlıklı.</span> Geleneksel ve modern elementlerin karışımı.
+                            </div>
+                            <div>
+                                <strong class="text-purple-400">TSM (Türk Sanat Müziği):</strong> Klasik gelenek. Ud, keman, kanun, ney, tanbur. Karmaşık makam sistemleri ve usul ritimleri.
+                            </div>
+                            <div>
+                                <strong class="text-purple-400">Halk Müziği:</strong> Geleneksel Anadolu müziği. Saz, kaval, duduk. Modal armoniler, bölgesel varyasyonlar. Ham, duygusal vokal.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Dünya Müzikleri -->
+                    <div class="border-l-4 border-green-500 pl-4">
+                        <h4 class="text-lg font-semibold text-white mb-2">🌍 Dünya Müzikleri Nasıl Kullanılır?</h4>
+                        <ol class="list-decimal list-inside text-gray-300 space-y-2">
+                            <li><strong>Bölge Seçin:</strong> Afrika, Asya, Avrupa, Latin Amerika, vb.</li>
+                            <li><strong>Gelenek Seçin:</strong> Bölgeye özgü müzik türleri açılır (ör: Flamenco, Tango, Gamelan)</li>
+                            <li><strong>Enstrüman Seçin:</strong> O geleneğe ait otantik enstrümanlar listelenir</li>
+                            <li><strong>Ek Özellikler:</strong> Ritim, ölçek, doku, vokal stili, atmosfer ekleyin</li>
+                        </ol>
+                        <p class="text-yellow-300 mt-3 text-sm">
+                            ⚠️ Dünya Müzikleri seçtiyseniz, "Genel Parça" bölümündeki Genre seçimini atlayabilirsiniz.
+                        </p>
+                    </div>
+
+                    <!-- 4. Vokal Ayarları -->
+                    <div class="border-l-4 border-pink-500 pl-4">
+                        <h4 class="text-lg font-semibold text-white mb-2">🎤 Vokal Ayarları</h4>
+                        <div class="grid md:grid-cols-2 gap-4 text-gray-300">
+                            <div>
+                                <strong class="text-pink-400">Kadın Vokal Aralıkları:</strong>
+                                <ul class="list-none ml-4 text-sm space-y-1 mt-1">
+                                    <li>• <strong>Coloratura Soprano:</strong> En yüksek, çok çevik ses</li>
+                                    <li>• <strong>Lyric Soprano:</strong> Yumuşak, melodik tiz ses</li>
+                                    <li>• <strong>Dramatic Soprano:</strong> Güçlü, etkileyici tiz</li>
+                                    <li>• <strong>Soprano:</strong> Standart kadın tiz sesi</li>
+                                    <li>• <strong>Mezzo-soprano:</strong> Orta kadın sesi</li>
+                                    <li>• <strong>Contralto:</strong> En alçak kadın sesi</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <strong class="text-pink-400">Erkek Vokal Aralıkları:</strong>
+                                <ul class="list-none ml-4 text-sm space-y-1 mt-1">
+                                    <li>• <strong>Countertenor:</strong> En yüksek erkek sesi</li>
+                                    <li>• <strong>Lyric Tenor:</strong> Yumuşak, melodik tenor</li>
+                                    <li>• <strong>Dramatic Tenor:</strong> Güçlü, dramatik tenor</li>
+                                    <li>• <strong>Tenor:</strong> Standart erkek tiz sesi</li>
+                                    <li>• <strong>Baritone:</strong> Orta erkek sesi</li>
+                                    <li>• <strong>Bass-Baritone:</strong> Orta-kalın karışımı</li>
+                                    <li>• <strong>Bass:</strong> Kalın erkek sesi</li>
+                                    <li>• <strong>Basso Profondo:</strong> En derin bas ses</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <p class="text-gray-400 mt-3 text-sm">
+                            <strong>Vokal Mod:</strong> Melankolik, Duygulu, Güçlü, Yumuşak, Fısıltı<br>
+                            <strong>Vokal Tını:</strong> Net, Rezonant, Hafif, Kısık, Nefesli, Kaba
+                        </p>
+                    </div>
+
+                    <!-- 5. Karakter Limiti ve Optimize -->
+                    <div class="border-l-4 border-orange-500 pl-4">
+                        <h4 class="text-lg font-semibold text-white mb-2">⚡ 1000 Karakter Limiti & Optimize Sistemi</h4>
+                        <div class="space-y-3 text-gray-300">
+                            <div class="bg-orange-900 bg-opacity-30 p-3 rounded">
+                                <strong class="text-orange-400">SUNO'nun Karakter Limiti: 1000</strong>
+                                <p class="text-sm mt-1">Prompt 1000 karakteri geçerse SUNO kabul etmez. Karakter sayacı renk kodlu çalışır:</p>
+                                <ul class="list-none ml-4 text-sm mt-2 space-y-1">
+                                    <li>🟢 <strong>0-700 karakter:</strong> Güvenli bölge</li>
+                                    <li>🟡 <strong>701-900 karakter:</strong> Dikkatli olun</li>
+                                    <li>🔴 <strong>901-1000 karakter:</strong> Limit yaklaşıyor!</li>
+                                    <li>🟠 <strong>1000+ karakter:</strong> "⚡ Optimize Et" butonu otomatik görünür</li>
+                                </ul>
+                            </div>
+                            
+                            <div>
+                                <strong class="text-orange-400">⚡ Optimize Et Butonu:</strong>
+                                <p class="text-sm mt-1">Prompt 1000 karakteri aşarsa, turuncu "Optimize Et" butonu otomatik görünür. Bu butona tıklayınca:</p>
+                                <ul class="list-disc list-inside text-sm ml-4 mt-2 space-y-1">
+                                    <li><strong>Anlam korunur</strong> - Tüm önemli bilgiler (enstrüman, genre, tempo, mood) değişmez</li>
+                                    <li><strong>Gereksiz kelimeler silinir</strong> - "with a", "that is", "should be" gibi dolgu kelimeler kaldırılır</li>
+                                    <li><strong>Uzun ifadeler kısaltılır</strong> - "providing harmonic support" → "harmony" olur</li>
+                                    <li><strong>4 fazlı algoritma</strong> - Önce dolgu sil, sonra kısalt, sonra bağlam temizle, son çare kes</li>
+                                    <li><strong>Örnek:</strong> 1200 karakter → 980 karakter (anlam aynı kalır)</li>
+                                </ul>
+                            </div>
+                            
+                            <div>
+                                <strong class="text-orange-400">↶ Geri Al Butonu:</strong>
+                                <p class="text-sm mt-1">Optimize ettikten sonra gri "↶ Geri Al" butonu görünür. Tıklarsanız optimize öncesi hale döner. Prompt'u <strong>elle düzenleyebilirsiniz</strong> - karakter sayacı canlı güncellenir.</p>
+                            </div>
+                            
+                            <div class="bg-green-900 bg-opacity-30 p-3 rounded text-sm">
+                                <strong class="text-green-400">✅ Optimize Güvenli mi?</strong>
+                                <p class="mt-1">Evet! Algoritma sadece anlamsız kelimeleri siler. Enstrüman isimleri, makam, genre, tempo, teknik terimler (vibrato, quarter tones) korunur.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 6. İpuçları -->
+                    <div class="border-l-4 border-yellow-500 pl-4">
+                        <h4 class="text-lg font-semibold text-white mb-2">💡 SUNO için İpuçları</h4>
+                        <ul class="list-disc list-inside text-gray-300 space-y-2">
+                            <li><strong>Az detay = Daha iyi:</strong> Çok fazla seçenek seçmeyin, SUNO kafası karışabilir</li>
+                            <li><strong>Enstrüman kombinasyonları:</strong> Lead + Accompanying + Bass + Percussion = En dengeli sonuç</li>
+                            <li><strong>Prodüksiyon:</strong> "Lo-fi, vintage, warm" = nostaljik | "Clean, polished, modern" = çağdaş</li>
+                            <li><strong>Dinamik Akış:</strong> "Gradual build-up" = yavaş yükselen enerji (popüler seçim)</li>
+                            <li><strong>Test edin:</strong> Aynı ayarlarla birkaç kez generate edin, SUNO her seferinde farklı yorumlar</li>
+                        </ul>
+                    </div>
+
+                    <!-- 6. Sık Sorulan -->
+                    <div class="border-l-4 border-red-500 pl-4">
+                        <h4 class="text-lg font-semibold text-white mb-2">❓ Sık Sorulan Sorular</h4>
+                        <div class="space-y-3 text-gray-300">
+                            <div>
+                                <strong class="text-red-400">Q:</strong> Tüm alanları doldurmam gerekiyor mu?<br>
+                                <strong class="text-green-400">A:</strong> Hayır! Sadece istediğiniz özellikleri seçin. Boş alanlar prompt'a eklenmez.
+                            </div>
+                            <div>
+                                <strong class="text-red-400">Q:</strong> Türk Müziği + Normal Genre aynı anda kullanılır mı?<br>
+                                <strong class="text-green-400">A:</strong> Hayır. Türk Müziği seçtiyseniz, diğer Genre seçimini atlayın.
+                            </div>
+                            <div>
+                                <strong class="text-red-400">Q:</strong> Karakter sayısı neden önemli?<br>
+                                <strong class="text-green-400">A:</strong> SUNO 1000 karakter limiti var. Fazlası kesilir ve özellikler kaybolabilir.
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer / Geliştirici Bilgisi -->
+        <div class="max-w-4xl mx-auto mt-8 pb-8">
+            <div class="text-center">
+                <!-- Kullanım Sayacı -->
+                <p class="text-gray-500 text-sm mb-3">
+                    📊 <span id="usageCount" class="text-blue-400 font-semibold">0</span>
+                </p>
+                
+                <p class="text-gray-400 text-sm">
+                    Geliştiren: <span class="text-blue-400 font-semibold">Turis Mülayim</span>
+                </p>
+                <p class="text-gray-500 text-xs mt-1">
+                    SUNO AI Müzik Prompt Oluşturucu © 2025
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer / Disclaimer -->
+    <footer class="mt-12 pb-8 text-center px-4">
+        <div class="max-w-3xl mx-auto space-y-2">
+            <p class="text-gray-400 text-sm">
+                🎵 Bu araç SUNO AI için prompt oluşturur. Sonuçlar SUNO'nun AI modeline bağlıdır.
+            </p>
+            <p class="text-gray-500 text-xs">
+                Takipçilerimle paylaşmak için hazırlandı. Herhangi bir garanti verilmez, kendi sorumluluğunuzda kullanın.
+            </p>
+        </div>
+    </footer>
+    
+    <script>
+    // HTML belgesi tamamen yüklendiğinde bu kodu çalıştır
+    document.addEventListener('DOMContentLoaded', () => {
+      // ==== Yardımcılar ====
+      const $ = (id) => document.getElementById(id);
+      const clean = (arr) => arr.map(s => (s || '').trim()).filter(Boolean);
+      const setDisabled = (el, bool) => { el.disabled = !!bool; };
+
+      // ==== DOM Elemanları ====
+      const generateButton = $('generateButton');
+      const copyButton = $('copyButton');
+      const optimizeButton = $('optimizeButton');
+      const undoOptimizeButton = $('undoOptimizeButton');
+      const clearButton = $('clearButton');
+      const resultText = $('result');
+      const charCount = $('charCount');
+      const usageCount = $('usageCount');
+
+      // Optimize öncesi prompt'u saklamak için
+      let beforeOptimizePrompt = '';
+
+      // Form elemanları
+      const genre = $('genre');
+      const genreType = $('genreType');
+      const origin = $('origin');
+      const mood = $('mood');
+      const tempo = $('tempo');
+      const harmonyType = $('harmonyType');
+      const turkishStyle = $('turkishStyle');
+      const makamContainer = $('makamContainer');
+      const makam = $('makam');
+      
+      // Dünya Müzikleri elemanları
+      const worldMusicSection = $('worldMusicSection');
+      const worldRegion = $('worldRegion');
+      const worldTradition = $('worldTradition');
+      const worldInstrument = $('worldInstrument');
+      const worldRhythm = $('worldRhythm');
+      const worldScale = $('worldScale');
+      const worldTexture = $('worldTexture');
+      const worldContext = $('worldContext');
+      const worldVocals = $('worldVocals');
+      const worldAtmosphere = $('worldAtmosphere');
+
+      const structureFlow = $('structureFlow');
+      const percussion = $('percussion');
+      const bass = $('bass');
+      const leadInstrument = $('leadInstrument');
+      const accompanyingInstrument = $('accompanyingInstrument');
+
+      const vocal = $('vocal');
+      const vocalDetailsContainer = $('vocalDetailsContainer');
+      const vocalEffects = $('vocalEffects');
+      const vocalTimbre = $('vocalTimbre');
+      const femaleVocalRangeContainer = $('femaleVocalRangeContainer');
+      const femaleVocalRange = $('femaleVocalRange');
+      const maleVocalRangeContainer = $('maleVocalRangeContainer');
+      const maleVocalRange = $('maleVocalRange');
+
+      // YENİ ALANLAR (Tutulacak)
+      const mixingStyle = $('mixingStyle');
+      const vocalAdvancedEffects = $('vocalAdvancedEffects');
+
+      // Formu topluca temizlemek için
+      const allSelects = document.querySelectorAll('select');
+
+      // === Türk Müziği Stili "Tercümeleri" ===
+      const styleDescriptors = {
+      "Arabesk": "Turkish Arabesk - deeply emotional music with makam melodies, quarter tones, lush strings (violins, ouds), darbuka. Vocals performed with Turkish phrasing and vibrato during lyrical sections. Lo-fi warm production emphasizing authentic acoustic instruments",
+        
+      "Anatolian Rock": "Anatolian Rock - rock fusion with Turkish folk. Electric saz and distorted guitars create makam harmonies. Intro melody is prominent and melodic. Vocals delivered with rock intensity during verses and chorus, blending Turkish and modern elements",
+        
+        "TSM": (makamValue) => {
+          let base = "Turkish Classical Art Music - refined classical tradition with oud, violin, kanun, ney, tanbur in polyphonic textures. Complex makam systems and usul rhythmic cycles";
+          if (makamValue) {
+            base += `. Performed in ${makamValue} makam with authentic modal structure and quarter-tone inflections`;
+          }
+          base += ". Vocals executed with Turkish classical technique during composed sections, emphasizing precision and spiritual expression";
+          return base;
+        },
+        
+      "Folk": "Turkish Folk Music - Anatolian music centered on saz and kaval/duduk melodies. Modal harmonies with regional variations. Vocals sung in folk style with earthy character during verses. Straightforward structures with percussion",
+        
+        "Fantezi": "Turkish Fantezi - pop-influenced sentimental music blending tradition with modern production. Intro melody MUST be played on piano. Core instrumentation features prominent piano and lush synth pads throughout, mixed with makam strings and electronic drums. Catchy melodies with vocals delivered in contemporary pop style and polished contemporary sound"
+      };
+
+      // === Yapı & Dinamik Akış Kombinasyonları ===
+      const structureFlowMap = {
+        "classic-pop-rock": {
+          structure: "with verse/chorus song structure",
+          flow: "building from verse to chorus climax"
+        },
+        "epic-cinematic": {
+          structure: "with full intro-verse-chorus-bridge-outro structure",
+          flow: "beginning softly and building to a powerful climax"
+        },
+        "minimal-ambient": {
+          structure: "with a simple, repetitive looping structure",
+          flow: "maintaining consistent energy throughout"
+        },
+        "edm-electronic": {
+          structure: "with verse/chorus song structure",
+          flow: "with drop and rise dynamics, EDM-style energy shifts"
+        },
+        "progressive-jazz": {
+          structure: "with a complex, through-composed structure",
+          flow: "with dynamic ebb and flow, alternating intensity"
+        },
+        "live-performance": {
+          structure: "with verse/chorus song structure",
+          flow: "with a gradual build-up of intensity"
+        },
+        "experimental-free": {
+          structure: "with free-form, improvised structure",
+          flow: "with dynamic ebb and flow, alternating intensity"
+        },
+        "intro-heavy": {
+          structure: "with full intro-verse-chorus-bridge-outro structure",
+          flow: "starting explosively and gradually fading out"
+        },
+        "ballad-emotional": {
+          structure: "following classic AABA pattern structure",
+          flow: "starting explosively and gradually fading out"
+        },
+        "modern-pop-hit": {
+          structure: "with verse-chorus-verse-chorus-bridge-chorus pop structure",
+          flow: "building from verse to chorus climax"
+        }
+      };
+
+      // === Genre Türleri (Alt-türler) ===
+      const genreTypes = {
+        "Alternative": [
+          { value: "Alternative Rock", label: "Alternative Rock - Alternatif Rock" },
+          { value: "Grunge", label: "Grunge - Grunge" },
+          { value: "Indie Rock", label: "Indie Rock - Indie Rock" },
+          { value: "New Wave", label: "New Wave - Yeni Dalga" },
+          { value: "Post-Punk", label: "Post-Punk - Post-Punk" },
+          { value: "Shoegaze", label: "Shoegaze - Shoegaze" }
+        ],
+        "Pop": [
+          { value: "Ballad", label: "Ballad - Balad" },
+          { value: "Disco", label: "Disco - Disko" },
+          { value: "Alternative Pop", label: "Alternative Pop - Alternatif Pop" },
+          { value: "Indie Pop", label: "Indie Pop - Indie Pop" },
+          { value: "Synth-pop", label: "Synth-pop - Synth-pop" },
+          { value: "Pop Rock", label: "Pop Rock - Pop Rock" }
+        ],
+        "Rock": [
+          { value: "Progressive Rock", label: "Progressive Rock - Progresif Rock" },
+          { value: "Alternative Rock", label: "Alternative Rock - Alternatif Rock" },
+          { value: "Hard Rock", label: "Hard Rock - Sert Rock" },
+          { value: "Psychedelic Rock", label: "Psychedelic Rock - Psikodelik Rock" },
+          { value: "Indie Rock", label: "Indie Rock - Indie Rock" }
+        ],
+        "Acoustic Rock": [
+          { value: "Unplugged", label: "Unplugged - Unplugged" },
+          { value: "Folk Rock", label: "Folk Rock - Halk Rock" },
+          { value: "Singer-Songwriter", label: "Singer-Songwriter - Şarkıcı-Söz Yazarı" }
+        ],
+        "Blues": [
+          { value: "Delta Blues", label: "Delta Blues - Delta Blues" },
+          { value: "Chicago Blues", label: "Chicago Blues - Chicago Blues" },
+          { value: "Electric Blues", label: "Electric Blues - Elektrik Blues" },
+          { value: "Soul Blues", label: "Soul Blues - Soul Blues" }
+        ],
+        "Acoustic Blues": [
+          { value: "Delta", label: "Delta - Delta" },
+          { value: "Piedmont", label: "Piedmont - Piedmont" },
+          { value: "Fingerstyle", label: "Fingerstyle - Parmak Tarzı" }
+        ],
+        "Jazz": [
+          { value: "Bebop", label: "Bebop - Bebop" },
+          { value: "Cool Jazz", label: "Cool Jazz - Soğuk Caz" },
+          { value: "Modal Jazz", label: "Modal Jazz - Modal Caz" },
+          { value: "Fusion", label: "Fusion - Füzyon" },
+          { value: "Smooth Jazz", label: "Smooth Jazz - Pürüzsüz Caz" }
+        ],
+        "Hip Hop": [
+          { value: "Conscious Rap", label: "Conscious Rap - Bilinçli Rap" },
+          { value: "Gangsta Rap", label: "Gangsta Rap - Gangsta Rap" },
+          { value: "Trap", label: "Trap - Trap" },
+          { value: "Mumble Rap", label: "Mumble Rap - Murıldanıp Rap" },
+          { value: "Boom-Bap", label: "Boom-Bap - Boom-Bap" }
+        ],
+        "Lo-fi": [
+          { value: "Lo-fi Hip Hop", label: "Lo-fi Hip Hop - Lo-fi Hip Hop" },
+          { value: "Lo-fi Pop", label: "Lo-fi Pop - Lo-fi Pop" },
+          { value: "Chillhop", label: "Chillhop - Chillhop" },
+          { value: "Vaporwave", label: "Vaporwave - Vaporwave" }
+        ],
+        "Electronic": [
+          { value: "Techno", label: "Techno - Tekno" },
+          { value: "House", label: "House - House" },
+          { value: "Afro House", label: "Afro House - Afro House" },
+          { value: "Trance", label: "Trance - Trance" },
+          { value: "Dubstep", label: "Dubstep - Dubstep" },
+          { value: "Ambient Electronic", label: "Ambient Electronic - Ambiyans Elektronik" },
+          { value: "Synth-wave", label: "Synth-wave - Synth-wave" }
+        ],
+        "Cinematic": [
+          { value: "Orchestral", label: "Orchestral - Orkestra" },
+          { value: "Dramatic", label: "Dramatic - Dramatik" },
+          { value: "Epic", label: "Epic - Epik" },
+          { value: "Ambient Cinematic", label: "Ambient Cinematic - Ambiyans Sinematik" }
+        ],
+        "Folk": [
+          { value: "Traditional Folk", label: "Traditional Folk - Geleneksel Halk" },
+          { value: "Modern Folk", label: "Modern Folk - Modern Halk" },
+          { value: "World Folk", label: "World Folk - Dünya Halk" },
+          { value: "Indie Folk", label: "Indie Folk - Indie Halk" }
+        ],
+        "Reggae": [
+          { value: "Roots Reggae", label: "Roots Reggae - Köklü Reggae" },
+          { value: "Dancehall", label: "Dancehall - Dansehol" },
+          { value: "Ska", label: "Ska - Ska" },
+          { value: "Dub", label: "Dub - Dub" }
+        ],
+        "Country": [
+          { value: "Traditional Country", label: "Traditional Country - Geleneksel Country" },
+          { value: "Outlaw Country", label: "Outlaw Country - Kaçak Country" },
+          { value: "Country Pop", label: "Country Pop - Country Pop" },
+          { value: "Honky Tonk", label: "Honky Tonk - Honky Tonk" },
+          { value: "Bluegrass", label: "Bluegrass - Bluegrass" }
+        ],
+        "Metal": [
+          { value: "Heavy Metal", label: "Heavy Metal - Ağır Metal" },
+          { value: "Thrash Metal", label: "Thrash Metal - Thrash Metal" },
+          { value: "Death Metal", label: "Death Metal - Death Metal" },
+          { value: "Black Metal", label: "Black Metal - Kara Metal" },
+          { value: "Doom Metal", label: "Doom Metal - Doom Metal" },
+          { value: "Progressive Metal", label: "Progressive Metal - Progresif Metal" }
+        ],
+        "Funk": [
+          { value: "Groove Funk", label: "Groove Funk - Groove Funk" },
+          { value: "Electro-Funk", label: "Electro-Funk - Elektro-Funk" },
+          { value: "Fusion Funk", label: "Fusion Funk - Füzyon Funk" }
+        ],
+        "Soul": [
+          { value: "Classic Soul", label: "Classic Soul - Klasik Soul" },
+          { value: "Modern Soul", label: "Modern Soul - Modern Soul" },
+          { value: "Neo-Soul", label: "Neo-Soul - Neo-Soul" }
+        ],
+        "R&B": [
+          { value: "Classic R&B", label: "Classic R&B - Klasik R&B" },
+          { value: "Contemporary R&B", label: "Contemporary R&B - Çağdaş R&B" },
+          { value: "Smooth R&B", label: "Smooth R&B - Pürüzsüz R&B" },
+          { value: "Hip-Hop R&B", label: "Hip-Hop R&B - Hip-Hop R&B" }
+        ],
+        "Classical": [
+          { value: "Baroque", label: "Baroque - Barok" },
+          { value: "Classical Period", label: "Classical Period - Klasik Dönem" },
+          { value: "Romantic", label: "Romantic - Romantik" },
+          { value: "Contemporary Classical", label: "Contemporary Classical - Çağdaş Klasik" }
+        ],
+        "Ambient": [
+          { value: "Dark Ambient", label: "Dark Ambient - Karanlık Ambiyans" },
+          { value: "Space Ambient", label: "Space Ambient - Uzay Ambiyansı" },
+          { value: "Meditation", label: "Meditation - Meditasyon" },
+          { value: "Nature Ambient", label: "Nature Ambient - Doğa Ambiyansı" }
+        ],
+        "Latin": [
+          { value: "Bolero", label: "Bolero - Bolero" },
+          { value: "Tango", label: "Tango - Tango" },
+          { value: "Salsa", label: "Salsa - Salsa" },
+          { value: "Merengue", label: "Merengue - Merengue" },
+          { value: "Cumbia", label: "Cumbia - Cumbia" },
+          { value: "Mambo", label: "Mambo - Mambo" },
+          { value: "Reggaeton", label: "Reggaeton - Reggaeton" }
+        ],
+        "Afrobeats": [
+          { value: "Afrobeats", label: "Afrobeats - Afrobeats" },
+          { value: "Amapiano", label: "Amapiano - Amapiano" },
+          { value: "Grime", label: "Grime - Grime" },
+          { value: "Afro-Pop", label: "Afro-Pop - Afro-Pop" },
+          { value: "Afro-Funk", label: "Afro-Funk - Afro-Funk" }
+        ],
+        "World Music": [
+          { value: "Africa", label: "Afrika (Africa)" },
+          { value: "Middle East", label: "Orta Doğu (Middle East)" },
+          { value: "Asia", label: "Asya (Asia)" },
+          { value: "Europe", label: "Avrupa (Europe)" },
+          { value: "Latin America", label: "Latin Amerika (Latin America)" },
+          { value: "North America", label: "Kuzey Amerika (North America)" },
+          { value: "Oceania", label: "Okyanusya (Oceania)" }
+        ]
+      };
+
+      // ==== DÜNYA MÜZİKLERİ VERİTABANI ====
+      const worldMusicData = {
+        "Africa": {
+          "Batı Afrika Highlife (West African Highlife)": {
+            description: "Celebratory music blending African rhythms with Western instrumentation",
+            instruments: ["Elektro Gitar (Electric Guitar)", "Trompet Grubu (Trumpet Section)", "Konga (Congas)", "Şekere (Shekere)", "Konuşan Davul (Talking Drum)"]
+          },
+          "Afrobeat (Afrobeat)": {
+            description: "Fela Kuti's fusion of West African, jazz, highlife, funk, and chanted vocals",
+            instruments: ["Korna Grubu (Horn Section)", "Elektro Gitar (Electric Guitar)", "Konga (Congas)", "Konuşan Davul (Talking Drum)", "Org (Organ)"]
+          },
+          "Mbalax - Senegal (Mbalax - Senegal)": {
+            description: "Senegalese dance music with sabar drumming and Cuban influences",
+            instruments: ["Sabar Davulları (Sabar Drums)", "Tama Davulu (Tama/Talking Drum)", "Elektro Gitar (Electric Guitar)", "Klavye (Keyboards)"]
+          },
+          "Soukous/Kongo Rumbası (Soukous/Rumba Congolaise)": {
+            description: "Congolese rumba with intricate guitar melodies and dance rhythms",
+            instruments: ["Elektro Gitar (Electric Guitar)", "Bas Gitar (Bass Guitar)", "Konga (Congas)", "Likembe (Likembe)"]
+          },
+          "Güney Afrika Township Cazı (South African Township Jazz)": {
+            description: "Jazz from South African townships during apartheid era",
+            instruments: ["Saksafon (Saxophone)", "Trompet (Trumpet)", "Piyano (Piano)", "Davul (Drums)"]
+          },
+          "Kwaito (Kwaito)": {
+            description: "South African house music variant with slower tempo and hip-hop elements",
+            instruments: ["Elektronik Ritim (Electronic Beats)", "Sentezleyici (Synthesizer)", "Bas (Bass)"]
+          }
+        },
+        "Middle East": {
+          "Arap Makamı/Tarab (Arabic Maqam/Tarab)": {
+            description: "Classical Arabic music with maqam scales and emotional expression",
+            instruments: ["Ud (Oud)", "Kanun (Qanun)", "Ney (Ney)", "Keman (Violin)", "Tabla (Tabla)", "Rık (Riq)"]
+          },
+          "Pers Klasik Müziği (Persian Classical)": {
+            description: "Iranian classical music with dastgah system and poetic lyrics",
+            instruments: ["Tar (Tar)", "Setar (Setar)", "Santur (Santur)", "Ney (Ney)", "Tombak (Tombak)"]
+          },
+          "Mizrahi/İsrail Oryantal (Mizrahi/Israeli Oriental)": {
+            description: "Israeli music blending Middle Eastern and Mediterranean influences",
+            instruments: ["Ud (Oud)", "Buzuki (Bouzouki)", "Darbuka (Darbuka)", "Keman (Violin)"]
+          }
+        },
+        "Asia": {
+          "Hint Klasik - Hindustani (Indian Classical - Hindustani)": {
+            description: "North Indian classical with raga system and improvisation",
+            instruments: ["Sitar (Sitar)", "Tabla (Tabla)", "Sarangi (Sarangi)", "Bansuri Flütü (Bansuri)", "Armoniyum (Harmonium)"]
+          },
+          "Hint Klasik - Carnatic (Indian Classical - Carnatic)": {
+            description: "South Indian classical music with emphasis on vocals and devotion",
+            instruments: ["Vina (Veena)", "Mridangam (Mridangam)", "Ghatam (Ghatam)", "Keman (Violin)", "Flüt (Flute)"]
+          },
+          "Gamelan - Endonezya (Gamelan - Indonesia)": {
+            description: "Indonesian ensemble music with metallic percussion",
+            instruments: ["Metalofon (Metallophones)", "Gonglar (Gongs)", "Davullar (Drums)", "Bambu Flüt (Bamboo Flute)", "Rebab (Rebab)"]
+          },
+          "Japon Geleneksel (Japanese Traditional)": {
+            description: "Traditional Japanese music including court and folk traditions",
+            instruments: ["Koto (Koto)", "Şamisen (Shamisen)", "Şakuhachi (Shakuhachi)", "Taiko Davulları (Taiko Drums)"]
+          },
+          "Çin Geleneksel (Chinese Traditional)": {
+            description: "Ancient Chinese music with pentatonic scales",
+            instruments: ["Erhu (Erhu)", "Guzheng (Guzheng)", "Pipa (Pipa)", "Dizi (Dizi)", "Yangqin (Yangqin)"]
+          },
+          "Tayland Klasik (Thai Classical)": {
+            description: "Court music of Thailand with ornate melodies",
+            instruments: ["Ranat Ek (Ranat Ek)", "Khim (Khim)", "Pi (Pi)", "Saw Duang (Saw Duang)"]
+          }
+        },
+        "Europe": {
+          "Flamenco (Flamenco)": {
+            description: "Passionate Andalusian music with guitar, vocals, and dance",
+            instruments: ["Flamenco Gitarı (Flamenco Guitar)", "Cajon (Cajón)", "El Çırpma (Palmas/Handclaps)"]
+          },
+          "Fado (Fado)": {
+            description: "Portuguese melancholic song tradition with saudade emotion",
+            instruments: ["Portekiz Gitarı (Portuguese Guitar)", "Klasik Gitar (Classical Guitar)", "Vokal (Vocals)"]
+          },
+          "Rebetiko - Yunanistan (Rebetiko - Greece)": {
+            description: "Greek urban folk music with Ottoman influences",
+            instruments: ["Buzuki (Bouzouki)", "Baglama (Baglamas)", "Gitar (Guitar)"]
+          },
+          "Balkan Brass (Balkan Brass)": {
+            description: "Energetic brass band music from Balkans with complex rhythms",
+            instruments: ["Trompet (Trumpet)", "Tuba (Tuba)", "Klarnet (Clarinet)", "Saksafon (Saxophone)", "Davul (Drums)"]
+          },
+          "Kelt Halk Müziği (Celtic Folk)": {
+            description: "Traditional music from Ireland, Scotland, Brittany",
+            instruments: ["Keman (Fiddle)", "Uilleann Gaydası (Uilleann Pipes)", "Bodhrán (Bodhrán)", "Kalay Düdük (Tin Whistle)", "Harp (Harp)"]
+          }
+        },
+        "Latin America": {
+          "Tango (Tango)": {
+            description: "Argentine dance music with dramatic emotion and bandoneón",
+            instruments: ["Bandoneón (Bandoneón)", "Keman (Violin)", "Piyano (Piano)", "Kontrbas (Double Bass)"]
+          },
+          "Bossa Nova (Bossa Nova)": {
+            description: "Brazilian fusion of samba and jazz with soft vocals",
+            instruments: ["Naylon Telli Gitar (Nylon String Guitar)", "Hafif Perküsyon (Light Percussion)", "Bas (Bass)"]
+          },
+          "Samba (Samba)": {
+            description: "Brazilian carnival music with complex polyrhythms",
+            instruments: ["Surdo (Surdo)", "Tamborim (Tamborim)", "Agogô (Agogô)", "Cuíca (Cuíca)", "Pandeiro (Pandeiro)"]
+          },
+          "Salsa (Salsa)": {
+            description: "Cuban-Puerto Rican dance music with Afro-Cuban roots",
+            instruments: ["Konga (Conga)", "Bongo (Bongos)", "Timbales (Timbales)", "Piyano (Piano)", "Trompet (Trumpet)", "Trombon (Trombone)"]
+          },
+          "Cumbia (Cumbia)": {
+            description: "Colombian folk rhythm with indigenous and African influences",
+            instruments: ["Akordeon (Accordion)", "Guacharaca (Guacharaca)", "Tambora (Tambora)", "Bas (Bass)"]
+          },
+          "Mariachi (Mariachi)": {
+            description: "Mexican ensemble music with violins and trumpets",
+            instruments: ["Trompet (Trumpet)", "Keman (Violin)", "Guitarrón (Guitarrón)", "Vihuela (Vihuela)", "Gitar (Guitar)"]
+          }
+        },
+        "North America": {
+          "Blues (Blues)": {
+            description: "African American music tradition with call-response and blue notes",
+            instruments: ["Gitar (Guitar)", "Mızıka (Harmonica)", "Piyano (Piano)", "Bas (Bass)", "Davul (Drums)"]
+          },
+          "Gospel (Gospel)": {
+            description: "African American Christian music with powerful vocals",
+            instruments: ["Org (Organ)", "Piyano (Piano)", "Koro (Choir)", "Davul (Drums)", "Bas (Bass)"]
+          },
+          "Yerli Amerikan Geleneksel (Native American Traditional)": {
+            description: "Indigenous music with drums, flutes, and chanting",
+            instruments: ["Çerçeve Davul (Frame Drum)", "Yerli Flüt (Native Flute)", "Çıngıraklar (Rattles)", "Vokal (Vocals)"]
+          },
+          "Cajun/Zydeco (Cajun/Zydeco)": {
+            description: "Louisiana Creole music with accordion and washboard",
+            instruments: ["Akordeon (Accordion)", "Keman (Fiddle)", "Çamaşır Tahtası (Washboard)", "Üçgen (Triangle)"]
+          }
+        },
+        "Oceania": {
+          "Aborjin Didgeridoo (Aboriginal Didgeridoo)": {
+            description: "Australian Aboriginal music with ancient drone instrument",
+            instruments: ["Didgeridoo (Didgeridoo)", "Çubuk Vurmalı (Clapsticks)", "Vokal (Vocals)"]
+          },
+          "Polinezya Müziği (Polynesian)": {
+            description: "Pacific Islander music with ukulele and log drums",
+            instruments: ["Ukulele (Ukulele)", "Pate Davulu (Pate/Log Drum)", "Vokal (Vocals)", "Burun Flütü (Nose Flute)"]
+          },
+          "Maori Müziği (Maori)": {
+            description: "New Zealand indigenous music with haka and poi",
+            instruments: ["Pūtōrino (Pūtōrino)", "Pūkāea (Pūkāea)", "Poi (Poi)", "Vokal (Vocals)"]
+          }
+        }
+      };
+
+      // ==== Dinamik Menü / Durum Yönetimi ====
+
+      // Karakter sayacını güncelle
+      const updateCharCount = () => {
+        const count = resultText.value.length;
+        charCount.textContent = count;
+        
+        // Renk kodlaması
+        if (count <= 700) {
+          charCount.className = 'text-green-400'; // Güvenli
+        } else if (count <= 900) {
+          charCount.className = 'text-yellow-400'; // Uyarı
+        } else {
+          charCount.className = 'text-red-400'; // Limit aştı
+        }
+
+        // Optimize butonu görünürlüğü
+        if (count > 1000) {
+          optimizeButton.classList.remove('hidden');
+        } else {
+          optimizeButton.classList.add('hidden');
+        }
+      };
+
+      // Vokal UI görünürlüğü ve menüleri
+      const updateVocalUI = () => {
+        const v = vocal.value;
+        const showDetails = v === 'Female' || v === 'Male';
+
+        // Görünürlük
+        vocalDetailsContainer.classList.toggle('hidden', !showDetails);
+        femaleVocalRangeContainer.classList.toggle('hidden', v !== 'Female');
+        maleVocalRangeContainer.classList.toggle('hidden', v !== 'Male');
+
+        // Instrumental seçilince tüm vokal detay menülerini devre dışı bırak
+        const isInstrumental = v === 'Instrumental';
+        [vocalEffects, vocalTimbre, vocalAdvancedEffects, femaleVocalRange, maleVocalRange].forEach(el => {
+          if (!el) return;
+          // Sadece ilgili menüyü etkileyelim
+          const shouldDisable =
+            isInstrumental ||
+            (el === femaleVocalRange && v !== 'Female') ||
+            (el === maleVocalRange && v !== 'Male') ||
+            (!showDetails && (el === vocalEffects || el === vocalTimbre || el === vocalAdvancedEffects));
+          setDisabled(el, shouldDisable);
+          if (shouldDisable) el.selectedIndex = 0;
+        });
+      };
+
+      // Genre seçilince Type dropdown'unu güncelle
+      const updateGenreTypes = () => {
+        const selectedGenre = genre.value;
+        genreType.innerHTML = '<option value="">-- Alt-tür seçin --</option>';
+        
+        if (selectedGenre && genreTypes[selectedGenre]) {
+          genreTypes[selectedGenre].forEach(type => {
+            const option = document.createElement('option');
+            option.value = type.value;
+            option.textContent = type.label;
+            genreType.appendChild(option);
+          });
+          genreType.disabled = false;
+          
+          // World Music seçilince Dünya Müzikleri bölümünü göster
+          if (selectedGenre === 'World Music') {
+            worldMusicSection.classList.remove('hidden');
+          } else {
+            worldMusicSection.classList.add('hidden');
+            // World Music değilse dünya müzikleri alanlarını temizle
+            worldRegion.selectedIndex = 0;
+            worldTradition.innerHTML = '<option value="">-- Önce Bölge Seçin --</option>';
+            worldInstrument.innerHTML = '<option value="">-- Önce Gelenek Seçin --</option>';
+            worldTradition.disabled = true;
+            worldInstrument.disabled = true;
+          }
+        } else {
+          genreType.disabled = true;
+          worldMusicSection.classList.add('hidden');
+        }
+      };
+
+      // Dünya Müzikleri bölgesine göre gelenek güncelle
+      const updateWorldTraditions = () => {
+        const selectedRegion = worldRegion.value;
+        worldTradition.innerHTML = '<option value="">-- Önce Bölge Seçin --</option>';
+        worldInstrument.innerHTML = '<option value="">-- Önce Gelenek Seçin --</option>';
+        
+        if (selectedRegion && worldMusicData[selectedRegion]) {
+          Object.keys(worldMusicData[selectedRegion]).forEach(tradition => {
+            const option = document.createElement('option');
+            option.value = tradition;
+            option.textContent = tradition;
+            worldTradition.appendChild(option);
+          });
+          worldTradition.disabled = false;
+        } else {
+          worldTradition.disabled = true;
+          worldInstrument.disabled = true;
+        }
+      };
+
+      // Gelenek seçilince enstrüman güncelle
+      const updateWorldInstruments = () => {
+        const selectedRegion = worldRegion.value;
+        const selectedTradition = worldTradition.value;
+        worldInstrument.innerHTML = '<option value="">-- Enstrüman Seçin --</option>';
+        
+        if (selectedRegion && selectedTradition && worldMusicData[selectedRegion][selectedTradition]) {
+          const instruments = worldMusicData[selectedRegion][selectedTradition].instruments;
+          instruments.forEach(instrument => {
+            const option = document.createElement('option');
+            option.value = instrument;
+            option.textContent = instrument;
+            worldInstrument.appendChild(option);
+          });
+          worldInstrument.disabled = false;
+        } else {
+          worldInstrument.disabled = true;
+        }
+      };
+
+      // Türk Müziği Stili değiştiğinde makam alanını göster/gizle
+      const updateTurkishStyleUI = () => {
+        const isTSM = turkishStyle.value === 'TSM';
+        makamContainer.classList.toggle('hidden', !isTSM);
+        if (!isTSM) {
+          makam.selectedIndex = 0;
+        }
+      };
+
+      vocal.addEventListener('change', updateVocalUI);
+      genre.addEventListener('change', updateGenreTypes);
+      
+      // World Music alt-tür seçimi worldRegion'a aktarılır
+      genreType.addEventListener('change', () => {
+        if (genre.value === 'World Music' && genreType.value) {
+          worldRegion.value = genreType.value;
+          updateWorldTraditions();
+        }
+      });
+      
+      worldRegion.addEventListener('change', updateWorldTraditions);
+      worldTradition.addEventListener('change', updateWorldInstruments);
+      turkishStyle.addEventListener('change', updateTurkishStyleUI);
+
+      // İlk yüklemede durumları ayarla
+      updateVocalUI();
+      updateTurkishStyleUI();
+
+      // ==== Textarea Elle Yazma Event Listener ====
+      // Kullanıcı prompt alanına elle yazdığında karakter sayacını güncelle
+      resultText.addEventListener('input', updateCharCount);
+
+      // ==== Kullanım Sayacı (localStorage) ====
+      const getUsageCount = () => {
+        return parseInt(localStorage.getItem('sunoPromptCount') || '0', 10);
+      };
+
+      const incrementUsageCount = () => {
+        const count = getUsageCount() + 1;
+        localStorage.setItem('sunoPromptCount', count.toString());
+        updateUsageDisplay();
+      };
+
+      const updateUsageDisplay = () => {
+        if (usageCount) {
+          usageCount.textContent = getUsageCount();
+        }
+      };
+
+      // İlk yüklemede sayacı göster
+      updateUsageDisplay();
+
+      // ==== Help/Yardım Accordion Toggle ====
+      const helpToggle = $('helpToggle');
+      const helpContent = $('helpContent');
+      const helpArrow = $('helpArrow');
+
+      if (helpToggle && helpContent && helpArrow) {
+        helpToggle.addEventListener('click', () => {
+          const isHidden = helpContent.classList.contains('hidden');
+          
+          if (isHidden) {
+            // Açılıyor
+            helpContent.classList.remove('hidden');
+            helpArrow.style.transform = 'rotate(180deg)';
+          } else {
+            // Kapanıyor
+            helpContent.classList.add('hidden');
+            helpArrow.style.transform = 'rotate(0deg)';
+          }
+        });
+      }
+
+      // ==== AKILLI KISALTMA SİSTEMİ ====
+      const optimizePrompt = (prompt, maxLength = 1000) => {
+        if (prompt.length <= maxLength) return prompt;
+
+        let optimized = prompt;
+
+        // Faz 1: Gereksiz kelimeleri kaldır (anlam korunur)
+        const fillerToRemove = [
+          { from: /\bwith a\b/gi, to: '' },
+          { from: /\bwith an\b/gi, to: '' },
+          { from: /\bthat is\b/gi, to: '' },
+          { from: /\bthat are\b/gi, to: '' },
+          { from: /\bwhich is\b/gi, to: '' },
+          { from: /\bwhich are\b/gi, to: '' },
+          { from: /\bIt should have\b/gi, to: 'Has' },
+          { from: /\bThe piece should feature\b/gi, to: 'Features' },
+          { from: /\bshould be\b/gi, to: '' },
+          { from: /\band the track should have\b/gi, to: ',' },
+          { from: /\bproviding harmonic support\b/gi, to: 'harmony' },
+          { from: /\bas the lead melodic voice\b/gi, to: 'lead' },
+          { from: /\bcreating harmonic layers\b/gi, to: 'layered' },
+          { from: /\batmosphere\b/gi, to: 'feel' }
+        ];
+
+        fillerToRemove.forEach(rule => {
+          optimized = optimized.replace(rule.from, rule.to);
+        });
+
+        // Faz 2: Çoklu boşlukları temizle
+        optimized = optimized.replace(/\s+/g, ' ').replace(/\s*,\s*/g, ', ').replace(/\s*\.\s*/g, '. ').trim();
+
+        // Hala uzunsa Faz 3: Uzun ifadeleri kısalt
+        if (optimized.length > maxLength) {
+          const advancedShortening = [
+            { from: /Featuring (.+?) as lead melody with (.+?) harmony/gi, to: 'Lead: $1, harmony: $2' },
+            { from: /Centered on (.+?) lead/gi, to: 'Lead: $1' },
+            { from: /Built with (.+?) layered/gi, to: '$1 layers' },
+            { from: /Foundation built on/gi, to: 'Bass:' },
+            { from: /Rhythm driven by/gi, to: 'Drums:' },
+            { from: /Vocal range centered in the (.+?) register/gi, to: '$1 range' },
+            { from: /Create a piece of music in the style of/gi, to: 'Style:' },
+            { from: /Context:/gi, to: '' },
+            { from: /Effects applied:/gi, to: 'FX:' },
+            { from: /traditional verse\/chorus song structure/gi, to: 'verse/chorus' },
+            { from: /building from verse to chorus climax/gi, to: 'builds to climax' },
+            { from: /beginning softly and building to a powerful climax/gi, to: 'soft to powerful build' },
+            { from: /with a gradual build-up of intensity/gi, to: 'gradual intensity build' }
+          ];
+
+          advancedShortening.forEach(rule => {
+            optimized = optimized.replace(rule.from, rule.to);
+          });
+
+          optimized = optimized.replace(/\s+/g, ' ').trim();
+        }
+
+        // Hala uzunsa Faz 4: Az önemli bölümleri kaldır (öncelik sırasına göre)
+        if (optimized.length > maxLength) {
+          // Context açıklamalarını kaldır
+          optimized = optimized.replace(/\.\s*[A-Z][^.]*?(blending|fusion|tradition|featuring)[^.]*\./gi, '.');
+          optimized = optimized.replace(/\s+/g, ' ').trim();
+        }
+
+        // Son kontrol: Hala çok uzunsa sert kısaltma
+        if (optimized.length > maxLength) {
+          optimized = optimized.substring(0, maxLength - 3) + '...';
+        }
+
+        return optimized;
+      };
+
+      // ==== Prompt Oluşturma (SUNO Best Practice) ====
+      generateButton.addEventListener('click', () => {
+        const sections = {};
+
+        // ============ SECTION 1: INTRO (Track Description) ============
+        let introSection = '';
+        if (turkishStyle.value) {
+          const descriptor = styleDescriptors[turkishStyle.value];
+          introSection = typeof descriptor === 'function' ? descriptor(makam.value) : descriptor;
+          // Eğer genre veya genreType seçiliyse, fusion/blend ekle
+          if (genre.value) {
+            if (genreType.value) {
+              introSection += `. Fusion with ${genre.value} (${genreType.value})`;
+            } else {
+              introSection += `. Fusion with ${genre.value}`;
+            }
+          }
+        } else {
+          let desc = 'A';
+          if (origin.value) desc += ` ${origin.value}`;
+          if (genre.value) {
+            if (genreType.value) {
+              desc += ` ${genre.value} (${genreType.value})`;
+            } else {
+              desc += ` ${genre.value}`;
+            }
+          }
+          desc += ' track';
+          introSection = desc;
+        }
+        sections.intro = introSection;
+
+        // ============ SECTION 2: FOUNDATION (Harmony, Tempo, Mood, Key) ============
+        const foundationParts = [];
+        
+        if (harmonyType.value) {
+          const harmonyMap = {
+            'Tonal': 'Tonal harmony with major/minor progression',
+            'Modal': 'Modal harmony based on traditional modes',
+            'Atonal': 'Atonal, free-form harmonic structure',
+            'Pentatonic': 'Pentatonic scale-based melodies'
+          };
+          foundationParts.push(harmonyMap[harmonyType.value] || harmonyType.value);
+        }
+
+        if (tempo.value) {
+          foundationParts.push(`at ${tempo.value}`);
+        }
+
+        if (mood.value) {
+          foundationParts.push(`with a ${mood.value} atmosphere`);
+        }
+
+        sections.foundation = foundationParts.length ? foundationParts.join(', ') : '';
+
+        // ============ SECTION 2.5: WORLD MUSIC (Dünya Müzikleri) ============
+        const worldMusicParts = [];
+        
+        if (worldRegion.value && worldTradition.value) {
+          const traditionData = worldMusicData[worldRegion.value][worldTradition.value];
+          
+          // Başlangıç
+          worldMusicParts.push(`Create a piece of music in the style of ${worldTradition.value}`);
+          
+          // Performance Context
+          if (worldContext.value) {
+            worldMusicParts.push(`intended ${worldContext.value}`);
+          }
+          
+          // Musical Texture + Scale
+          if (worldTexture.value && worldScale.value) {
+            worldMusicParts.push(`The piece should feature ${worldTexture.value} built on ${worldScale.value}`);
+          } else if (worldTexture.value) {
+            worldMusicParts.push(`featuring ${worldTexture.value}`);
+          } else if (worldScale.value) {
+            worldMusicParts.push(`built on ${worldScale.value}`);
+          }
+          
+          // Rhythmic Feel
+          if (worldRhythm.value) {
+            worldMusicParts.push(`It should have a ${worldRhythm.value} feel`);
+          }
+          
+          // Vocals (sadece Instrumental seçili DEĞİLSE)
+          if (worldVocals.value && vocal.value !== 'Instrumental') {
+            worldMusicParts.push(`and be ${worldVocals.value}`);
+          }
+          
+          // Lead Instrument
+          if (worldInstrument.value) {
+            worldMusicParts.push(`The lead instrument is a ${worldInstrument.value}`);
+          }
+          
+          // Atmosphere
+          if (worldAtmosphere.value) {
+            worldMusicParts.push(`and the track should have an atmosphere ${worldAtmosphere.value}`);
+          }
+          
+          // Description (Context)
+          if (traditionData && traditionData.description) {
+            worldMusicParts.push(`Context: ${traditionData.description}`);
+          }
+        }
+        
+        sections.worldMusic = worldMusicParts.length ? worldMusicParts.join('. ') : '';
+
+        // ============ SECTION 3: INSTRUMENTS (Detailed Combinations) ============
+        const instrumentParts = [];
+
+        // Perküsyon + Bas + Lead + Accompanying kombinasyonu
+        if (leadInstrument.value || accompanyingInstrument.value || percussion.value || bass.value) {
+          let instrumentLine = '';
+          
+          if (leadInstrument.value && accompanyingInstrument.value) {
+            instrumentLine = `Featuring ${leadInstrument.value} as lead melody with ${accompanyingInstrument.value} providing harmonic support`;
+          } else if (leadInstrument.value) {
+            instrumentLine = `Centered on ${leadInstrument.value} as the lead melodic voice`;
+          } else if (accompanyingInstrument.value) {
+            instrumentLine = `Built with ${accompanyingInstrument.value} creating harmonic layers`;
+          }
+          
+          if (bass.value) {
+            instrumentLine += instrumentLine ? ` and ${bass.value}` : `Foundation built on ${bass.value}`;
+          }
+          
+          if (percussion.value) {
+            instrumentLine += instrumentLine ? `, ${percussion.value}` : `Rhythm driven by ${percussion.value}`;
+          }
+          
+          if (instrumentLine) instrumentParts.push(instrumentLine);
+        }
+
+        // Mixing & Prodüksiyon Stili (Birleştirildi)
+        if (mixingStyle.value) {
+          const combinedMap = {
+            // Mixing Karakteri
+            'Warm mixing': 'warm, rounded tone character',
+            'Bright mixing': 'bright, clear high-end frequencies',
+            'Dark mixing': 'dark, warm, recessed high frequencies',
+            'Balanced mixing': 'balanced, neutral frequency spectrum',
+            // Prodüksiyon Tarzı
+            'Clean, polished, modern': 'clean, polished, and modern production',
+            'Lo-fi, vintage, warm': 'lo-fi, vintage, and warm sound character',
+            'Minimal': 'minimal and sparse arrangement',
+            'Layered, complex': 'layered and complex arrangement',
+            'Raw, live recording': 'raw, live recording aesthetic',
+            'Atmospheric, reverb-heavy': 'atmospheric, reverb-rich soundscape'
+          };
+          instrumentParts.push(combinedMap[mixingStyle.value] || mixingStyle.value);
+        }
+
+        sections.instruments = instrumentParts.length ? instrumentParts.join(', ') : '';
+
+        // ============ SECTION 4: STRUCTURE & DYNAMICS (BİRLEŞTİRİLDİ) ============
+        const structureParts = [];
+
+        if (structureFlow.value && structureFlowMap[structureFlow.value]) {
+          const combo = structureFlowMap[structureFlow.value];
+          structureParts.push(combo.structure);
+          structureParts.push(combo.flow);
+        }
+
+        sections.structure = structureParts.length ? structureParts.join(', ') : '';
+
+        // ============ SECTION 5: VOCALS ============
+        const vocalParts = [];
+        const selectedVocal = vocal.value;
+
+        if (selectedVocal && selectedVocal !== 'Instrumental') {
+          // Vokal tanıtımı
+          let vocalIntro = `A ${selectedVocal.toLowerCase()} vocalist`;
+          
+          if (turkishStyle.value) {
+            vocalIntro += ' performing in Turkish Arabesk style' + (turkishStyle.value !== 'Arabesk' ? ` (${turkishStyle.value})` : '');
+          } else if (origin.value && origin.value !== 'Turkish') {
+            vocalIntro += ` singing in ${origin.value}`;
+          }
+          
+          vocalParts.push(vocalIntro);
+
+          // Vokal Stili - Kısa açıklama kullan
+          if (vocalEffects.value) {
+            vocalParts.push(vocalEffects.value);
+          }
+
+          // Vokal Timbre
+          if (vocalTimbre.value) {
+            vocalParts.push(`with a ${vocalTimbre.value.toLowerCase()} tone`);
+          }
+
+          // Vokal Range
+          let rangeText = '';
+          if (selectedVocal === 'Female' && femaleVocalRange.value) {
+            rangeText = `Vocal range centered in the ${femaleVocalRange.value.toLowerCase()} register`;
+          } else if (selectedVocal === 'Male' && maleVocalRange.value) {
+            rangeText = `Vocal range centered in the ${maleVocalRange.value.toLowerCase()} register`;
+          }
+          if (rangeText) vocalParts.push(rangeText);
+
+          // Vokal Efektler
+          const effectParts = [];
+          if (vocalAdvancedEffects.value) effectParts.push(vocalAdvancedEffects.value);
+          
+          if (effectParts.length) {
+            vocalParts.push(`Effects applied: ${effectParts.join(', ')}`);
+          }
+
+        } else if (selectedVocal === 'Instrumental') {
+          vocalParts.push('This is an instrumental track with no vocals');
+        }
+
+        sections.vocals = vocalParts.length ? vocalParts.join('. ') : '';
+
+        // ============ FINAL PROMPT ASSEMBLY ============
+        const finalSections = clean([
+          sections.intro,
+          sections.foundation,
+          sections.worldMusic,
+          sections.instruments,
+          sections.structure,
+          sections.vocals
+        ]);
+
+        let finalPrompt = finalSections.join('. ');
+        finalPrompt = finalPrompt ? `${finalPrompt}.` : '';
+        
+        resultText.value = finalPrompt;
+
+        // Karakter sayacını güncelle (optimize butonu otomatik gösterilir/gizlenir)
+        updateCharCount();
+        
+        // Kullanım sayacını artır
+        if (finalPrompt) {
+          incrementUsageCount();
+        }
+      });
+
+      // ==== Optimize Et Butonu ====
+      optimizeButton.addEventListener('click', () => {
+        const currentPrompt = resultText.value;
+        if (currentPrompt.length <= 1000) return;
+
+        // Geri alma için orijinal prompt'u sakla
+        beforeOptimizePrompt = currentPrompt;
+
+        const originalLength = currentPrompt.length;
+        const optimizedPrompt = optimizePrompt(currentPrompt, 1000);
+        
+        resultText.value = optimizedPrompt;
+        updateCharCount();
+        
+        // Geri Al butonunu göster
+        undoOptimizeButton.classList.remove('hidden');
+        
+        console.log(`✅ Prompt optimized: ${originalLength} → ${optimizedPrompt.length} characters`);
+        
+        // Kullanıcıya geri bildirim
+        const originalText = optimizeButton.textContent;
+        optimizeButton.textContent = '✅ Optimize Edildi!';
+        optimizeButton.classList.remove('bg-orange-600', 'hover:bg-orange-700');
+        optimizeButton.classList.add('bg-green-600', 'hover:bg-green-700');
+        
+        setTimeout(() => {
+          optimizeButton.textContent = originalText;
+          optimizeButton.classList.remove('bg-green-600', 'hover:bg-green-700');
+          optimizeButton.classList.add('bg-orange-600', 'hover:bg-orange-700');
+        }, 2000);
+      });
+
+      // ==== Geri Al Butonu (Undo Optimize) ====
+      undoOptimizeButton.addEventListener('click', () => {
+        if (!beforeOptimizePrompt) return;
+        
+        // Orijinal prompt'u geri yükle
+        resultText.value = beforeOptimizePrompt;
+        updateCharCount();
+        
+        // Geri Al butonunu gizle
+        undoOptimizeButton.classList.add('hidden');
+        
+        console.log(`↶ Optimization undone. Restored original prompt (${beforeOptimizePrompt.length} characters)`);
+        
+        // Kullanıcıya geri bildirim
+        undoOptimizeButton.textContent = '✅ Geri Alındı!';
+        undoOptimizeButton.classList.remove('bg-gray-600', 'hover:bg-gray-700');
+        undoOptimizeButton.classList.add('bg-green-600', 'hover:bg-green-700');
+        
+        setTimeout(() => {
+          undoOptimizeButton.textContent = '↶ Geri Al';
+          undoOptimizeButton.classList.remove('bg-green-600', 'hover:bg-green-700');
+          undoOptimizeButton.classList.add('bg-gray-600', 'hover:bg-gray-700');
+        }, 2000);
+        
+        // Saklanan prompt'u temizle
+        beforeOptimizePrompt = '';
+      });
+
+      // ==== Temizle ====
+      clearButton.addEventListener('click', () => {
+        allSelects.forEach(select => { select.selectedIndex = 0; });
+        resultText.value = '';
+        charCount.textContent = '0';
+        charCount.className = 'text-green-400';
+
+        // Alle UI elementen resetten naar hun default staat
+        updateVocalUI();
+        updateTurkishStyleUI();
+        updateGenreTypes();
+
+        // Odak ilk alana
+        genre.focus();
+      });
+
+      // ==== Kopyala (modern API + geri dönüş) ====
+      copyButton.addEventListener('click', async () => {
+        if (!resultText.value) return;
+
+        const restore = () => {
+          copyButton.textContent = 'Kopyala';
+          copyButton.classList.remove('bg-blue-500');
+          copyButton.classList.add('bg-green-600', 'hover:bg-green-700');
+        };
+
+        const copiedUI = () => {
+          copyButton.textContent = 'Kopyalandı!';
+          copyButton.classList.remove('bg-green-600', 'hover:bg-green-700');
+          copyButton.classList.add('bg-blue-500');
+          setTimeout(restore, 2000);
+        };
+
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(resultText.value);
+            copiedUI();
+          } else {
+            // Geriye dönük destek
+            const textArea = document.createElement('textarea');
+            textArea.value = resultText.value;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-9999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            copiedUI();
+          }
+        } catch (err) {
+          console.error('Kopyalama başarısız oldu:', err);
+        }
+      });
+    });
+    </script>
+</body>
+</html>

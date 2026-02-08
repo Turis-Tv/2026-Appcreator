@@ -1,0 +1,36 @@
+Uri: https://cdn.tailwindcss.com/3.4.17
+File Name: C:\Users\M.T\Pictures\Site-Kopya\Nieuwe map (206)\hubbez.tr\3.4.17
+Content Type: text/javascript
+
+Uri: https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap
+File Name: C:\Users\M.T\Pictures\Site-Kopya\Nieuwe map (206)\hubbez.tr\css2
+Content Type: text/css
+
+Uri: https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuFuYMZg.ttf
+File Name: C:\Users\M.T\Pictures\Site-Kopya\Nieuwe map (206)\hubbez.tr\s\inter\v20\UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuFuYMZg.ttf
+Content Type: font/ttf
+
+Uri: https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuGKYMZg.ttf
+File Name: C:\Users\M.T\Pictures\Site-Kopya\Nieuwe map (206)\hubbez.tr\s\inter\v20\UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuGKYMZg.ttf
+Content Type: font/ttf
+
+Uri: https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuI6fMZg.ttf
+File Name: C:\Users\M.T\Pictures\Site-Kopya\Nieuwe map (206)\hubbez.tr\s\inter\v20\UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuI6fMZg.ttf
+Content Type: font/ttf
+
+Uri: https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfMZg.ttf
+File Name: C:\Users\M.T\Pictures\Site-Kopya\Nieuwe map (206)\hubbez.tr\s\inter\v20\UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfMZg.ttf
+Content Type: font/ttf
+
+Uri: https://hubbez.tr/suno/
+File Name: C:\Users\M.T\Pictures\Site-Kopya\Nieuwe map (206)\hubbez.tr\suno\index.htm
+Content Type: text/html
+
+Uri: https://hubbez.tr/suno/script.js
+File Name: C:\Users\M.T\Pictures\Site-Kopya\Nieuwe map (206)\hubbez.tr\suno\script.js
+Content Type: text/javascript
+
+Uri: https://hubbez.tr/suno/style.css
+File Name: C:\Users\M.T\Pictures\Site-Kopya\Nieuwe map (206)\hubbez.tr\suno\style.css
+Content Type: text/css
+
