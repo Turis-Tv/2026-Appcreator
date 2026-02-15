@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Üye Listesi - Canlı (Firebase)</title>
+    
+    <!-- EXCEL KÜTÜPHANESİ -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+    
+    <style>
+        /* --- TASARIM --- */
+        :root {
+            --bg: #121212; --header: #1f1f1f; --border: #333; --text: #e5e5e5;
+            --accent: #3b82f6; 
+            --edit-mode: #22c55e;
+            --row-hover: #2a2a2a;
+            --row-selected: #172554; 
+            --danger: #ef4444; 
+            --excel-btn: #15803d; --upload-btn: #7c3aed;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            background-color: var(--bg); color: var(--text);
+            margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* ONLINE GÖSTERGESİ */
+        .status-dot {
+            width: 10px; height: 10px; background-color: #555; border-radius: 50%;
+            display: inline-block; box-shadow: 0 0 5px rgba(0,0,0,0.5); 
+            position: absolute; top: 18px; right: 18px; z-index: 200; pointer-events: none;
+        }
+        .status-online { background-color: #22c55e; box-shadow: 0 0 8px #22c55e; }
+        .status-offline { background-color: #ef4444; }
+
+        /* UYARI TOAST */
+        #toast-warning {
+            visibility: hidden; min-width: 260px; background-color: var(--danger); color: #fff; text-align: center;
+            border-radius: 8px; padding: 12px 20px; position: fixed; z-index: 10001;
+            left: 50%; bottom: 40px; transform: translateX(-50%); font-size: 15px; font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6); opacity: 0; transition: opacity 0.3s;
+        }
+        #toast-warning.show { visibility: visible; opacity: 1; bottom: 50px; }
+
+        /* --- ÜST PANEL --- */
+        .top-container {
+            background-color: var(--header); border-bottom: 1px solid var(--border);
+            padding: 12px; flex-shrink: 0; z-index: 100; display: flex; flex-direction: column; gap: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        /* 1. SATIR DÜZENİ (PC) */
+        .input-row { display: flex; align-items: center; gap: 8px; width: 100%; flex-wrap: nowrap; }
+
+        /* İsim Kutusu */
+        #i_naam {
+            width: 300px; 
+            background: #2b2b2b; border: 1px solid #444; color: white;
+            padding: 0 12px; height: 42px; border-radius: 8px; font-size: 0.95rem; outline: none; transition: 0.2s;
+        }
+        #i_naam:focus { border-color: var(--accent); background: #333; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); }
+
+        /* Yıl Kutuları */
+        .year-group { display: flex; gap: 5px; }
+        .year-inp {
+            width: 55px; text-align: center; font-weight: 700; color: #facc15;
+            background: #2b2b2b; border: 1px solid #444;
+            padding: 0; height: 42px; border-radius: 8px; font-size: 14px; outline: none; transition: 0.2s;
+        }
+        .year-inp:focus { border-color: var(--accent); background: #333; }
+
+        /* Aksiyon Butonları */
+        .action-group { display: flex; gap: 6px; }
+        .top-right-buttons { display: flex; gap: 8px; margin-left: auto; align-items: center;}
+
+        /* BUTON GENEL */
+        button {
+            height: 42px; cursor: pointer; border-radius: 8px; font-weight: 600;
+            border: 1px solid #444; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; color: white; transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        button:active { transform: scale(0.96); }
+        
+        #actionBtn { width: 45px; font-size: 1.4rem; background: var(--accent); border: none; }
+        .mode-edit { background: var(--edit-mode) !important; color: white !important; font-size: 1.2rem !important; border:none;}
+        .btn-new { background: #3f3f46; color: #e4e4e7; width: 50px; border:none; }
+        .btn-new:hover { background: #52525b; }
+        .btn-spacer { background: #52525b; color: #fff; width: 40px; font-size: 1.2rem; font-weight: bold; border:none; padding-bottom: 8px;}
+        .btn-pdf { background: #dc2626; padding: 0 15px; border:none; } 
+        .btn-upload { background: var(--upload-btn); padding: 0 15px; border:none; }
+
+        /* 2. SATIR: ARAMA ve ÇÖP KUTUSU */
+        .control-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; margin-top: 5px; }
+        .search-box { position: relative; width: 350px; max-width: 100%; }
+        .search-box input {
+            width: 100%; background: #111; border: 1px solid #333; color: #aaa;
+            padding: 0 10px 0 35px; height: 38px; border-radius: 19px; font-size: 0.85rem; outline: none;
+        }
+        .search-box::before { content: '🔍'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; opacity: 0.6; }
+        
+        /* Ana Çöp Kutusu */
+        .btn-reset { background: transparent; color: var(--danger); border: 1px solid var(--danger); width: 40px; height: 38px; font-size: 1.2rem; border-radius: 8px; }
+        .btn-reset:hover { background: rgba(239,68,68,0.2); }
+
+        /* --- LİSTE ALANI --- */
+        .list-area { flex: 1; overflow-y: auto; background: var(--bg); -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        
+        .list-area thead th {
+            position: sticky; top: 0; z-index: 10; background: #1f1f1f; color: #9ca3af;
+            text-align: left; padding: 12px 8px; font-size: 0.75rem; border-bottom: 1px solid var(--border);
+            text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;
+        }
+        .list-area tbody tr { height: 48px; border-bottom: 1px solid #222; transition: background 0.15s; }
+        .list-area tbody tr:nth-child(even) { background-color: #18181b; }
+        .list-area tbody tr:hover { background-color: var(--row-hover); }
+        .list-area tbody tr.selected { background-color: var(--row-selected) !important; border-left: 3px solid var(--accent); }
+        .list-area tbody tr.selected td { color: white !important; font-weight: 600; }
+        
+        /* Tablo Hücreleri Genel */
+        .list-area tbody td { 
+            padding: 0 8px; font-size: 1rem; color: #d4d4d8; 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+        }
+
+        .fat-year { font-weight: 900; color: #facc15; text-align: center; font-family: monospace; font-size: 1.15rem; }
+        .del-cell { text-align: center; width: 50px; cursor: pointer; }
+        
+        /* Satır Çöp Kutusu İkonu */
+        .del-icon-btn {
+            background: transparent; border: none; font-size: 1.3rem; 
+            color: #ef4444; cursor: pointer; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+            opacity: 0.7; transition: all 0.2s;
+        }
+        .header-trash { font-size: 1.2rem; color: #ef4444; display:block; text-align:center;}
+
+        /* --- MOBİL İÇİN ÖZEL AYARLAR (GÜNCELLENDİ) --- */
+        @media screen and (max-width: 800px) {
+            .top-container { gap: 8px; padding: 10px; }
+            .input-row { flex-wrap: wrap; row-gap: 8px; }
+            #i_naam { width: 100%; order: 1; max-width: none; }
+            .year-group { order: 2; flex-grow: 1; justify-content: space-between; }
+            .year-inp { width: 31%; height: 38px; } 
+            .action-group { order: 3; flex-grow: 0; }
+            .action-group button { height: 38px; }
+
+            /* BUTONLARI GİZLE */
+            .top-right-buttons { display: none !important; }
+
+            .control-row { margin-top: 0; }
+            .search-box input { height: 36px; }
+            
+            /* Ana Çöp Kutusu KÜÇÜLTME */
+            .btn-reset { 
+                width: 32px; height: 36px; /* Daraltıldı */
+                font-size: 0.9rem; /* İkon küçüldü */
+            }
+
+            .list-area thead th { font-size: 0.7rem; padding: 10px 2px; }
+            
+            /* İSİM TAŞMASINI ENGELLEME */
+            .col-naam { width: auto; }
+            .list-area tbody td {
+                white-space: normal; /* Alt satıra inmeye izin ver */
+                line-height: 1.2;
+                padding: 4px 6px;
+                font-size: 0.9rem; /* Mobilde yazı bir tık küçük */
+            }
+            .list-area tbody tr { height: auto; min-height: 48px; } /* Satırın uzamasına izin ver */
+
+            /* Satır Çöp Kutusu KÜÇÜLTME */
+            .del-icon-btn { font-size: 0.9rem; opacity: 0.8; } 
+            .header-trash { font-size: 0.9rem; }
+            .del-cell { width: 35px; } /* Sütunu daralt */
+        }
+
+        /* --- MODALLER --- */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+        .transparent-modal .modal-content { background: rgba(30, 30, 30, 0.85); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .modal-content { background: #27272a; border: 1px solid #3f3f46; padding: 25px; border-radius: 16px; text-align: center; width: 85%; max-width: 350px; color: white; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from {transform: scale(0.8); opacity: 0;} to {transform: scale(1); opacity: 1;} }
+        .dup-btn { background: #3b82f6; border: none; margin-top: 20px; width: 100%; padding: 12px; font-size: 1rem; color: white; border-radius: 8px; cursor: pointer;}
+        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-confirm-del { flex: 1; background: #ef4444; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-cancel-del { flex: 1; background: #52525b; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-confirm-reset { flex: 1; background: #22c55e; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-ok { width: 100%; background: #22c55e; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px;}
+
+        #preview-container { display: none; background: #f4f4f5; color: black; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; overflow-y: auto; padding: 20px; }
+        .preview-controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; max-width: 600px; margin: 0 auto 25px auto; }
+        .big-btn { padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; color: white; text-align: center; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .btn-back { background: #52525b; }
+        .btn-select { background: #2563eb; } 
+        .btn-excel { background: var(--excel-btn); display: none; } 
+        .info-box { display: none; background-color: #ecfdf5; border: 1px solid #10b981; color: #047857; padding: 16px; border-radius: 8px; font-size: 16px; margin-bottom: 20px; text-align: center; font-weight: 500;}
+        .preview-table-wrapper { background: white; padding: 30px; max-width: 900px; margin: 0 auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border-radius: 8px; }
+        .preview-table { width: 100%; border-collapse: collapse; border: 2px solid #000; }
+        .preview-table th, .preview-table td { border: 1px solid #000; padding: 10px 12px; text-align: left; color: black !important; font-size: 14px; font-weight: bold; }
+        .preview-table th { background: #e4e4e7 !important; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div id="toast-warning">⛔ Sadece 'X' girebilirsiniz!</div>
+<input type="file" id="fileInput" accept=".xlsx, .xls" style="display:none" onchange="window.handleFileSelect(event)">
+
+<!-- MODALLER -->
+<div id="dup-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div style="color:#facc15; font-size:2rem; margin-bottom: 10px;">⚠️</div>
+        <h3 style="margin:0 0 10px 0;">Bu İsim Zaten Var!</h3>
+        <div id="dup-msg" style="color:#d4d4d8; font-size: 0.95rem; line-height: 1.5;"></div>
+        <button class="dup-btn" onclick="window.goToDuplicate()">Listede Göster</button>
+    </div>
+</div>
+<div id="del-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div style="color:#ef4444; font-size:2rem; margin-bottom: 10px;">🗑</div>
+        <h3 style="margin:0 0 10px 0;">Silmek İstiyor musunuz?</h3>
+        <div id="del-msg" style="color:#d4d4d8; font-size: 1rem; line-height: 1.5; margin-bottom: 15px;"></div>
+        <div class="modal-actions">
+            <button class="btn-cancel-del" onclick="window.closeDelModal()">Vazgeç</button>
+            <button class="btn-confirm-del" onclick="window.confirmDelete()">Evet, Sil</button>
+        </div>
+    </div>
+</div>
+<div id="reset-modal" class="modal-overlay transparent-modal">
+    <div class="modal-content">
+        <div style="font-size: 3rem; margin-bottom: 10px;">♻️</div>
+        <h3 style="margin:0 0 10px 0;">Listeyi Sıfırla?</h3>
+        <div class="modal-actions">
+            <button class="btn-cancel-del" onclick="window.closeResetModal()">Hayır</button>
+            <button class="btn-confirm-reset" onclick="window.confirmReset()">Evet, Sıfırla</button>
+        </div>
+    </div>
+</div>
+<div id="upload-confirm-modal" class="modal-overlay transparent-modal">
+    <div class="modal-content">
+        <div style="font-size: 3rem; margin-bottom: 10px;">📂</div>
+        <h3 style="margin:0 0 10px 0;">Excel Yüklensin mi?</h3>
+        <div class="modal-actions">
+            <button class="btn-cancel-del" onclick="window.closeUploadConfirmModal()">Vazgeç</button>
+            <button class="btn-confirm-reset" style="background:#7c3aed;" onclick="window.confirmUpload()">Evet, Yükle</button>
+        </div>
+    </div>
+</div>
+<div id="success-modal" class="modal-overlay transparent-modal">
+    <div class="modal-content">
+        <div style="font-size: 3rem; margin-bottom: 10px;">🎉</div>
+        <h3 style="margin:0 0 10px 0;">İşlem Başarılı!</h3>
+        <div id="success-msg" style="color:#ccc; font-size: 1rem; line-height: 1.5; margin-bottom: 20px;"></div>
+        <button class="btn-ok" onclick="window.closeSuccessModal()">TAMAM</button>
+    </div>
+</div>
+
+<!-- ANA HEADER -->
+<div class="top-container" id="mainHeader">
+    <div id="connectionStatus" class="status-dot status-offline" title="Bağlantı Durumu"></div>
+    
+    <div class="input-row">
+        <input type="text" id="i_naam" placeholder="İsim Soyisim..." autocomplete="off">
+        <div class="year-group">
+            <input type="text" id="i_26" class="year-inp" placeholder="2026">
+            <input type="text" id="i_27" class="year-inp" placeholder="2027">
+            <input type="text" id="i_28" class="year-inp" placeholder="2028">
+        </div>
+        <div class="action-group">
+            <button class="btn-new" onclick="window.resetForm()" title="Formu Temizle">İsim</button>
+            <button id="actionBtn" onclick="window.handleAction()">+</button>
+            <button class="btn-spacer" onclick="window.addEmptyRow()" title="Araya Boşluk Ekle">...</button>
+        </div>
+        <!-- MOBİLDE GİZLENEN BUTONLAR -->
+        <div class="top-right-buttons">
+            <button class="btn-pdf" onclick="window.openPreview()"><span>KAYDET</span></button>
+            <button class="btn-upload" onclick="document.getElementById('fileInput').click()"><span>YÜKLE</span></button>
+        </div>
+    </div>
+
+    <div class="control-row">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Listede ara..." onkeyup="window.filterList()">
+        </div>
+        <button class="btn-reset" onclick="window.openResetModal()" title="Listeyi Sıfırla">🗑</button>
+    </div>
+</div>
+
+<div class="list-area" id="mainList">
+    <table id="mainTable">
+        <colgroup>
+            <col style="width: 30px;">
+            <col class="col-naam" style="width: auto;">
+            <col style="width: 45px;">
+            <col style="width: 45px;">
+            <col style="width: 45px;">
+            <col style="width: 35px;">
+        </colgroup>
+        <thead>
+            <tr>
+                <th style="text-align:center" title="Sürükle & Bırak">#</th>
+                <th onclick="window.toggleSort()" style="cursor:pointer; user-select:none;">İSİM <span id="sortIcon" style="font-size:10px; color:#3b82f6;">AZ⬇</span></th>
+                <th style="text-align:center">26</th>
+                <th style="text-align:center">27</th>
+                <th style="text-align:center">28</th>
+                <th style="text-align:center"><span class="header-trash">🗑</span></th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+</div>
+
+<div id="preview-container">
+    <div class="preview-controls">
+        <button class="big-btn btn-back" onclick="window.closePreview()">🔙 DÜZENLEMEYE DÖN</button>
+        <button id="btnCopyMobile" class="big-btn btn-select" onclick="window.copyTable()">📋 TABLOYU KOPYALA</button>
+        <button id="btnExcelPC" class="big-btn btn-excel" onclick="window.downloadSpecialExcel()">📊 EXCEL OLARAK İNDİR</button>
+    </div>
+    <div id="msg-box" class="info-box">✅ <b>Kopyalandı!</b> Şimdi Excel veya Word'e yapıştırabilirsiniz.</div>
+    <div class="preview-table-wrapper">
+        <h2 style="text-align:center; margin-top:0;">Üye Listesi</h2>
+        <table class="preview-table" id="exportTable">
+            <thead>
+                <tr>
+                    <th style="width:40px;">#</th>
+                    <th>İSİM SOYİSİM</th>
+                    <th style="width:80px;">2026</th>
+                    <th style="width:80px;">2027</th>
+                    <th style="width:80px;">2028</th>
+                </tr>
+            </thead>
+            <tbody id="previewBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- FIREBASE VE UYGULAMA MANTIĞI -->
+<script type="module">
+    // Firebase Kütüphaneleri
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // KULLANICININ VERDİĞİ AYARLAR
+    const firebaseConfig = {
+      apiKey: "AIzaSyBPFz2pRxze-NoHdRz3FSp_-dSKycADbc4",
+      authDomain: "uye-listesi-cami.firebaseapp.com",
+      databaseURL: "https://uye-listesi-cami-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "uye-listesi-cami",
+      storageBucket: "uye-listesi-cami.firebasestorage.app",
+      messagingSenderId: "329178864037",
+      appId: "1:329178864037:web:5940f4f40f36837252f04c",
+      measurementId: "G-J3W70BCT0V"
+    };
+
+    // Firebase'i Başlat
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const dbRef = ref(db, 'leden_listesi'); // Veritabanındaki klasör adı
+
+    let leden = [];
+    let editIndex = -1;
+    let duplicateFoundIndex = -1;
+    let isSorted = true; 
+    let deleteTargetIndex = -1;
+    let dragStartIndex;
+    let tempUploadFile = null;
+
+    // --- VERİTABANI DİNLEME (REALTIME) ---
+    onValue(dbRef, (snapshot) => {
+        const data = snapshot.val();
+        const statusDot = document.getElementById("connectionStatus");
+        statusDot.className = "status-dot status-online"; // Veri gelirse Online yap
+
+        if (data) {
+            leden = data;
+        } else {
+            leden = [];
+        }
+        render();
+        updateSortIcon();
+    }, (error) => {
+        const statusDot = document.getElementById("connectionStatus");
+        statusDot.className = "status-dot status-offline";
+        console.error("Veri okunamadı:", error);
+    });
+
+    // Veriyi Buluta Kaydetme Fonksiyonu
+    function saveToCloud() {
+        set(dbRef, leden)
+        .then(() => {
+            // Kayıt başarılı
+        })
+        .catch((error) => {
+            alert("Hata: Kayıt yapılamadı! İnternetinizi kontrol edin.");
+        });
+    }
+
+    // --- GLOBAL FONKSİYONLAR ---
+
+    window.checkDevice = function() {
+        const isPC = window.innerWidth > 800;
+        document.getElementById("btnExcelPC").style.display = isPC ? "block" : "none";
+        document.getElementById("btnCopyMobile").style.display = isPC ? "none" : "block";
+    }
+
+    window.formatName = function(name) {
+        return name.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    }
+
+    window.normalizeName = function(name) {
+        if(!name) return "";
+        return name.toLowerCase().replace(/\s+/g, '').trim();
+    }
+
+    window.showWarning = function(msg) {
+        var x = document.getElementById("toast-warning");
+        x.className = "show";
+        x.innerText = msg;
+        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 2500);
+    }
+
+    // Modal İşlemleri
+    window.openResetModal = function() { if(leden.length === 0) return; document.getElementById("reset-modal").style.display = "flex"; }
+    window.closeResetModal = function() { document.getElementById("reset-modal").style.display = "none"; }
+    window.confirmReset = function() { 
+        leden = []; 
+        saveToCloud(); 
+        window.resetForm(); 
+        window.closeResetModal(); 
+    }
+
+    window.openDelModal = function(index) {
+        deleteTargetIndex = index;
+        let item = leden[index];
+        let name = item.Naam === "..." ? "Bu boş satır" : `<b>${item.Naam}</b>`;
+        document.getElementById("del-msg").innerHTML = `${name} silinecek.`;
+        document.getElementById("del-modal").style.display = "flex";
+    }
+    window.closeDelModal = function() { document.getElementById("del-modal").style.display = "none"; deleteTargetIndex = -1; }
+    window.confirmDelete = function() {
+        if (deleteTargetIndex !== -1) {
+            leden.splice(deleteTargetIndex, 1);
+            if(editIndex === deleteTargetIndex) window.resetForm();
+            else if(editIndex > deleteTargetIndex) editIndex--;
+            saveToCloud(); 
+        }
+        window.closeDelModal();
+    }
+
+    window.openUploadConfirmModal = function() { document.getElementById("upload-confirm-modal").style.display = "flex"; }
+    window.closeUploadConfirmModal = function() { document.getElementById("upload-confirm-modal").style.display = "none"; tempUploadFile = null; document.getElementById("fileInput").value = ""; }
+    window.confirmUpload = function() { if(tempUploadFile) { processExcelFile(tempUploadFile); } window.closeUploadConfirmModal(); }
+
+    window.openSuccessModal = function(count) { document.getElementById("success-msg").innerHTML = `<b>${count}</b> kişi başarıyla yüklendi.`; document.getElementById("success-modal").style.display = "flex"; }
+    window.closeSuccessModal = function() { document.getElementById("success-modal").style.display = "none"; }
+
+    window.addEmptyRow = function() {
+        let dots = "...";
+        let newItem = { Naam: dots, J26: "", J27: "", J28: "" };
+        if (editIndex !== -1) {
+            leden.splice(editIndex + 1, 0, newItem);
+            isSorted = false; updateSortIcon(); window.showWarning("Sıralama kapandı. Boşluk araya eklendi.");
+        } else {
+            leden.push(newItem);
+            if(isSorted) window.sortLeden(); 
+        }
+        saveToCloud(); window.resetForm();
+        if(editIndex === -1) { setTimeout(() => { let table = document.getElementById("mainList"); table.scrollTop = table.scrollHeight; }, 100); }
+    }
+
+    window.handleAction = function() {
+        let nameInp = document.getElementById("i_naam");
+        let rawName = nameInp.value.trim();
+        if(!rawName) { nameInp.focus(); return; }
+        let formattedName = window.formatName(rawName);
+        let y26 = document.getElementById("i_26").value.trim().toUpperCase();
+        let y27 = document.getElementById("i_27").value.trim().toUpperCase();
+        let y28 = document.getElementById("i_28").value.trim().toUpperCase();
+        let newItem = { Naam: formattedName, J26: y26, J27: y27, J28: y28 };
+
+        if (editIndex === -1 || (editIndex !== -1 && window.normalizeName(leden[editIndex].Naam) !== window.normalizeName(formattedName))) {
+            let existingIdx = leden.findIndex(x => window.normalizeName(x.Naam) === window.normalizeName(formattedName));
+            if (existingIdx !== -1) {
+                duplicateFoundIndex = existingIdx;
+                document.getElementById("dup-msg").innerHTML = `Listede var:<br><b style="color:white; font-size:1.1rem">${leden[existingIdx].Naam}</b>`;
+                document.getElementById("dup-modal").style.display = "flex";
+                return; 
+            }
+        }
+
+        if (editIndex === -1) { leden.push(newItem); } else { leden[editIndex] = newItem; }
+        if(isSorted) window.sortLeden();
+        saveToCloud(); window.resetForm(); document.getElementById("i_naam").focus();
+    }
+
+    window.goToDuplicate = function() {
+        document.getElementById("dup-modal").style.display = "none";
+        window.resetForm();
+        document.getElementById("searchInput").value = "";
+        render(); 
+        setTimeout(() => {
+            window.selecteerRij(duplicateFoundIndex);
+            let row = document.getElementById('row-' + duplicateFoundIndex);
+            if(row) { row.scrollIntoView({ behavior: "smooth", block: "center" }); row.classList.add("flash-highlight"); setTimeout(() => row.classList.remove("flash-highlight"), 1500); }
+        }, 100);
+    }
+
+    window.selecteerRij = function(realIndex) {
+        let item = leden[realIndex];
+        document.getElementById("i_naam").value = item.Naam === "..." ? "" : item.Naam;
+        document.getElementById("i_26").value = item.J26;
+        document.getElementById("i_27").value = item.J27;
+        document.getElementById("i_28").value = item.J28;
+        editIndex = realIndex;
+        let btn = document.getElementById("actionBtn");
+        btn.innerHTML = "&#10003;"; btn.className = "mode-edit"; 
+        render();
+    }
+
+    window.resetForm = function() {
+        document.getElementById("i_naam").value = "";
+        document.getElementById("i_26").value = "";
+        document.getElementById("i_27").value = "";
+        document.getElementById("i_28").value = "";
+        editIndex = -1;
+        let btn = document.getElementById("actionBtn");
+        btn.innerHTML = "+"; btn.className = "";
+        render(); document.getElementById("i_naam").focus();
+    }
+
+    window.toggleSort = function() {
+        isSorted = !isSorted;
+        updateSortIcon();
+        if(isSorted) window.sortLeden();
+        render();
+    }
+
+    function updateSortIcon() {
+        let icon = document.getElementById("sortIcon");
+        if(isSorted) { icon.innerHTML = "AZ⬇"; icon.style.color = "#3b82f6"; } 
+        else { icon.innerHTML = "MANUEL"; icon.style.color = "#888"; }
+    }
+
+    window.sortLeden = function() {
+        leden.sort((a,b) => {
+            let aDots = a.Naam === "...";
+            let bDots = b.Naam === "...";
+            if(aDots && !bDots) return 1; 
+            if(!aDots && bDots) return -1;
+            if(aDots && bDots) return 0; 
+            return a.Naam.localeCompare(b.Naam, 'tr');
+        });
+        saveToCloud(); 
+    }
+
+    window.filterList = function() { render(); }
+
+    // DRAG & DROP
+    window.handleDragStart = function(e) {
+        dragStartIndex = +e.target.closest('tr').getAttribute('data-index');
+        e.target.closest('tr').classList.add('dragging');
+    }
+
+    window.handleDragOver = function(e) {
+        e.preventDefault(); 
+        const row = e.target.closest('tr');
+        if(row) {
+            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+            row.classList.add('drag-over');
+        }
+    }
+
+    window.handleDrop = function(e) {
+        e.preventDefault();
+        const row = e.target.closest('tr');
+        if(!row) return;
+        const dragEndIndex = +row.getAttribute('data-index');
+        window.swapItems(dragStartIndex, dragEndIndex);
+        document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
+        document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    }
+
+    window.swapItems = function(fromIndex, toIndex) {
+        const item = leden[fromIndex];
+        leden.splice(fromIndex, 1);
+        leden.splice(toIndex, 0, item);
+        if(isSorted) { isSorted = false; updateSortIcon(); window.showWarning("Elle taşıdığınız için A-Z kapandı."); }
+        saveToCloud(); render();
+    }
+
+    // RENDER (TABLOYU ÇİZ)
+    function render() {
+        const tbody = document.getElementById("tableBody");
+        const searchText = document.getElementById("searchInput").value.toLowerCase();
+        tbody.innerHTML = "";
+        let displayCount = 0;
+
+        leden.forEach((item, index) => {
+            if (searchText && !item.Naam.toLowerCase().includes(searchText)) return;
+            displayCount++;
+
+            let tr = document.createElement("tr");
+            tr.id = "row-" + index;
+            tr.setAttribute('data-index', index);
+            tr.setAttribute('draggable', 'true');
+            tr.addEventListener('dragstart', window.handleDragStart);
+            tr.addEventListener('dragover', window.handleDragOver);
+            tr.addEventListener('drop', window.handleDrop);
+
+            if(index === editIndex) tr.className = "selected";
+            tr.onclick = function() { window.selecteerRij(index); };
+            tr.innerHTML = `
+                <td style="text-align:center; color:#666; font-size:0.8rem; cursor:move;">${displayCount}</td>
+                <td style="font-weight:500;">${item.Naam}</td>
+                <td class="fat-year">${item.J26}</td>
+                <td class="fat-year">${item.J27}</td>
+                <td class="fat-year">${item.J28}</td>
+                <td class="del-cell" onclick="event.stopPropagation(); window.openDelModal(${index})">
+                    <button class="del-icon-btn">🗑</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // EXCEL IMPORT
+    window.handleFileSelect = function(event) {
+        const file = event.target.files[0];
+        if(!file) return;
+        if(leden.length > 0) { tempUploadFile = file; window.openUploadConfirmModal(); } 
+        else { processExcelFile(file); }
+    }
+
+    function processExcelFile(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
+                
+                let yeniLeden = [];
+                for(let i = 0; i < jsonData.length; i++) {
+                    let row = jsonData[i];
+                    let rawName = row[2];
+                    if(!rawName && row[0]) rawName = row[0];
+                    if(!rawName) continue; 
+                    let strName = rawName.toString().trim();
+                    let lowerName = strName.toLowerCase();
+                    if(lowerName.includes("üye listesi") || lowerName.includes("uye listesi") || lowerName.includes("imam buhari")) continue;
+                    if(lowerName === "isim soyisim" || lowerName === "isim" || lowerName === "soyisim") continue;
+                    let checkYearCell = (row[4] || "").toString().trim();
+                    if(checkYearCell === "2026" || checkYearCell === "26") continue;
+                    if(!isNaN(strName) && strName.length < 5) continue; 
+                    if(strName.includes("....")) strName = "...";
+                    yeniLeden.push({ 
+                        Naam: strName === "..." ? "..." : window.formatName(strName), 
+                        J26: (row[4] || "").toString(), 
+                        J27: (row[6] || "").toString(), 
+                        J28: (row[8] || "").toString() 
+                    });
+                }
+                if(yeniLeden.length > 0) {
+                    leden = yeniLeden; isSorted = false; updateSortIcon(); 
+                    saveToCloud(); 
+                    window.openSuccessModal(yeniLeden.length);
+                } else { alert("⚠️ Dosya okunamadı."); }
+            } catch (err) { alert("Hata: " + err.message); }
+            document.getElementById("fileInput").value = ""; 
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    // PREVIEW VE EXPORT
+    window.openPreview = function() {
+        const pBody = document.getElementById("previewBody");
+        pBody.innerHTML = "";
+        let exportData = leden;
+        const searchText = document.getElementById("searchInput").value.toLowerCase();
+        if(searchText) exportData = leden.filter(item => item.Naam.toLowerCase().includes(searchText));
+        let displayCount = 0;
+        exportData.forEach((item, index) => {
+            displayCount++; 
+            let row = `<tr>
+                <td style="text-align:center">${displayCount}</td>
+                <td>${item.Naam}</td>
+                <td style="text-align:center">${item.J26}</td>
+                <td style="text-align:center">${item.J27}</td>
+                <td style="text-align:center">${item.J28}</td>
+            </tr>`;
+            pBody.innerHTML += row;
+        });
+        document.getElementById("preview-container").style.display = "block";
+        document.getElementById("mainHeader").style.display = "none";
+        document.getElementById("mainList").style.display = "none";
+        window.scrollTo(0,0);
+    }
+
+    window.closePreview = function() {
+        document.getElementById("preview-container").style.display = "none";
+        document.getElementById("mainHeader").style.display = "flex";
+        document.getElementById("mainList").style.display = "block";
+        document.getElementById("msg-box").style.display = "none";
+    }
+
+    window.copyTable = function() {
+        var range = document.createRange();
+        range.selectNode(document.getElementById("exportTable"));
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        try { document.execCommand('copy'); document.getElementById("msg-box").style.display = "block"; setTimeout(() => document.getElementById("msg-box").style.display = "none", 3000); } catch (err) {}
+        window.getSelection().removeAllRanges();
+    }
+
+    window.downloadSpecialExcel = function() {
+        let exportData = leden;
+        const searchText = document.getElementById("searchInput").value.toLowerCase();
+        if(searchText) exportData = leden.filter(item => item.Naam.toLowerCase().includes(searchText));
+        let data = [];
+        data.push(["Üye Listesi", "", "", "", "", "", "", "", ""]);
+        data.push(["#", "", "İSİM SOYİSİM", "", "2026", "", "2027", "", "2028"]);
+        let count = 0;
+        exportData.forEach((item, index) => {
+            count++;
+            // İSİM BAŞINA 2 BOŞLUK EKLENDİ
+            let nameWithSpace = "  " + item.Naam;
+            data.push([ count, "", nameWithSpace, "", item.J26, "", item.J27, "", item.J28 ]);
+        });
+        let ws = XLSX.utils.aoa_to_sheet(data);
+        if(!ws['!merges']) ws['!merges'] = [];
+        ws['!merges'].push({ s: {r:0, c:0}, e: {r:0, c:8} });
+        ws['!cols'] = [ { wch: 5 }, { wch: 1 }, { wch: 35 }, { wch: 1 }, { wch: 6 }, { wch: 1 }, { wch: 6 }, { wch: 1 }, { wch: 6 } ];
+        const range = XLSX.utils.decode_range(ws['!ref']);
+        const borderFull = { top: {style:'thin'}, bottom: {style:'thin'}, left: {style:'thin'}, right: {style:'thin'} };
+        const fillGrey = { fill: { fgColor: { rgb: "F3F3F3" } } };
+        const styleTitle = { font: { bold: true, sz: 16 }, alignment: { horizontal: "center" } };
+        const styleHeader = { font: { bold: true, sz: 11 }, alignment: { horizontal: "center" }, border: borderFull, ...fillGrey };
+        const styleRowIndex = { alignment: { horizontal: "center" }, border: borderFull };
+        
+        // 13 PUNTO VE KALIN AYARLARI
+        const styleRowData = { font: { bold: true, sz: 13 }, border: borderFull, alignment: { vertical: "center", horizontal: "left" } };
+        const styleRowYear = { font: { bold: true, sz: 13 }, border: borderFull, alignment: { horizontal: "center", vertical: "center" } };
+        const styleSpacer = { ...fillGrey };
+
+        for (let R = range.s.r; R <= range.e.r; ++R) {
+            for (let C = range.s.c; C <= range.e.c; ++C) {
+                let cell_address = XLSX.utils.encode_cell({ r: R, c: C });
+                if (!ws[cell_address]) ws[cell_address] = { v: "", t: "s" };
+                let cell = ws[cell_address];
+                if (R === 0) { cell.s = styleTitle; }
+                else if (R === 1) { if ([1,3,5,7].includes(C)) cell.s = styleSpacer; else cell.s = styleHeader; } 
+                else {
+                    if ([1,3,5,7].includes(C)) cell.s = styleSpacer;
+                    else if (C === 0) cell.s = styleRowIndex;
+                    else if (C === 2) cell.s = styleRowData;
+                    else cell.s = styleRowYear;
+                }
+            }
+        }
+        let wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Uye Listesi");
+        XLSX.writeFile(wb, "Uye_Listesi_2026-2028.xlsx");
+    }
+
+    // EVENT LISTENERS (INPUT)
+    const inputs = ['i_naam', 'i_26', 'i_27', 'i_28'];
+    inputs.forEach((id, index) => {
+        const el = document.getElementById(id);
+        if(id === 'i_naam') {
+            el.addEventListener('blur', function() { this.value = window.formatName(this.value); });
+        } else {
+            el.addEventListener('input', function() {
+                let val = this.value.toUpperCase();
+                if (val === "X") { this.value = "X"; } else if (val === "") { this.value = ""; } else { this.value = ""; window.showWarning("⛔ Sadece 'X' girebilirsiniz!"); }
+            });
+        }
+        el.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (index < inputs.length - 1) { document.getElementById(inputs[index + 1]).focus(); document.getElementById(inputs[index + 1]).select(); }
+                else { window.handleAction(); }
+            }
+        });
+    });
+
+    window.checkDevice();
+    window.onresize = window.checkDevice;
+</script>
+</body>
+</html>
