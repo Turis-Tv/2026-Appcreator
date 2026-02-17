@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Üye Listesi - Pro Sürüm (Firebase)</title>
+    <title>Üye Listesi - Pro Sürüm</title>
     
-    <!-- EXCEL KÜTÜPHANESİ -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     
     <style>
-        /* --- PROFESSIONELE LAYOUT --- */
         :root {
             --bg: #121212; --header: #1f1f1f; --border: #333; --text: #e5e5e5;
             --accent: #3b82f6; --edit-mode: #22c55e; --row-hover: #2a2a2a;
@@ -38,13 +36,14 @@
         }
         #toast-warning.show { visibility: visible; opacity: 1; bottom: 50px; }
 
+        /* --- HEADER & INPUTS --- */
         .top-container {
             background-color: var(--header); border-bottom: 1px solid var(--border);
-            padding: 12px; flex-shrink: 0; z-index: 100; display: flex; flex-direction: column; gap: 10px;
+            padding: 12px; flex-shrink: 0; z-index: 100; display: flex; flex-direction: column; gap: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.4); position: relative;
         }
 
-        .input-row { display: flex; align-items: center; gap: 8px; width: 100%; }
+        .input-row { display: flex; align-items: center; gap: 8px; width: 100%; flex-wrap: nowrap; }
         #i_naam { width: 300px; background: #2b2b2b; border: 1px solid #444; color: white; padding: 0 12px; height: 42px; border-radius: 8px; font-size: 0.95rem; outline: none; }
         .year-group { display: flex; gap: 5px; }
         .year-inp { width: 55px; text-align: center; font-weight: 700; color: #facc15; background: #2b2b2b; border: 1px solid #444; height: 42px; border-radius: 8px; font-size: 14px; outline: none; }
@@ -60,43 +59,53 @@
         .btn-pdf { background: #dc2626; padding: 0 15px; border:none; } 
         .btn-upload { background: var(--upload-btn); padding: 0 15px; border:none; }
 
-        .control-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; margin-top: 5px; }
-        .search-box { position: relative; width: 350px; }
+        .control-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; }
+        .search-box { position: relative; flex: 1; }
         .search-box input { width: 100%; background: #111; border: 1px solid #333; color: #aaa; padding: 0 10px 0 35px; height: 38px; border-radius: 19px; outline: none; }
         .btn-reset { background: transparent; color: var(--danger); border: 1px solid var(--danger); width: 40px; height: 38px; font-size: 1.2rem; border-radius: 8px; }
 
-        /* LIST AREA */
+        /* --- TABLE AREA --- */
         .list-area { flex: 1; overflow-y: auto; background: var(--bg); }
         table { width: auto; border-collapse: collapse; table-layout: fixed; }
         .list-area thead th { position: sticky; top: 0; z-index: 10; background: #1f1f1f; color: #9ca3af; text-align: left; padding: 12px 8px; font-size: 0.75rem; border-bottom: 1px solid var(--border); text-transform: uppercase; font-weight: 700; }
         .list-area tbody tr { height: 48px; border-bottom: 1px solid #222; cursor: pointer; }
-        .list-area tbody tr:hover { background-color: var(--row-hover); }
         .list-area tbody tr.selected { background-color: var(--row-selected) !important; border-left: 3px solid var(--accent); }
-        
-        .duplicate-flash { 
-            outline: 2px solid var(--danger) !important;
-            background-color: rgba(239, 68, 68, 0.15) !important; 
-            box-shadow: inset 0 0 15px rgba(239, 68, 68, 0.4);
-            animation: shake 0.5s ease-in-out;
+        .list-area tbody td { padding: 0 8px; font-size: 1.1rem; color: #d4d4d8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .fat-year { font-weight: 900; color: #facc15; text-align: center; }
+        .del-icon-btn { background: transparent; border: none; font-size: 1.3rem; color: #ef4444; cursor: pointer; width: 100%; opacity: 0.7; }
+
+        /* --- MOBIL AYARLARI (AFİŞ 2 GİBİ) --- */
+        @media screen and (max-width: 800px) {
+            .top-container { padding: 10px; gap: 8px; }
+            .input-row { flex-direction: column; align-items: stretch; }
+            #i_naam { width: 100%; }
+            .year-group { justify-content: space-between; }
+            .year-inp { width: 32%; }
+            .action-group { justify-content: flex-start; }
+            .top-right-buttons { display: none !important; }
+            
+            /* Vuilnisbak icoontjes verkleinen */
+            .btn-reset { width: 34px; height: 34px; font-size: 0.9rem; }
+            .del-icon-btn { font-size: 1rem; }
+            
+            /* Tabel headers op mobiel korter */
+            .list-area thead th:nth-child(3)::after { content: ""; } 
+            
+            .list-area tbody td { font-size: 1.15rem; white-space: normal; padding: 8px; }
+            table { width: 100%; }
         }
+
+        /* DUPLICATE HIGHLIGHT & MODALS */
+        .duplicate-flash { outline: 2px solid var(--danger) !important; background-color: rgba(239, 68, 68, 0.15) !important; animation: shake 0.5s ease-in-out; }
         @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
-
-        .list-area tbody td { padding: 0 8px; font-size: 1rem; color: #d4d4d8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .fat-year { font-weight: 900; color: #facc15; text-align: center; font-size: 1.15rem; }
-
-        /* PREVIEW CENTERED */
-        #preview-container { display: none; background: #f4f4f5; color: black; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; overflow-y: auto; padding: 20px; }
-        .preview-controls { display: flex; flex-direction: column; gap: 10px; max-width: 600px; margin: 0 auto 25px auto; }
-        .preview-table-wrapper { background: white; padding: 30px; max-width: 900px; margin: 0 auto; box-shadow: 0 20px 25px rgba(0,0,0,0.1); border-radius: 8px; }
-        .preview-table { width: 100%; border-collapse: collapse; border: 2px solid #000; }
-        .preview-table th, .preview-table td { border: 1px solid #000; padding: 10px; color: black !important; font-weight: bold; }
-
-        /* MODALS */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); z-index: 10000; justify-content: center; align-items: center; }
         .modal-content.red-model { background: rgba(30, 30, 30, 0.9); border: 2px solid var(--danger); padding: 30px; border-radius: 20px; text-align: center; width: 85%; max-width: 380px; color: white; }
         .modal-content { background: #27272a; padding: 25px; border-radius: 16px; text-align: center; width: 85%; max-width: 350px; color: white; }
         .modal-actions { display: flex; gap: 10px; margin-top: 25px; }
-
+        .preview-table-wrapper { background: white; padding: 30px; max-width: 900px; margin: 0 auto; box-shadow: 0 20px 25px rgba(0,0,0,0.1); border-radius: 8px; }
+        .preview-table { width: 100%; border-collapse: collapse; border: 2px solid #000; }
+        .preview-table th, .preview-table td { border: 1px solid #000; padding: 10px; color: black !important; font-weight: bold; }
+        #preview-container { display: none; background: #f4f4f5; color: black; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; overflow-y: auto; padding: 20px; }
         .dragging { opacity: 0.5; background: #333 !important; }
         .drag-over { border-top: 2px solid var(--accent) !important; }
     </style>
@@ -106,15 +115,14 @@
 <div id="toast-warning">⛔ Sadece 'X' girebilirsiniz!</div>
 <input type="file" id="fileInput" accept=".xlsx, .xls" style="display:none">
 
-<!-- DUPLICATE MODAL -->
 <div id="dup-modal" class="modal-overlay">
     <div class="modal-content red-model">
-        <div style="font-size: 3.5rem; color: var(--danger); margin-bottom: 15px;">⚠️</div>
-        <h2>DİKKAT: KAYITLI ÜYE</h2>
-        <p id="dup-msg" style="color: #eee; font-size: 1.1rem;"></p>
+        <div style="font-size: 3rem; color: var(--danger);">⚠️</div>
+        <h2>KAYITLI ÜYE</h2>
+        <p id="dup-msg"></p>
         <div class="modal-actions">
-            <button style="background:var(--danger); flex:1.5; padding:14px; border:none; color:white; border-radius:10px; font-weight:bold;" onclick="window.goToDuplicate()">LİSTEDE GÖSTER</button>
-            <button style="background:#52525b; flex:1; padding:14px; border:none; color:white; border-radius:10px; font-weight:bold;" onclick="window.closeDupModal()">KAPAT</button>
+            <button style="background:var(--danger); flex:1; padding:12px; border:none; color:white; border-radius:10px; font-weight:bold;" onclick="window.goToDuplicate()">LİSTEDE GÖSTER</button>
+            <button style="background:#52525b; padding:12px; border:none; color:white; border-radius:10px;" onclick="window.closeDupModal()">Kapat</button>
         </div>
     </div>
 </div>
@@ -138,7 +146,7 @@
         </div>
         <div class="top-right-buttons">
             <button class="btn-pdf" onclick="window.openPreview()">KAYDET</button>
-            <button class="btn-upload" onclick="document.getElementById('fileInput').click()">YÜKLE</button>
+            <button class="btn-upload" onclick="window.triggerUpload()">YÜKLE</button>
         </div>
     </div>
     <div class="control-row">
@@ -154,14 +162,7 @@
         <colgroup>
             <col style="width: 35px;"><col style="width: 350px;"><col style="width: 45px;"><col style="width: 45px;"><col style="width: 45px;"><col style="width: 35px;">
         </colgroup>
-        <thead>
-            <tr>
-                <th style="text-align:center">#</th>
-                <th onclick="window.toggleSort()" style="cursor:pointer; user-select:none;">İSİM <span id="sortIcon" style="font-size:10px; color:#3b82f6;">AZ⬇</span></th>
-                <th style="text-align:center">2026</th><th style="text-align:center">2027</th><th style="text-align:center">2028</th>
-                <th style="text-align:center">🗑</th>
-            </tr>
-        </thead>
+        <thead id="tableHead"></thead>
         <tbody id="tableBody"></tbody>
     </table>
 </div>
@@ -196,8 +197,7 @@
     const db = getDatabase(app);
     const dbRef = ref(db, 'leden_listesi');
 
-    let leden = [];
-    let editIndex = -1, deleteTargetIndex = -1, duplicateIdx = -1, isSorted = true, dragStartIndex;
+    let leden = [], editIndex = -1, deleteTargetIndex = -1, duplicateIdx = -1, isSorted = true, dragStartIndex;
 
     onValue(dbRef, (snapshot) => {
         leden = snapshot.val() || [];
@@ -206,8 +206,7 @@
         document.getElementById("connectionStatus").className = "status-dot status-online";
     });
 
-    function saveToCloud() { set(dbRef, leden); }
-
+    function save() { set(dbRef, leden); }
     window.formatName = (n) => n.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
     window.smartNormalize = (n) => n.toLowerCase().split(' ').sort().join('').trim();
 
@@ -223,27 +222,22 @@
 
         if (editIndex === -1) {
             let found = leden.findIndex(l => window.smartNormalize(l.Naam) === normNew);
-            if (found !== -1) {
-                duplicateIdx = found;
-                document.getElementById("dup-msg").innerHTML = `Zaten Kayıtlı:<br><b style="color:var(--danger); font-size:1.3rem;">${leden[found].Naam}</b>`;
-                document.getElementById("dup-modal").style.display = "flex"; return;
-            }
+            if (found !== -1) { duplicateIdx = found; document.getElementById("dup-msg").innerHTML = `Zaten Kayıtlı: <b>${leden[found].Naam}</b>`; document.getElementById("dup-modal").style.display = "flex"; return; }
             leden.push({ Naam: fName, J26: document.getElementById("i_26").value.toUpperCase(), J27: document.getElementById("i_27").value.toUpperCase(), J28: document.getElementById("i_28").value.toUpperCase() });
         } else {
             leden[editIndex] = { Naam: fName, J26: document.getElementById("i_26").value.toUpperCase(), J27: document.getElementById("i_27").value.toUpperCase(), J28: document.getElementById("i_28").value.toUpperCase() };
         }
-        if(isSorted) window.sortLeden();
-        saveToCloud(); window.resetForm();
+        if(isSorted) window.sortLeden(); save(); window.resetForm();
     }
 
     window.resetForm = () => {
         document.getElementById("i_naam").value=""; document.getElementById("i_26").value=""; document.getElementById("i_27").value=""; document.getElementById("i_28").value="";
-        editIndex=-1; document.getElementById("actionBtn").innerHTML="+"; document.getElementById("actionBtn").className=""; render();
-        document.getElementById("i_naam").focus();
+        editIndex=-1; document.getElementById("actionBtn").innerHTML="+"; document.getElementById("actionBtn").className=""; 
+        render(); document.getElementById("i_naam").focus();
     }
 
-    window.addEmptyRow = () => { leden.push({Naam:"...", J26:"", J27:"", J28:""}); isSorted = false; updateSortIcon(); saveToCloud(); }
-    window.toggleSort = () => { isSorted = !isSorted; updateSortIcon(); if(isSorted) window.sortLeden(); render(); saveToCloud(); }
+    window.addEmptyRow = () => { leden.push({Naam:"...", J26:"", J27:"", J28:""}); isSorted = false; updateSortIcon(); save(); }
+    window.toggleSort = () => { isSorted = !isSorted; updateSortIcon(); if(isSorted) window.sortLeden(); render(); }
     function updateSortIcon() { let icon = document.getElementById("sortIcon"); icon.innerHTML = isSorted ? "AZ⬇" : "MANUEL"; icon.style.color = isSorted ? "#3b82f6" : "#888"; }
 
     window.sortLeden = () => {
@@ -254,28 +248,34 @@
         leden = final;
     }
 
-    // --- DRAG & DROP ---
-    window.handleDragStart = (e) => { dragStartIndex = +e.target.closest('tr').getAttribute('data-index'); e.target.closest('tr').classList.add('dragging'); }
-    window.handleDragOver = (e) => { e.preventDefault(); let r = e.target.closest('tr'); if(r) r.classList.add('drag-over'); }
-    window.handleDrop = (e) => {
-        e.preventDefault(); let r = e.target.closest('tr'); if(!r) return;
-        let dragEndIndex = +r.getAttribute('data-index');
-        let item = leden[dragStartIndex];
-        leden.splice(dragStartIndex, 1);
-        leden.splice(dragEndIndex, 0, item);
-        isSorted = false; updateSortIcon(); saveToCloud(); render();
-    }
-
+    // --- RENDER (TABLE HEADERS ADJUSTED FOR MOBILE) ---
     function render() {
-        const tbody = document.getElementById("tableBody"); const s = document.getElementById("searchInput").value.toLowerCase();
+        const isPC = window.innerWidth > 800;
+        const head = document.getElementById("tableHead");
+        head.innerHTML = `<tr>
+            <th style="text-align:center">#</th>
+            <th onclick="window.toggleSort()" style="cursor:pointer; user-select:none;">İSİM <span id="sortIcon" style="font-size:10px; color:#3b82f6;">${isSorted?"AZ⬇":"MANUEL"}</span></th>
+            <th style="text-align:center">${isPC?"2026":"26"}</th><th style="text-align:center">${isPC?"2027":"27"}</th><th style="text-align:center">${isPC?"2028":"28"}</th>
+            <th style="text-align:center">🗑</th>
+        </tr>`;
+
+        const tbody = document.getElementById("tableBody");
+        const s = document.getElementById("searchInput").value.toLowerCase();
         tbody.innerHTML = "";
         leden.forEach((item, idx) => {
             if(s && !item.Naam.toLowerCase().includes(s)) return;
             let tr = document.createElement("tr");
             tr.id = "row-" + idx; tr.setAttribute('data-index', idx); tr.setAttribute('draggable', 'true');
-            tr.addEventListener('dragstart', window.handleDragStart); tr.addEventListener('dragover', window.handleDragOver);
-            tr.addEventListener('drop', window.handleDrop); tr.addEventListener('dragleave', (e) => { let r = e.target.closest('tr'); if(r) r.classList.remove('drag-over'); });
-            
+            tr.addEventListener('dragstart', (e) => { dragStartIndex = idx; e.target.classList.add('dragging'); });
+            tr.addEventListener('dragover', (e) => { e.preventDefault(); tr.classList.add('drag-over'); });
+            tr.addEventListener('dragleave', () => tr.classList.remove('drag-over'));
+            tr.addEventListener('drop', (e) => {
+                e.preventDefault(); tr.classList.remove('drag-over');
+                let targetIdx = idx; let temp = leden[dragStartIndex];
+                leden.splice(dragStartIndex, 1); leden.splice(targetIdx, 0, temp);
+                isSorted = false; updateSortIcon(); save(); render();
+            });
+
             if(idx === editIndex) tr.className = "selected";
             tr.onclick = () => {
                 editIndex = idx;
@@ -288,7 +288,7 @@
         });
     }
 
-    // --- UPLOAD FILTER ---
+    window.triggerUpload = () => { document.getElementById("fileInput").click(); }
     document.getElementById('fileInput').addEventListener('change', (e) => {
         const file = e.target.files[0]; if(!file) return;
         const reader = new FileReader();
@@ -302,13 +302,12 @@
                 if(!rawN || lowN.includes("isim") || lowN.includes("uye") || lowN.includes("üye") || rawN === "#" || !isNaN(rawN)) return;
                 nieuweLeden.push({ Naam: rawN === "..." ? "..." : window.formatName(rawN), J26: String(row[4]||"").toUpperCase(), J27: String(row[6]||"").toUpperCase(), J28: String(row[8]||"").toUpperCase() });
             });
-            if(nieuweLeden.length > 0) { leden = nieuweLeden; if(isSorted) window.sortLeden(); saveToCloud(); }
+            if(nieuweLeden.length > 0) { leden = nieuweLeden; if(isSorted) window.sortLeden(); save(); }
             document.getElementById("fileInput").value = "";
         };
         reader.readAsArrayBuffer(file);
     });
 
-    // --- NAVIGATION & VALIDATION ---
     const ids = ['i_naam', 'i_26', 'i_27', 'i_28'];
     ids.forEach((id, idx) => {
         document.getElementById(id).addEventListener('keydown', (e) => {
@@ -324,29 +323,23 @@
     window.goToDuplicate = () => {
         document.getElementById("dup-modal").style.display = "none";
         document.getElementById("searchInput").value = ""; render(); 
-        setTimeout(() => {
-            let row = document.getElementById("row-" + duplicateIdx);
-            if (row) { row.scrollIntoView({ behavior: "smooth", block: "center" }); row.classList.add("duplicate-flash"); setTimeout(() => row.classList.remove("duplicate-flash"), 4000); }
-        }, 150);
+        setTimeout(() => { let row = document.getElementById("row-" + duplicateIdx); if (row) { row.scrollIntoView({ behavior: "smooth", block: "center" }); row.classList.add("duplicate-flash"); setTimeout(() => row.classList.remove("duplicate-flash"), 4000); } }, 150);
     }
     window.closeDupModal = () => { document.getElementById("dup-modal").style.display = "none"; }
     window.openDelModal = (idx) => { deleteTargetIndex = idx; document.getElementById("del-modal").style.display="flex"; }
     window.closeDelModal = () => { document.getElementById("del-modal").style.display="none"; }
-    window.confirmDelete = () => { leden.splice(deleteTargetIndex,1); saveToCloud(); window.closeDelModal(); }
+    window.confirmDelete = () => { leden.splice(deleteTargetIndex,1); save(); window.closeDelModal(); }
     window.openResetModal = () => { document.getElementById("reset-modal").style.display="flex"; }
     window.closeResetModal = () => { document.getElementById("reset-modal").style.display="none"; }
-    window.confirmReset = () => { leden=[]; saveToCloud(); window.closeResetModal(); }
+    window.confirmReset = () => { leden=[]; save(); window.closeResetModal(); }
     window.openPreview = () => {
         const pBody = document.getElementById("previewBody"); pBody.innerHTML = "";
-        leden.filter(l => l.Naam !== "...").forEach((item, i) => {
-            pBody.innerHTML += `<tr><td>${i+1}</td><td>${item.Naam}</td><td style="text-align:center">${item.J26}</td><td style="text-align:center">${item.J27}</td><td style="text-align:center">${item.J28}</td></tr>`;
-        });
+        leden.filter(l => l.Naam !== "...").forEach((item, i) => { pBody.innerHTML += `<tr><td>${i+1}</td><td>${item.Naam}</td><td style="text-align:center">${item.J26}</td><td style="text-align:center">${item.J27}</td><td style="text-align:center">${item.J28}</td></tr>`; });
         document.getElementById("preview-container").style.display="block";
     }
     window.closePreview = () => { document.getElementById("preview-container").style.display="none"; }
     window.filterList = render;
 
-    // --- EXCEL DOWNLOAD ---
     window.downloadSpecialExcel = function() {
         let exportData = leden.filter(item => item.Naam !== "...");
         const ROWS_PER_PAGE = 41; let data = [], titleRows = [], headerRows = [], rowBreaks = [], merges = [];
@@ -364,10 +357,6 @@
         ws['!merges'] = merges; ws['!rowBreaks'] = rowBreaks; 
         ws['!cols'] = [{wch:5},{wch:1},{wch:42},{wch:0.6},{wch:7},{wch:0.6},{wch:7},{wch:0.6},{wch:7}];
         const border = { top:{style:'thin'}, bottom:{style:'thin'}, left:{style:'thin'}, right:{style:'thin'} };
-        const styleTitle = { font:{bold:true, sz:16}, alignment:{horizontal:"center"} };
-        const styleHeader = { font:{bold:true, sz:11}, border, fill:{fgColor:{rgb:"F3F3F3"}}, alignment:{horizontal:"center"} };
-        const styleRowData = { font:{bold:true, sz:13}, border, alignment:{vertical:"center"} };
-        const styleRowYear = { font:{bold:true, sz:13}, border, alignment:{horizontal:"center"} };
         const styleSpacerGrey = { fill:{fgColor:{rgb:"F3F3F3"}}, border: { top:{style:'thin'}, bottom:{style:'thin'} } };
         const range = XLSX.utils.decode_range(ws['!ref']);
         for (let R = range.s.r; R <= range.e.r; ++R) {
@@ -375,13 +364,15 @@
             let isD = rowL && !isNaN(parseInt(rowL.v)) && !titleRows.includes(R);
             for (let C = range.s.c; C <= range.e.c; ++C) {
                 let ad = XLSX.utils.encode_cell({r:R, c:C}); if(!ws[ad]) ws[ad] = {v:"", t: "s"};
-                if(titleRows.includes(R)) ws[ad].s = styleTitle;
-                else if(headerRows.includes(R)) { if([3,5,7].includes(C)) ws[ad].s = styleSpacerGrey; else ws[ad].s = styleHeader; }
-                else if(isD) { if([3,5,7].includes(C)) ws[ad].s = styleSpacerGrey; else if(C === 0) ws[ad].s = {border, alignment:{horizontal:"center"}}; else if(C === 2) ws[ad].s = styleRowData; else if(C >= 4) ws[ad].s = styleRowYear; }
+                if(titleRows.includes(R)) ws[ad].s = { font:{bold:true, sz:16}, alignment:{horizontal:"center"} };
+                else if(headerRows.includes(R)) { if([3,5,7].includes(C)) ws[ad].s = styleSpacerGrey; else ws[ad].s = { font:{bold:true, sz:11}, border, fill:{fgColor:{rgb:"F3F3F3"}}, alignment:{horizontal:"center"} }; }
+                else if(isD) { if([3,5,7].includes(C)) ws[ad].s = styleSpacerGrey; else if(C === 0) ws[ad].s = {border, alignment:{horizontal:"center"}}; else if(C === 2) ws[ad].s = { font:{bold:true, sz:13}, border, alignment:{vertical:"center"} }; else if(C >= 4) ws[ad].s = { font:{bold:true, sz:13}, border, alignment:{horizontal:"center"} }; }
             }
         }
         let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Liste"); XLSX.writeFile(wb, "Uye_Listesi_A4.xlsx");
     };
+
+    window.addEventListener('resize', render);
 </script>
 </body>
 </html>
