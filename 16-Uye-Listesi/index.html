@@ -12,7 +12,6 @@
             --bg: #121212; --header: #1f1f1f; --border: #333; --text: #e5e5e5;
             --accent: #3b82f6; --edit-mode: #22c55e; --row-hover: #2a2a2a;
             --row-selected: #172554; --danger: #ef4444; 
-            --excel-btn: #15803d; --upload-btn: #7c3aed;
         }
         * { box-sizing: border-box; }
         body {
@@ -21,92 +20,85 @@
             margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden;
         }
 
-        .status-dot {
-            width: 10px; height: 10px; background-color: #555; border-radius: 50%;
-            display: inline-block; position: absolute; top: 18px; right: 18px; z-index: 200;
-        }
+        .status-dot { width: 10px; height: 10px; background-color: #555; border-radius: 50%; display: inline-block; position: absolute; top: 15px; right: 15px; z-index: 200; }
         .status-online { background-color: #22c55e; box-shadow: 0 0 8px #22c55e; }
         .status-offline { background-color: #ef4444; }
 
         #toast-warning {
-            visibility: hidden; min-width: 260px; background-color: var(--danger); color: #fff; text-align: center;
-            border-radius: 8px; padding: 12px 20px; position: fixed; z-index: 10001;
-            left: 50%; bottom: 40px; transform: translateX(-50%); font-size: 15px; font-weight: 600;
-            opacity: 0; transition: opacity 0.3s;
+            visibility: hidden; min-width: 200px; background-color: var(--danger); color: #fff; text-align: center;
+            border-radius: 8px; padding: 10px; position: fixed; z-index: 10001;
+            left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; opacity: 0; transition: opacity 0.3s;
         }
-        #toast-warning.show { visibility: visible; opacity: 1; bottom: 50px; }
+        #toast-warning.show { visibility: visible; opacity: 1; }
 
-        /* --- HEADER & INPUTS --- */
-        .top-container {
-            background-color: var(--header); border-bottom: 1px solid var(--border);
-            padding: 12px; flex-shrink: 0; z-index: 100; display: flex; flex-direction: column; gap: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4); position: relative;
-        }
-
-        .input-row { display: flex; align-items: center; gap: 8px; width: 100%; flex-wrap: nowrap; }
-        #i_naam { width: 300px; background: #2b2b2b; border: 1px solid #444; color: white; padding: 0 12px; height: 42px; border-radius: 8px; font-size: 0.95rem; outline: none; }
+        /* --- HEADER --- */
+        .top-container { background-color: var(--header); border-bottom: 1px solid var(--border); padding: 12px; flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; }
+        .input-row { display: flex; align-items: center; gap: 8px; width: 100%; }
+        #i_naam { width: 300px; background: #2b2b2b; border: 1px solid #444; color: white; padding: 0 12px; height: 42px; border-radius: 8px; outline: none; }
         .year-group { display: flex; gap: 5px; }
-        .year-inp { width: 55px; text-align: center; font-weight: 700; color: #facc15; background: #2b2b2b; border: 1px solid #444; height: 42px; border-radius: 8px; font-size: 14px; outline: none; }
-        
+        .year-inp { width: 55px; text-align: center; font-weight: 700; color: #facc15; background: #2b2b2b; border: 1px solid #444; height: 42px; border-radius: 8px; outline: none; }
         .action-group { display: flex; gap: 6px; }
-        .top-right-buttons { display: flex; gap: 8px; margin-left: auto; align-items: center;}
-
-        button { height: 42px; cursor: pointer; border-radius: 8px; font-weight: 600; border: 1px solid #444; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; color: white; transition: all 0.2s; }
+        button { height: 42px; cursor: pointer; border-radius: 8px; font-weight: 600; border: 1px solid #444; display: flex; align-items: center; justify-content: center; color: white; }
+        
         #actionBtn { width: 45px; font-size: 1.4rem; background: var(--accent); border: none; }
         .mode-edit { background: var(--edit-mode) !important; border:none;}
-        .btn-new { background: #3f3f46; color: #e4e4e7; width: 50px; border:none; }
+        .btn-new { background: #3f3f46; color: #e4e4e7; width: 55px; border:none; }
         .btn-spacer { background: #52525b; width: 40px; font-size: 1.2rem; border:none; padding-bottom: 8px;}
+        .top-right-buttons { display: flex; gap: 8px; margin-left: auto; }
         .btn-pdf { background: #dc2626; padding: 0 15px; border:none; } 
-        .btn-upload { background: var(--upload-btn); padding: 0 15px; border:none; }
+        .btn-upload { background: #7c3aed; padding: 0 15px; border:none; }
 
-        .control-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; }
+        .control-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; }
         .search-box { position: relative; flex: 1; }
         .search-box input { width: 100%; background: #111; border: 1px solid #333; color: #aaa; padding: 0 10px 0 35px; height: 38px; border-radius: 19px; outline: none; }
-        .btn-reset { background: transparent; color: var(--danger); border: 1px solid var(--danger); width: 40px; height: 38px; font-size: 1.2rem; border-radius: 8px; }
+        .btn-reset { background: transparent; color: var(--danger); border: 1px solid var(--danger); width: 38px; height: 38px; font-size: 1.1rem; border-radius: 8px; }
 
-        /* --- TABLE AREA --- */
-        .list-area { flex: 1; overflow-y: auto; background: var(--bg); }
-        table { width: auto; border-collapse: collapse; table-layout: fixed; }
-        .list-area thead th { position: sticky; top: 0; z-index: 10; background: #1f1f1f; color: #9ca3af; text-align: left; padding: 12px 8px; font-size: 0.75rem; border-bottom: 1px solid var(--border); text-transform: uppercase; font-weight: 700; }
-        .list-area tbody tr { height: 48px; border-bottom: 1px solid #222; cursor: pointer; }
+        /* --- LIST AREA --- */
+        .list-area { flex: 1; overflow-y: auto; overflow-x: hidden; background: var(--bg); }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .list-area thead th { position: sticky; top: 0; z-index: 10; background: #1f1f1f; color: #9ca3af; text-align: left; padding: 10px 5px; font-size: 0.75rem; border-bottom: 1px solid var(--border); text-transform: uppercase; }
+        .list-area tbody tr { border-bottom: 1px solid #222; cursor: pointer; }
         .list-area tbody tr.selected { background-color: var(--row-selected) !important; border-left: 3px solid var(--accent); }
-        .list-area tbody td { padding: 0 8px; font-size: 1.1rem; color: #d4d4d8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .fat-year { font-weight: 900; color: #facc15; text-align: center; }
-        .del-icon-btn { background: transparent; border: none; font-size: 1.3rem; color: #ef4444; cursor: pointer; width: 100%; opacity: 0.7; }
+        .list-area tbody td { padding: 8px 5px; font-size: 1.1rem; color: #d4d4d8; line-height: 1.2; word-wrap: break-word; white-space: normal; }
+        .fat-year { font-weight: 900; color: #facc15; text-align: center; font-size: 1rem; }
+        .del-icon-btn { background: transparent; border: none; font-size: 1.1rem; color: #ef4444; cursor: pointer; opacity: 0.6; width: 100%; }
 
-        /* --- MOBIL AYARLARI (AFİŞ 2 GİBİ) --- */
+        /* --- MOBIL TASARIM AYARLARI (2.JPG GİBİ) --- */
         @media screen and (max-width: 800px) {
-            .top-container { padding: 10px; gap: 8px; }
-            .input-row { flex-direction: column; align-items: stretch; }
-            #i_naam { width: 100%; }
-            .year-group { justify-content: space-between; }
-            .year-inp { width: 32%; }
-            .action-group { justify-content: flex-start; }
+            .top-container { padding: 8px; gap: 6px; }
+            .input-row { flex-direction: column; align-items: stretch; gap: 6px; }
+            #i_naam { width: 100%; height: 40px; }
+            .year-group { width: 100%; justify-content: space-between; }
+            .year-inp { width: 32%; height: 38px; }
+            .action-group { width: 100%; justify-content: flex-start; gap: 8px; }
+            .action-group button { height: 36px; }
             .top-right-buttons { display: none !important; }
             
-            /* Vuilnisbak icoontjes verkleinen */
-            .btn-reset { width: 34px; height: 34px; font-size: 0.9rem; }
-            .del-icon-btn { font-size: 1rem; }
+            /* Prullenbakken Veel Kleiner */
+            .btn-reset { width: 32px; height: 32px; font-size: 0.85rem; }
+            .del-icon-btn { font-size: 0.85rem; }
             
-            /* Tabel headers op mobiel korter */
-            .list-area thead th:nth-child(3)::after { content: ""; } 
-            
-            .list-area tbody td { font-size: 1.15rem; white-space: normal; padding: 8px; }
-            table { width: 100%; }
+            /* Tabelkolommen strak afstellen voor mobiel */
+            table { table-layout: fixed; width: 100%; }
+            .col-num { width: 25px; }
+            .col-name { width: auto; }
+            .col-year { width: 32px; }
+            .col-del { width: 28px; }
+
+            .list-area thead th { font-size: 0.65rem; padding: 8px 2px; }
+            .list-area tbody td { font-size: 1rem; padding: 6px 2px; }
         }
 
-        /* DUPLICATE HIGHLIGHT & MODALS */
-        .duplicate-flash { outline: 2px solid var(--danger) !important; background-color: rgba(239, 68, 68, 0.15) !important; animation: shake 0.5s ease-in-out; }
-        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+        /* DUPLICATE CHECK & MODALS */
+        .duplicate-flash { outline: 2px solid var(--danger) !important; background-color: rgba(239, 68, 68, 0.15) !important; animation: shake 0.4s ease-in-out; }
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-4px);} 75% {transform: translateX(4px);} }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); z-index: 10000; justify-content: center; align-items: center; }
-        .modal-content.red-model { background: rgba(30, 30, 30, 0.9); border: 2px solid var(--danger); padding: 30px; border-radius: 20px; text-align: center; width: 85%; max-width: 380px; color: white; }
-        .modal-content { background: #27272a; padding: 25px; border-radius: 16px; text-align: center; width: 85%; max-width: 350px; color: white; }
-        .modal-actions { display: flex; gap: 10px; margin-top: 25px; }
-        .preview-table-wrapper { background: white; padding: 30px; max-width: 900px; margin: 0 auto; box-shadow: 0 20px 25px rgba(0,0,0,0.1); border-radius: 8px; }
-        .preview-table { width: 100%; border-collapse: collapse; border: 2px solid #000; }
-        .preview-table th, .preview-table td { border: 1px solid #000; padding: 10px; color: black !important; font-weight: bold; }
+        .modal-content.red-model { background: rgba(30, 30, 30, 0.9); border: 2px solid var(--danger); padding: 25px; border-radius: 15px; text-align: center; width: 85%; max-width: 350px; color: white; }
         #preview-container { display: none; background: #f4f4f5; color: black; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; overflow-y: auto; padding: 20px; }
-        .dragging { opacity: 0.5; background: #333 !important; }
+        .preview-table-wrapper { background: white; padding: 20px; max-width: 900px; margin: 0 auto; border-radius: 8px; }
+        .preview-table { width: 100%; border-collapse: collapse; border: 2px solid #000; }
+        .preview-table th, .preview-table td { border: 1px solid #000; padding: 8px; color: black !important; font-weight: bold; }
+        .dragging { opacity: 0.4; background: #333 !important; }
         .drag-over { border-top: 2px solid var(--accent) !important; }
     </style>
 </head>
@@ -117,18 +109,18 @@
 
 <div id="dup-modal" class="modal-overlay">
     <div class="modal-content red-model">
-        <div style="font-size: 3rem; color: var(--danger);">⚠️</div>
-        <h2>KAYITLI ÜYE</h2>
-        <p id="dup-msg"></p>
-        <div class="modal-actions">
-            <button style="background:var(--danger); flex:1; padding:12px; border:none; color:white; border-radius:10px; font-weight:bold;" onclick="window.goToDuplicate()">LİSTEDE GÖSTER</button>
-            <button style="background:#52525b; padding:12px; border:none; color:white; border-radius:10px;" onclick="window.closeDupModal()">Kapat</button>
+        <div style="font-size: 2.5rem; color: var(--danger);">⚠️</div>
+        <h3>KAYITLI ÜYE</h3>
+        <p id="dup-msg" style="margin: 10px 0; font-size: 1rem;"></p>
+        <div style="display:flex; gap:10px; margin-top:15px;">
+            <button style="background:var(--danger); flex:1.5; padding:10px; border:none; color:white; border-radius:8px; font-weight:bold;" onclick="window.goToDuplicate()">LİSTEDE GÖSTER</button>
+            <button style="background:#52525b; padding:10px; border:none; color:white; border-radius:8px;" onclick="window.closeDupModal()">Kapat</button>
         </div>
     </div>
 </div>
 
-<div id="del-modal" class="modal-overlay"><div class="modal-content"><h3>Silinsin mi?</h3><div class="modal-actions"><button style="background:#52525b; flex:1; padding:10px; border:none; color:white; border-radius:8px;" onclick="window.closeDelModal()">Hayır</button><button style="background:#ef4444; flex:1; padding:10px; border:none; color:white; border-radius:8px;" onclick="window.confirmDelete()">Evet, Sil</button></div></div></div>
-<div id="reset-modal" class="modal-overlay"><div class="modal-content"><h3>Sıfırlansın mı?</h3><div class="modal-actions"><button style="background:#52525b; flex:1; padding:10px; border:none; color:white; border-radius:8px;" onclick="window.closeResetModal()">Hayır</button><button style="background:#22c55e; flex:1; padding:10px; border:none; color:white; border-radius:8px;" onclick="window.confirmReset()">Evet</button></div></div></div>
+<div id="del-modal" class="modal-overlay"><div class="modal-content" style="background:#27272a; border-radius:12px; padding:20px; color:white;"><h3>Silinsin mi?</h3><div style="display:flex; gap:10px; margin-top:20px;"><button style="background:#52525b; flex:1; padding:10px; border:none; color:white; border-radius:8px;" onclick="window.closeDelModal()">Hayır</button><button style="background:#ef4444; flex:1; padding:10px; border:none; color:white; border-radius:8px;" onclick="window.confirmDelete()">Evet, Sil</button></div></div></div>
+<div id="reset-modal" class="modal-overlay"><div class="modal-content" style="background:#27272a; border-radius:12px; padding:20px; color:white;"><h3>Sıfırlansın mı?</h3><div style="display:flex; gap:10px; margin-top:20px;"><button style="background:#52525b; flex:1; padding:10px; border:none; color:white; border-radius:8px;" onclick="window.closeResetModal()">Hayır</button><button style="background:#22c55e; flex:1; padding:10px; border:none; color:white; border-radius:8px;" onclick="window.confirmReset()">Evet</button></div></div></div>
 
 <div class="top-container" id="mainHeader">
     <div id="connectionStatus" class="status-dot status-offline"></div>
@@ -140,7 +132,7 @@
             <input type="text" id="i_28" class="year-inp" placeholder="2028">
         </div>
         <div class="action-group">
-            <button class="btn-new" onclick="window.resetForm()">İsim</button>
+            <button class="btn-new" onclick="window.resetForm()">Yeni</button>
             <button id="actionBtn" onclick="window.handleAction()">+</button>
             <button class="btn-spacer" onclick="window.addEmptyRow()">...</button>
         </div>
@@ -150,9 +142,7 @@
         </div>
     </div>
     <div class="control-row">
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Listede ara..." onkeyup="window.filterList()">
-        </div>
+        <div class="search-box"><input type="text" id="searchInput" placeholder="Listede ara..." onkeyup="window.filterList()"></div>
         <button class="btn-reset" onclick="window.openResetModal()">🗑</button>
     </div>
 </div>
@@ -160,7 +150,7 @@
 <div class="list-area" id="mainList">
     <table id="mainTable">
         <colgroup>
-            <col style="width: 35px;"><col style="width: 350px;"><col style="width: 45px;"><col style="width: 45px;"><col style="width: 45px;"><col style="width: 35px;">
+            <col class="col-num" style="width: 30px;"><col class="col-name"><col class="col-year" style="width: 40px;"><col class="col-year" style="width: 40px;"><col class="col-year" style="width: 40px;"><col class="col-del" style="width: 30px;">
         </colgroup>
         <thead id="tableHead"></thead>
         <tbody id="tableBody"></tbody>
@@ -168,9 +158,9 @@
 </div>
 
 <div id="preview-container">
-    <div class="preview-controls">
-        <button style="height:45px; background:#52525b; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="window.closePreview()">🔙 DÜZENLEMEYE DÖN</button>
-        <button style="height:45px; background:#15803d; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="window.downloadSpecialExcel()">📊 EXCEL OLARAK İNDİR (A4 PRINT HAZIR)</button>
+    <div class="preview-controls" style="display:flex; flex-direction:column; gap:10px; max-width:600px; margin: 0 auto 20px auto;">
+        <button style="height:45px; background:#52525b; color:white; border:none; border-radius:8px; font-weight:bold;" onclick="window.closePreview()">🔙 DÜZENLEMEYE DÖN</button>
+        <button style="height:45px; background:#15803d; color:white; border:none; border-radius:8px; font-weight:bold;" onclick="window.downloadSpecialExcel()">📊 EXCEL İNDİR (A4 PRINT HAZIR)</button>
     </div>
     <div class="preview-table-wrapper">
         <h2 style="text-align:center; color:black;">Üye Listesi</h2>
@@ -188,9 +178,7 @@
       databaseURL: "https://uye-listesi-cami-default-rtdb.europe-west1.firebasedatabase.app",
       projectId: "uye-listesi-cami",
       storageBucket: "uye-listesi-cami.firebasestorage.app",
-      messagingSenderId: "329178864037",
       appId: "1:329178864037:web:5940f4f40f36837252f04c",
-      measurementId: "G-J3W70BCT0V"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -209,7 +197,6 @@
     function save() { set(dbRef, leden); }
     window.formatName = (n) => n.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
     window.smartNormalize = (n) => n.toLowerCase().split(' ').sort().join('').trim();
-
     window.showWarning = (msg) => {
         let x = document.getElementById("toast-warning"); x.className = "show"; x.innerText = msg;
         setTimeout(() => { x.className = x.className.replace("show", ""); }, 2500);
@@ -217,9 +204,7 @@
 
     window.handleAction = () => {
         let n = document.getElementById("i_naam").value.trim(); if(!n) return;
-        let fName = window.formatName(n);
-        let normNew = window.smartNormalize(fName);
-
+        let fName = window.formatName(n); let normNew = window.smartNormalize(fName);
         if (editIndex === -1) {
             let found = leden.findIndex(l => window.smartNormalize(l.Naam) === normNew);
             if (found !== -1) { duplicateIdx = found; document.getElementById("dup-msg").innerHTML = `Zaten Kayıtlı: <b>${leden[found].Naam}</b>`; document.getElementById("dup-modal").style.display = "flex"; return; }
@@ -236,10 +221,9 @@
         render(); document.getElementById("i_naam").focus();
     }
 
-    window.addEmptyRow = () => { leden.push({Naam:"...", J26:"", J27:"", J28:""}); isSorted = false; updateSortIcon(); save(); }
-    window.toggleSort = () => { isSorted = !isSorted; updateSortIcon(); if(isSorted) window.sortLeden(); render(); }
-    function updateSortIcon() { let icon = document.getElementById("sortIcon"); icon.innerHTML = isSorted ? "AZ⬇" : "MANUEL"; icon.style.color = isSorted ? "#3b82f6" : "#888"; }
-
+    window.addEmptyRow = () => { leden.push({Naam:"...", J26:"", J27:"", J28:""}); isSorted = false; save(); }
+    window.toggleSort = () => { isSorted = !isSorted; if(isSorted) window.sortLeden(); render(); }
+    
     window.sortLeden = () => {
         let realLeden = leden.filter(l => l.Naam !== "...");
         realLeden.sort((a,b) => a.Naam.localeCompare(b.Naam, 'tr'));
@@ -248,11 +232,9 @@
         leden = final;
     }
 
-    // --- RENDER (TABLE HEADERS ADJUSTED FOR MOBILE) ---
     function render() {
         const isPC = window.innerWidth > 800;
-        const head = document.getElementById("tableHead");
-        head.innerHTML = `<tr>
+        document.getElementById("tableHead").innerHTML = `<tr>
             <th style="text-align:center">#</th>
             <th onclick="window.toggleSort()" style="cursor:pointer; user-select:none;">İSİM <span id="sortIcon" style="font-size:10px; color:#3b82f6;">${isSorted?"AZ⬇":"MANUEL"}</span></th>
             <th style="text-align:center">${isPC?"2026":"26"}</th><th style="text-align:center">${isPC?"2027":"27"}</th><th style="text-align:center">${isPC?"2028":"28"}</th>
@@ -273,17 +255,20 @@
                 e.preventDefault(); tr.classList.remove('drag-over');
                 let targetIdx = idx; let temp = leden[dragStartIndex];
                 leden.splice(dragStartIndex, 1); leden.splice(targetIdx, 0, temp);
-                isSorted = false; updateSortIcon(); save(); render();
+                isSorted = false; save(); render();
             });
 
             if(idx === editIndex) tr.className = "selected";
             tr.onclick = () => {
                 editIndex = idx;
-                document.getElementById("i_naam").value = item.Naam === "..." ? "" : item.Naam;
+                document.getElementById("i_naam").value = (item.Naam === "...") ? "" : item.Naam;
                 document.getElementById("i_26").value = item.J26; document.getElementById("i_27").value = item.J27; document.getElementById("i_28").value = item.J28;
                 document.getElementById("actionBtn").innerHTML="✓"; document.getElementById("actionBtn").className="mode-edit"; render();
             };
-            tr.innerHTML = `<td style="text-align:center; color:#666; font-size:0.8rem;">${idx+1}</td><td>${item.Naam}</td><td class="fat-year">${item.J26}</td><td class="fat-year">${item.J27}</td><td class="fat-year">${item.J28}</td><td style="text-align:center" onclick="event.stopPropagation(); window.openDelModal(${idx})">🗑</td>`;
+            tr.innerHTML = `<td style="text-align:center; color:#666; font-size:0.8rem;">${idx+1}</td>
+                <td>${item.Naam}</td>
+                <td class="fat-year">${item.J26}</td><td class="fat-year">${item.J27}</td><td class="fat-year">${item.J28}</td>
+                <td style="text-align:center" onclick="event.stopPropagation(); window.openDelModal(${idx})"><button class="del-icon-btn">🗑</button></td>`;
             tbody.appendChild(tr);
         });
     }
@@ -293,8 +278,7 @@
         const file = e.target.files[0]; if(!file) return;
         const reader = new FileReader();
         reader.onload = (evt) => {
-            const data = new Uint8Array(evt.target.result);
-            const workbook = XLSX.read(data, {type: 'array'});
+            const workbook = XLSX.read(new Uint8Array(evt.target.result), {type: 'array'});
             const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1});
             let nieuweLeden = [];
             json.forEach(row => {
@@ -302,7 +286,7 @@
                 if(!rawN || lowN.includes("isim") || lowN.includes("uye") || lowN.includes("üye") || rawN === "#" || !isNaN(rawN)) return;
                 nieuweLeden.push({ Naam: rawN === "..." ? "..." : window.formatName(rawN), J26: String(row[4]||"").toUpperCase(), J27: String(row[6]||"").toUpperCase(), J28: String(row[8]||"").toUpperCase() });
             });
-            if(nieuweLeden.length > 0) { leden = nieuweLeden; if(isSorted) window.sortLeden(); save(); }
+            if(nieuweLeden.length > 0) { leden = nieuweLeden; save(); }
             document.getElementById("fileInput").value = "";
         };
         reader.readAsArrayBuffer(file);
